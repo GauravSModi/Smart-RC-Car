@@ -1,6 +1,4 @@
-
-# ignored developing Dir
-GitIgnoredFolder/
+.*
 
 # Prerequisites
 *.d

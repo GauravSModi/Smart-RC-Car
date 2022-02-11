@@ -6,8 +6,6 @@
 
 int main(){
 
-  // take inputs?
-
   // intialize modules
 
   // wait on condition var
