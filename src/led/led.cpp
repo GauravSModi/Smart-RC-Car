@@ -1,4 +1,12 @@
+<<<<<<< HEAD:src/led/led.cpp
 #include <led.h>
+=======
+#include <Led/Led.h>
+#include <string>
+#include <cstring>
+
+// TODO: replace methods with c plus plus strings
+>>>>>>> 66102689803837e4cdaba5798550471a1daae0ef:src/Led/Led.cpp
 
 void turnOnLED(char* lEDPath){
     char valuePath[MAX_PATH_LENGTH];
