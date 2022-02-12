@@ -1,3 +1,6 @@
+#ifndef _ROVER_H_
+#define _ROVER_H_
+
 class rover{
 
 private:
@@ -11,3 +14,5 @@ public:
 	//void intialization(); //pthread create
 
 };
+
+#endif

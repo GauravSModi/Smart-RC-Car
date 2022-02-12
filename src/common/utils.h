@@ -1,3 +1,6 @@
+#ifndef _UTILS_H_
+#define _UTILS_H_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -9,3 +12,4 @@ bool truncateToFile(char* filePath, char* charsToWrite);
 char readGPIOValue(char* filePath);
 void enableJoyStickEdgeOnRising(char* joyStickPath);
 
+#endif

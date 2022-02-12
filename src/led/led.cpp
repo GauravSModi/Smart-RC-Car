@@ -1,4 +1,4 @@
-#include <led/led.h>
+#include <led.h>
 
 void turnOnLED(char* lEDPath){
     char valuePath[MAX_PATH_LENGTH];

@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
-project(SMART-RC-CAR)
+
+# toolchain to specify compiler
+set(CMAKE_TOOLCHAIN_FILE ~/cmpt433/work/Smart-RC-Car/toolchain/toolchain-arm-linux-gnueabihf.cmake)
+
+project(SMART-RC-CAR
+        LANGUAGES CXX)
 
 # No in-source build
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
@@ -14,7 +19,9 @@ endif(NOT CMAKE_BUILD_TYPE)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pthread")
 
-include_directories(${CMAKE_SOURCE_DIR})
+add_executable(main src/main.cpp)
+
+#include_directories(${CMAKE_SOURCE_DIR})
 
 #Directories
 add_subdirectory(src)
