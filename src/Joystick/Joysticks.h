@@ -14,22 +14,11 @@ class Joystick {
     // instantiate self and start "run/loop" in another thread
     static void initialize(); /*TODO: arguments?*/
     // clean up modules for graceful shutdown
-    static void shutdown(){
-      //TODO: other cleanup?
-      delete Joystick::instance;
-      Joystick::instance = nullptr;
-    }
+    static void shutdown();
     // delete copy constructor
     Joystick(Joystick const &) = delete;
     ~Joystick();
 
   private:
-    void run(){
-      // event loop:
-
-      // wait for input 
-      // -> process input
-      // pass to input.c
-
-    }
+    void run();
 };
