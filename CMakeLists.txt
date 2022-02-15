@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # toolchain to specify compiler
-set(CMAKE_TOOLCHAIN_FILE ~/cmpt433/work/Smart-RC-Car/toolchain/toolchain-arm-linux-gnueabihf.cmake)
+set(CMAKE_TOOLCHAIN_FILE toolchain/toolchain-arm-linux-gnueabihf.cmake)
 
 project(SMART-RC-CAR
         LANGUAGES CXX)
