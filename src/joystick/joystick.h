@@ -5,7 +5,7 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 #include <mutex>
-#include "utils.h"
+#include "../common/utils.h"
 #include <atomic>
 
 #define JOYSTICK_UP_PATH "/sys/class/gpio/gpio26/"
@@ -70,7 +70,7 @@ class Joystick {
     Vec2 getStrength(){return this->strengthVector;}
     double getStrengthX(){return this->strengthVector.x;}
     double getStrengthZ(){return this->strengthVector.z;}
-    Vec2 setStrength(double _x, double _z){this->strengthVector.x = _x, this->strengthVector.z = _z;};
+    void setStrength(double _x, double _z){this->strengthVector.x = _x, this->strengthVector.z = _z;};
 
   private:
     // thread function for event loop in main module thread
