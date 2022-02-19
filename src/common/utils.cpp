@@ -1,4 +1,6 @@
 #include <utils.h>
+#include <cstring>
+
 // fileIO
 bool truncateToFile(char* filePath, char* charsToWrite){
   FILE *file = fopen(filePath,"w");
@@ -41,4 +43,15 @@ void enableJoyStickEdgeOnRising(char* joyStickPath){
   if(!truncateToFile(edgePath,"falling")){
       exit(1);
   }
+}
+
+double max(double left, double right){
+  return left > right ? left : right;
+}
+double min(double left, double right){
+  return left < right ? left : right;
+}
+
+double clamp(double value, double upper, double lower){
+  return max( min(value,upper), lower);
 }
