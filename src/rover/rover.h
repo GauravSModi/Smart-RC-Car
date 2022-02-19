@@ -17,7 +17,12 @@ public:
 	void start_rover(); //pthread create
 	void stop_rover();
 	
-	void takingInput();
+	void takingInput(); //main routine for the rover.
+	
+	void init_gpio_pins();
+	
+	void move();
+	void turn();
 };
 
 #endif

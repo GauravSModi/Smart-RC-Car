@@ -27,7 +27,7 @@ int rover:: getWebInput(){
 
 void rover::start_rover(){
 	pthread_create(&start, NULL, (void*)&takingInput, NULL);
-	//intialise other modules
+	//intialise other dependent modules
 }	
 	
 void rover::stop_rover(){
@@ -39,6 +39,20 @@ void rover::stop_rover(){
 void rover::takingInput(){
  //while(1) -> start reading input
 }	
+
+void init_gpio_pins(){
+ //init all the involved gpio pins.
+ }
+	
+void move(){
+ //possible directions: 
+ // forward, backward, right, left
+ //forward_right, forward_left, backward_right, backward_left
+ }
+
+void turn(){
+ //use angles to determine the turn
+}
 	
 	
 	
