@@ -200,6 +200,7 @@ void Joystick::strengthDecayer(){
     threadDecaying++;
     latestDecayThread = new std::thread(decay);
   }
+  latestDecayThread->join();
 
   while(threadDecaying != 0){
     // wait until all decay thread finish before returning
