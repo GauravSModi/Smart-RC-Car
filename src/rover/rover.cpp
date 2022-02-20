@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <string.h>			
 #include <unistd.h>			
-#include <pthread.h>
+//#include <pthread.h> // FIXME:
+#include <thread>
 #include "rover.h"
 #include "joystick/joystick.h"
 
@@ -25,15 +26,31 @@ int rover:: getWebInput(){
 	return joy_input;
 }
 
+	
+//typedef void* (*THREADFUNCPTR)(void *); // FIXME:
+std::thread* tempThread; // FIXME:
 void rover::start_rover(){
-	pthread_create(&start, NULL, (void*)&takingInput, NULL);
+	// FIXME:
+	// temp fix for pthread_create with non-static class methods
+	// referenced https://thispointer.com/c-how-to-pass-class-member-function-to-pthread_create/
+	//
+	// pthread_create(&start, NULL, (THREADFUNCPTR) &takingInput, NULL);
+	// , this However still gives a warning:
+	//       ISO C++ forbids taking the address of an unqualified or parenthesized
+	//       non-static member function to form a pointer to member function.  
+	//       Say ‘&rover::takingInput’
+	// Temporarily placing alternative using std::thread
+	tempThread = new std::thread(&rover::takingInput, this);
+
 	//intialise other dependent modules
 }	
 	
 void rover::stop_rover(){
 	
 	//join other modules
-	pthread_join(&start, NULL);
+	//pthread_join(start, NULL); //FIXME:
+	if(start){} // suppress unused variable warning
+	tempThread->join();
 }	
 	
 void rover::takingInput(){
