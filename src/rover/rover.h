@@ -1,5 +1,8 @@
-#ifndef _ROVER_H_
-#define _ROVER_H_
+#pragma once 
+
+void roverDummy(){
+  printf("rover module Include success\n");
+}
 
 class rover{
 
@@ -25,4 +28,3 @@ public:
 	void turn();
 };
 
-#endif

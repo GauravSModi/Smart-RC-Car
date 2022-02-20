@@ -5,13 +5,18 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 #include <mutex>
-#include "../common/utils.h"
 #include <atomic>
+
+#include <common/utils.h>
 
 #define JOYSTICK_UP_PATH "/sys/class/gpio/gpio26/"
 #define JOYSTICK_DOWN_PATH "/sys/class/gpio/gpio46/"
 #define JOYSTICK_LEFT_PATH "/sys/class/gpio/gpio65/"
 #define JOYSTICK_RIGHT_PATH "/sys/class/gpio/gpio47/"
+
+void joystickDummy(){
+  printf("joystick module Include success\n");
+}
 
 struct Vec2 {
   //        FRONT

@@ -4,11 +4,19 @@
 #include <thread>
 #include <iostream>
 
-#include "rover/rover.h"
-#include "led/led.h"
-#include "joystick/joystick.h"
+#include <common/utils.h>
+#include <joystick/joystick.h>
+#include <led/led.h>
+#include <network/network.h>
+#include <rover/rover.h>
 
 int main(){
+  // dummy functions to test project build status
+  utilsDummy();
+  joystickDummy();
+  ledDummy();
+  networkDummy();
+  roverDummy();
 
   // intialize modules
 

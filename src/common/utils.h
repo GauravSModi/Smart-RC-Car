@@ -6,6 +6,10 @@
 
 #define MAX_PATH_LENGTH 4096 // set to maxium linux file path length
 
+void utilsDummy(){
+  printf("utils Include success\n");
+}
+
 // fileIO utilities
 bool truncateToFile(const char* filePath, const char* charsToWrite);
 

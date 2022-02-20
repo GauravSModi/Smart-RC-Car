@@ -1,12 +1,14 @@
-#ifndef _LED_H_
-#define _LED_H_
+#pragma once
 
-#include "../common/utils.h"
 #include <stdlib.h>
 #include <unistd.h>
+
+#include <common/utils.h>
+
+void ledDummy(){
+  printf("leds module Include success\n");
+}
 
 void turnOnLED(char* lEDPath);
 void turnOffLED(char* lEDPath);
 bool flashLED(char* lEDPath, int forMiliseconds);
-
-#endif
