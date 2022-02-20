@@ -1,8 +1,8 @@
-#include <utils.h>
+#include "utils.h"
 #include <cstring>
 
 // fileIO
-bool truncateToFile(char* filePath, char* charsToWrite){
+bool truncateToFile(char* filePath, const char* charsToWrite){
   FILE *file = fopen(filePath,"w");
   if (file == NULL) {
       printf("ERROR OPENING %s.\n", filePath);
@@ -17,7 +17,7 @@ bool truncateToFile(char* filePath, char* charsToWrite){
   return true;
 }
 
-char readGPIOValue(char* filePath){
+char readGPIOValue(const char* filePath){
   FILE *file = fopen(filePath,"r");
   if (file == NULL) {
       printf("ERROR OPENING %s.\n", filePath);
@@ -34,11 +34,13 @@ char readGPIOValue(char* filePath){
   return buff[0];
 }
 
-void enableJoyStickEdgeOnRising(char* joyStickPath){
+void enableJoyStickEdgeOnRising(const char* joyStickPath){
   // mostly referenced Example in LED Guide provide by Brian Fraser
   char edgePath[MAX_PATH_LENGTH];
   strcpy(edgePath,joyStickPath);
   strcat(edgePath,"edge");
+
+  
 
   if(!truncateToFile(edgePath,"falling")){
       exit(1);
