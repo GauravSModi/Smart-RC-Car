@@ -1,3 +1,4 @@
-# add_library(led led.cpp)
-# target_link_libraries(led utils)
+add_library(rover rover.cpp)
+# rover uses modules joystick,network,led
+target_link_libraries(rover common joystick led network)
 
