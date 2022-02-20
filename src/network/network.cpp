@@ -27,7 +27,7 @@
 #include <string.h>			// for strncmp()
 #include <unistd.h>			// for close()
 #include <pthread.h>
-#include "udpListen.h"
+#include "network.h"
 
 
 #define MSG_MAX_LEN 1500
@@ -38,7 +38,7 @@ static bool stop_barrier=false;
 static void* run(void*);
 
 //udp inner operation
-static void udp_stop(struct sockaddr_in sinRemote,int socketDescriptor);
+void udp_stop(struct sockaddr_in sinRemote,int socketDescriptor);
 
 
 void init_udp(void){
@@ -49,7 +49,7 @@ void clean_udp(void){
 	pthread_join(id,NULL);
 }
 
-static void udp_stop(struct sockaddr_in sinRemote,int socketDescriptor){
+void udp_stop(struct sockaddr_in sinRemote,int socketDescriptor){
 	char messageTx[MSG_MAX_LEN];
 	sprintf(messageTx,"Program terminating.\n");
 	// Transmit a reply:
@@ -106,4 +106,5 @@ static void* run(void* args)
 
 	// Close
 	close(socketDescriptor);
+	return NULL;
 }
