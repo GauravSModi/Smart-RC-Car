@@ -4,7 +4,7 @@ A website for user interaction with rc.
 
 # Building/Running
 
-### Requirements:
+### **Requirements:**
 `yarn` (package manager):  
 For unix. Similar function as "apt-get" in terms of linux, but for node modules
 ```
@@ -23,7 +23,7 @@ Used for compiling typescript files into javascript to be ran by node.js, and to
 sudo apt install node-typescript
 ```
 
-## Running:
+## **Pre-Running:**
 
 ___Only need to be done for the first time:___ 
 
@@ -33,8 +33,8 @@ cd ./website
 yarn # this command download required packages for the first time
 ```
 
----
-___Normal opeartions___  
+## **Running**
+### **Format:**
 Custom yarn commands are already configured in `package.json`
 
 ```
@@ -45,12 +45,31 @@ yarn <command name>
 yarn dev
 ```
 
-`dev`: run ts-node on entry point during development(This should be the goto command for us), bypassing the compilation from TS to JS, but not recommend in releases.
+### **On Host:**
 
-`build`: build typscript files into javascripts.  
-TS files from `src/` into JS files to `/bin/`
+`dev`: run ts-node on host during development directly on typscripts. Doesn't built javascript files (This should be the goto command for us)
 
-`start`: run the built javascripts in `/bin` via node. The entry point(the executed file) is specified in the commands under `"scripts"`
+`start`: run the built javascripts in `website/build/` via node. The entry point(the executed file) is specified in `package.json`
+
+`build`: runs `MakeFile` that  
+1. Builds typscript files into javascripts. TS files from `website/src/` into JS files to `website/build/`
+2. Create `~/cmpt433/public/project-web/` if directory doesn't exist
+3. copy everything in `website/build` and `website/run-scripts` to `~cmpt/public/project-web`
+
+## **On target (BGG)**
+running `startNode.sh` starts node on `app.js`
+
+`public/project-web/` structure:
+```
+.
+├── startNode.sh
+├── app.js # entry point
+└── <other typescript files in src/>.js
+└── 
+```
+*note not sure how htmls fits in this yet
+
+
 
 # TS development Examples
 `src/apps.ts`: Sample entry point file 
@@ -123,6 +142,32 @@ export function simpleUDPserver(){
 }
 ```
 
-# Bootstrap
+# Troubleshooting Node
+If you're having trouble with packages, a node.js upgrade might fix it for ya! (example bugs include below) [reference](https://www.esparkinfo.com/how-to-update-node-js-to-latest-version.html)   
+\*note: This procedure installs `nvm` (node version manager) in the process, which should be the easiest way to update/change version of node.
+
+0. check current version (latest version at the time of writing is v17.5.0)
+```
+node --version
+```
+
+1. do an update and install a few dependency
+```
+sudo apt update
+sudo apt install build-essential checkinstall libssl-dev
+```
+2. execute install script over internet
+```
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.35.1/install.sh | bash
+```
+3. \* restart the terminal
+
+4. check version again
+```
+node --version
+```
+
+
+# About Bootstrap
 Yarn+TypeScript bootstrap referenced: [link](https://losikov.medium.com/part-1-project-initial-setup-typescript-node-js-31ba3aa7fbf1)  
 
