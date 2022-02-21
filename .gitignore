@@ -39,4 +39,15 @@ build
 cmake-build-debug
 *.data
 CMakeFiles
+
+# yarn and node
 node_modules
+yarn-error.log
+yarn.lock
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
