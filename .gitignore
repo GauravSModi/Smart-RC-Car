@@ -51,3 +51,4 @@ yarn.lock
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+website/bin

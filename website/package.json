@@ -5,14 +5,15 @@
   "license": "MIT",
   "dependencies": {
     "@types/node": "^17.0.18",
+    "parcel": "^2.3.2",
     "typescript": "^4.5.5"
   },
   "devDependencies": {
     "ts-node": "^10.5.0"
   },
   "scripts": {
-    "build": "tsc",
-    "start": "node ./bin/app.js",
+    "build": "make",
+    "start": "node ./build/app.js",
     "dev": "ts-node ./src/app.ts"
   }
 }
