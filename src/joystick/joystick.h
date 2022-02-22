@@ -1,12 +1,6 @@
 #pragma once
 #include <thread>
-#include <stdio.h>
-#include <fcntl.h>
-#include <sys/epoll.h>
-#include <unistd.h>
 #include <mutex>
-#include <atomic>
-#include <common/utils.h>
 
 #define JOYSTICK_UP_PATH "/sys/class/gpio/gpio26/"
 #define JOYSTICK_DOWN_PATH "/sys/class/gpio/gpio46/"

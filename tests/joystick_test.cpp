@@ -1,5 +1,5 @@
 #include <joystick/joystick.h>
-
+#include <unistd.h>
 
 // test if joystick module is include
 void testInclude(){

@@ -1,12 +1,6 @@
 #pragma once
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
-#include <cstring>
 
 #define MAX_PATH_LENGTH 4096 // set to maxium linux file path length
-
-void utilsDummy();
 
 // fileIO utilities
 bool truncateToFile(const char* filePath, const char* charsToWrite);
@@ -23,3 +17,5 @@ void enableJoyStickEdgeOnRising(const char* joyStickPath);
 double max(double left, double right);
 double min(double left, double right);
 double clamp(double value, double upper, double lower);
+
+void utilsDummy();

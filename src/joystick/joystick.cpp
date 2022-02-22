@@ -1,5 +1,14 @@
 #include "joystick.h"
 
+#include <stdio.h>
+#include <fcntl.h>
+#include <sys/epoll.h>
+#include <unistd.h>
+
+#include <atomic>
+#include <common/utils.h>
+
+
 #define DIRECTION_STRENGTH 0.1 // from 0.0 to 1.0, how much should the strength change per sample
 #define DIRECTION_DECAY_PERSECOND 0.1 // from 0.0 to 1.0, how much strenge decay over 1 second
 #define JOYSTICK_POLL_INTERVAL 50 // in miliseconds
