@@ -37,6 +37,11 @@ static pthread_t id;
 static bool stop_barrier=false;
 static void* run(void*);
 
+
+void networkDummy(){
+  printf("network module Include success\n");
+}
+
 //udp inner operation
 void udp_stop(struct sockaddr_in sinRemote,int socketDescriptor);
 

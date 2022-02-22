@@ -2,13 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
-
+#include <cstring>
 
 #define MAX_PATH_LENGTH 4096 // set to maxium linux file path length
 
-void utilsDummy(){
-  printf("utils Include success\n");
-}
+void utilsDummy();
 
 // fileIO utilities
 bool truncateToFile(const char* filePath, const char* charsToWrite);

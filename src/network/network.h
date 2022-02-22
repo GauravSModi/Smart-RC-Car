@@ -5,6 +5,4 @@
 void init_udp(void);
 void clean_udp(void);
 
-void networkDummy(){
-  printf("network module Include success\n");
-}
+void networkDummy();

@@ -4,6 +4,12 @@
 #define DIRECTION_DECAY_PERSECOND 0.1 // from 0.0 to 1.0, how much strenge decay over 1 second
 #define JOYSTICK_POLL_INTERVAL 50 // in miliseconds
 
+Joystick* Joystick::instance;
+
+void joystickDummy(){
+  printf("joystick module Include success\n");
+}
+
 Joystick::Joystick(){
   // Open file discriptors to joystick value paths
   this->upValueFD = open(JOYSTICK_UP_PATH "value", O_RDWR | O_NONBLOCK);

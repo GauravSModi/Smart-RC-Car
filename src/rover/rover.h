@@ -1,8 +1,6 @@
 #pragma once 
 
-void roverDummy(){
-  printf("rover module Include success\n");
-}
+void roverDummy();
 
 class rover{
 

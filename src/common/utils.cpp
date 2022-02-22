@@ -1,5 +1,8 @@
 #include "utils.h"
-#include <cstring>
+
+void utilsDummy(){
+  printf("utils Include success\n");
+}
 
 // fileIO
 bool truncateToFile(char* filePath, const char* charsToWrite){
@@ -57,3 +60,4 @@ double min(double left, double right){
 double clamp(double value, double upper, double lower){
   return max( min(value,upper), lower);
 }
+

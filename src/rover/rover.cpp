@@ -9,6 +9,10 @@
 
 pthread_t start;
 
+void roverDummy(){
+  printf("rover module Include success\n");
+}
+
 rover::rover(int j_input, int w_input){
 	setInput(j_input, w_input);
 }

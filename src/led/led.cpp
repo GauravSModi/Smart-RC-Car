@@ -1,6 +1,10 @@
 #include "led.h"
 #include <cstring>
 
+void ledDummy(){
+  printf("leds module Include success\n");
+}
+
 void turnOnLED(char* lEDPath){
     char valuePath[MAX_PATH_LENGTH];
     strcpy(valuePath,lEDPath);

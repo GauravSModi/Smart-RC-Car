@@ -5,9 +5,7 @@
 
 #include <common/utils.h>
 
-void ledDummy(){
-  printf("leds module Include success\n");
-}
+void ledDummy();
 
 void turnOnLED(char* lEDPath);
 void turnOffLED(char* lEDPath);
