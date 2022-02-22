@@ -5,7 +5,11 @@ cmake_minimum_required(VERSION 3.10)
 # modules main requies to work
 set(MODULES ${MODULES} rover common joystick network led)
 # enable testing [YES/NO]
-set(ENABLE_TEST NO)
+if (EXISTS "./.enableTest")
+  set(ENABLE_TEST YES)
+else()
+  set(ENABLE_TEST NO)
+endif()
 
 # ======================================
 # toolchain to specify compiler

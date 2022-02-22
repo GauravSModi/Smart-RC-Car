@@ -1,7 +1,5 @@
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-
-#add_executable(simple_test simple_test.cpp)
-#target_link_libraries(simple_test gtest glog gflags) 
-#add_test(NAME simple_test COMMAND simple_test)
-#add_custom_target(simple_test_custom COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS simple_test)
+add_executable(joystick_test joystick_test.cpp)
+target_link_libraries(joystick_test joystick common) 
+add_test(NAME joystick_test COMMAND joystick_test)
+#add_custom_target(joystick_test_custom COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS joystick_test)
 
