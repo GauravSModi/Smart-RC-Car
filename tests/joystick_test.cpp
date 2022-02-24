@@ -1,9 +1,13 @@
 #include <joystick/joystick.h>
 #include <unistd.h>
+#include <led/led.h>
+
+//#include <common/utils.h>
 
 // test if joystick module is include
 void testInclude(){
   joystickDummy();
+  ledDummy();
 }
 
 // test joystick init
@@ -17,8 +21,10 @@ void testInit(){
   Joystick::shutdown(); /**/
 }
 
+
 int main(int argc, char const *argv[]){
-  testInclude();
+  //testInclude();
+  testInit();
 
   return 0;
 }

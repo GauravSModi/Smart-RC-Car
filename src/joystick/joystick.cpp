@@ -1,6 +1,6 @@
 #include "joystick.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <fcntl.h>
 #include <sys/epoll.h>
 #include <unistd.h>
@@ -9,14 +9,18 @@
 #include <common/utils.h>
 
 
-#define DIRECTION_STRENGTH 0.1 // from 0.0 to 1.0, how much should the strength change per sample
-#define DIRECTION_DECAY_PERSECOND 0.1 // from 0.0 to 1.0, how much strenge decay over 1 second
+#define DIRECTION_STRENGTH 1.0 // from 0.0 to 1.0, how much should the strength change per sample
+#define DIRECTION_DECAY_PERSECOND 0.05 // from 0.0 to 1.0, how much strenge decay over 1 second
 #define JOYSTICK_POLL_INTERVAL 50 // in miliseconds
 
 Joystick* Joystick::instance;
 
 void joystickDummy(){
   printf("joystick module Include success\n");
+}
+
+static void printVec2(Vec2 vectors){
+  printf("Vector[x:%f,z:%f]\n",vectors.x,vectors.z);
 }
 
 Joystick::Joystick(){
@@ -90,12 +94,16 @@ void Joystick::shutdown(){
 
 void Joystick::run(){
   // event loop:
+  printf("Joystick start running\n");
   while(isRunning){
     // poll for next event
     JoystickDirection event = this->getEpollInput();
-
+  
     // lock for editing direction strength
-    strengthMutex.lock();
+    this->strengthMutex.lock();
+
+    //printf("Num[%d]\n",event);
+
     switch (event){
     case UP:
       this->strengthVector.z = clamp(this->strengthVector.z + DIRECTION_STRENGTH,1.0,-1.0);
@@ -111,67 +119,88 @@ void Joystick::run(){
     default:
       break;
     }
-    strengthMutex.unlock();
+    this->strengthMutex.unlock();
 
     // wait for interval until next poll
     usleep(1000 * JOYSTICK_POLL_INTERVAL);
   }
+  printVec2(this->getStrength());
 }
 
 // helper function to Joystick:getEpollInput
-void addEdgeGPIOToEpoll(int epollFd, int watchFd, struct epoll_event* epollForEvent){
-  epollForEvent->events = EPOLLPRI | EPOLLET | EPOLLIN;
+static void addEdgeGPIOToEpoll(int epollFd, int watchFd, struct epoll_event* epollForEvent){
+  epollForEvent->events = EPOLLET | EPOLLIN ;//| EPOLLPRI ;
   epollForEvent->data.fd = watchFd;
+  //epollForEvent->data.ptr = epollForEvent;
+  
   if(epoll_ctl(epollFd, EPOLL_CTL_ADD, watchFd, epollForEvent) == -1){
     printf("ERROR ADDING INTEREST TO EPOLL fd[%d]\n",watchFd);
     exit(1);
   }
 }
 
+void removeEdgeGPIOFromEpoll(int epollFd, int watchFd, struct epoll_event* epollForEvent){
+    if(epoll_ctl(epollFd, EPOLL_CTL_DEL, watchFd, epollForEvent) == -1){
+        printf("ERROR DELETING INTEREST TO EPOLL fd[%d]\n",watchFd);
+        exit(1);
+    }
+}
+
 JoystickDirection Joystick::getEpollInput(){
   // create an epoll instance for polling joystick value changes
-  int epollInstanceFd = epoll_create(4);
+  int epollInstanceFd = epoll_create1(0);
   if(epollInstanceFd == -1){
     printf("ERROR OPENING EPOLL\n");
-    exit(1);
   }
 
-  struct epoll_event upEvent;
+  struct epoll_event upEvent = {0};
   addEdgeGPIOToEpoll(epollInstanceFd,this->upValueFD,&upEvent);
-  struct epoll_event downEvent;
+  struct epoll_event downEvent = {0};
   addEdgeGPIOToEpoll(epollInstanceFd,this->downValueFD,&downEvent);
-  struct epoll_event leftEvent;
+  struct epoll_event leftEvent = {0};
   addEdgeGPIOToEpoll(epollInstanceFd,this->leftValueFD,&leftEvent);
-  struct epoll_event rightEvent;
+  struct epoll_event rightEvent = {0};
   addEdgeGPIOToEpoll(epollInstanceFd,this->rightValueFD,&rightEvent);
 
   // create buffer to hold next detected event
-  struct epoll_event currEvent;
+  struct epoll_event currEvents[5];
 
   // account for weird initial 4 events
   int event_count = 2;
   while(event_count > 1){
-    event_count = epoll_wait(epollInstanceFd,&currEvent,5,-1);
+    event_count = epoll_wait(epollInstanceFd,currEvents,5,-1);
+    printf("event waited\n");
   }
 
   JoystickDirection result = INVALID;
+
   if(event_count == 1){
-    if(currEvent.data.fd == this->upValueFD){
+    if(currEvents[0].data.fd == this->upValueFD){
       result = UP;
-    } else if(currEvent.data.fd == this->downValueFD){
+    } else if(currEvents[0].data.fd == this->downValueFD){
       result = DOWN;
-    } else if(currEvent.data.fd == this->leftValueFD){
+    } else if(currEvents[0].data.fd == this->leftValueFD){
       result = LEFT;
-    } else if(currEvent.data.fd == this->rightValueFD){
+    } else if(currEvents[0].data.fd == this->rightValueFD){
       result = RIGHT;
     }
   }  
+
+  /*
+  for(int i = 0; i < 4; i++){
+    
+    if(currEvents[i].events & EPOLLIN){
+      //result = JoystickDirection(i);
+      printf("event[%d]\n",i);
+    }
+  }*/
 
   // close epoll instance
   if(close(epollInstanceFd)){
     printf("ERROR CLOSING EPOLL\n");
     exit(1);
   }
+
   return result;
 }
 
@@ -180,28 +209,29 @@ void Joystick::strengthDecayer(){
   std::atomic<int> threadDecaying(0);
   auto decay = [&](){
     this->lockStrength();
-    Vec2 strength = this->getStrength();
+    Vec2 strengthCopied = Vec2(this->getStrength());
+    Vec2 strength = Vec2(this->getStrength());
     
     if(strength.x != 0.0){
       if(strength.x > 0.0){
         // had postive value
-        strength.x = max(strength.x - DIRECTION_DECAY_PERSECOND, 0.0);
+        strength.x = max(strengthCopied.x - DIRECTION_DECAY_PERSECOND, 0.0);
       } else {
         // had negative value
-        strength.x = min(strength.x + DIRECTION_DECAY_PERSECOND, 0.0);
+        strength.x = min(strengthCopied.x + DIRECTION_DECAY_PERSECOND, 0.0);
       }
     }
 
     if(strength.z != 0.0){
       if(strength.z > 0.0){
         // had postive value
-        strength.z = max(strength.x - DIRECTION_DECAY_PERSECOND,0.0);
+        strength.z = max(strengthCopied.z - DIRECTION_DECAY_PERSECOND,0.0);
       } else {
         // had negative value
-        strength.z = min(strength.x + DIRECTION_DECAY_PERSECOND,0.0);
+        strength.z = min(strengthCopied.z + DIRECTION_DECAY_PERSECOND,0.0);
       }
     }
-
+    printf("Setting strength from to [%f,%f] -> [%f,%f]\n\n",strengthCopied.x,strengthCopied.z,strength.x,strength.z);
     this->setStrength(strength.x,strength.z);
 
     this->unlockStrength();
@@ -211,9 +241,10 @@ void Joystick::strengthDecayer(){
   std::thread* latestDecayThread = new std::thread(decay);
   // decay is called once per second
   while(this->isRunning){
-    sleep(1);
+    msleep(1000);
     threadDecaying++;
     latestDecayThread = new std::thread(decay);
+    //printVec2(this->getStrength());
   }
   latestDecayThread->join();
 

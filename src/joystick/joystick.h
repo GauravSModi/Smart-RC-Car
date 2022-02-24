@@ -23,10 +23,10 @@ struct Vec2 {
 };
 
 enum JoystickDirection{
-  LEFT,
-  RIGHT,
   UP,
   DOWN,
+  LEFT,
+  RIGHT,
   INVALID
 };
 
