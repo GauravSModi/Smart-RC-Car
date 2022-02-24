@@ -2,29 +2,27 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <cstring>
-
 
 // fileIO
-bool truncateToFile(char* filePath, const char* charsToWrite){
-  FILE *file = fopen(filePath,"w");
+bool truncateToFile(std::string filePath, std::string charsToWrite){
+  FILE *file = fopen(filePath.c_str(),"w");
   if (file == NULL) {
-      printf("ERROR OPENING %s.\n", filePath);
+      printf("ERROR OPENING %s.\n", filePath.c_str());
       return false;
   }
-  int charWritten = fprintf(file, "%s", charsToWrite);
+  int charWritten = fprintf(file, "%s", charsToWrite.c_str());
   if (charWritten <= 0) {
-      printf("ERROR WRITING DATA for %s.\n", filePath);
+      printf("ERROR WRITING DATA for %s.\n", filePath.c_str());
       return false;
   }
   fclose(file);
   return true;
 }
 
-char readGPIOValue(const char* filePath){
-  FILE *file = fopen(filePath,"r");
+char readGPIOValue(std::string filePath){
+  FILE *file = fopen(filePath.c_str(),"r");
   if (file == NULL) {
-      printf("ERROR OPENING %s.\n", filePath);
+      printf("ERROR OPENING %s.\n", filePath.c_str());
       return false;
   }
   
@@ -38,15 +36,9 @@ char readGPIOValue(const char* filePath){
   return buff[0];
 }
 
-void enableJoyStickEdgeOnRising(const char* joyStickPath){
+void enableJoyStickEdgeOnRising(std::string joyStickPath){
   // mostly referenced Example in LED Guide provide by Brian Fraser
-  char edgePath[MAX_PATH_LENGTH];
-  strcpy(edgePath,joyStickPath);
-  strcat(edgePath,"edge");
-
-  
-
-  if(!truncateToFile(edgePath,"falling")){
+  if(!truncateToFile((joyStickPath + "edge"),"falling")){
       exit(1);
   }
 }

@@ -1,7 +1,7 @@
 #pragma once
 
-void turnOnLED(char* lEDPath);
-void turnOffLED(char* lEDPath);
-bool flashLED(char* lEDPath, int forMiliseconds);
+void turnOnLED(const char* lEDPath);
+void turnOffLED(const char* lEDPath);
+bool flashLED(const char* lEDPath, int forMiliseconds);
 void ledDummy();
 
