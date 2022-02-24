@@ -20,3 +20,6 @@ double min(double left, double right);
 double clamp(double value, double upper, double lower);
 
 void utilsDummy();
+// =========== sleep =============
+// calls nanosleep for miliseconds
+void msleep(unsigned int forMiliseconds);

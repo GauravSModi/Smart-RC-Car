@@ -57,3 +57,14 @@ double clamp(double value, double upper, double lower){
 void utilsDummy(){
   printf("utils Include success\n");
 }
+
+// sleep
+// referenced https://stackoverflow.com/questions/1157209/is-there-an-alternative-sleep-function-in-c-to-milliseconds
+void msleep(unsigned int forMiliseconds){
+  struct timespec tspec;
+
+  tspec.tv_sec = forMiliseconds / 1000;
+  tspec.tv_nsec = (forMiliseconds % 1000) * 1000000;
+
+  nanosleep(&tspec,&tspec);
+}
