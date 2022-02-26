@@ -156,13 +156,17 @@ node --version
 sudo apt update
 sudo apt install build-essential checkinstall libssl-dev
 ```
-2. execute install script over internet
+2. execute install script for nvm over internet
 ```
 curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.35.1/install.sh | bash
 ```
-3. \* restart the terminal
+3. install latest version
+```
+nvm install node
+```
+4. \* restart the terminal
 
-4. check version again
+5. check version again
 ```
 node --version
 ```
