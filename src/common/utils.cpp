@@ -2,6 +2,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/ioctl.h>
+#include <linux/i2c-dev.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 // fileIO
 bool truncateToFile(std::string filePath, std::string charsToWrite){
@@ -42,6 +46,33 @@ void enableJoyStickEdgeOnRising(std::string joyStickPath){
       exit(1);
   }
 }
+
+// ========= I2C IOs ===========
+
+// from I2CGuide.pdf by Brian Fraser, only changing var-names
+int initI2cBus(std::string busPath, int address){
+  int i2cFD = open(busPath.c_str(), O_RDWR);
+
+  int result = ioctl(i2cFD, I2C_SLAVE ,address);
+  if(result < 0){
+    perror("I2C: Unable to set I2C device to slave address.");
+    exit(1);
+  }
+
+  return i2cFD;
+}
+// from I2CGuide.pdf by Brian Fraser, only changing var-names
+void writeI2cReg(int i2cFD, unsigned char regAddr, unsigned char value){
+  unsigned char buff[2];
+  buff[0] = regAddr;
+  buff[1] = value;
+  int res = write(i2cFD, buff, 2);
+  if(res != 2){
+    perror("I2C: Unable to write i2c register.");
+    exit(1);
+  }
+}
+
 
 double max(double left, double right){
   return left > right ? left : right;

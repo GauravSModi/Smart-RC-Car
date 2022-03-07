@@ -14,6 +14,13 @@ char readGPIOValue(std::string filePath);
 // this enables Edge to be triggered when GPIO value has changed(e.g. when pressed)
 void enableJoyStickEdgeOnRising(std::string joyStickPath);
 
+// ========= I2C IOs ===========
+
+// from I2CGuide.pdf by Brian Fraser, only changing var-names
+int initI2cBus(std::string busPath, int address);
+// from I2CGuide.pdf by Brian Fraser, only changing var-names
+void writeI2cReg(int i2cFD, unsigned char regAddr, unsigned char value);
+
 // ======== Math operations ==========
 double max(double left, double right);
 double min(double left, double right);
