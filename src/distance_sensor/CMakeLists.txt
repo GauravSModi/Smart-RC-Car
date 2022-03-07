@@ -1,0 +1,2 @@
+add_library(distance_sensors adafruit_tof.cpp)
+target_link_libraries(distance_sensors common)
