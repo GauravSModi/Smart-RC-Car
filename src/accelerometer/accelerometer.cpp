@@ -8,6 +8,8 @@
 #include <thread>
 using namespace std;
 
+//TODO: Do all these inside an array or ds.
+int time_in = 0;
 
 static char config[2] = {0};
 static char data[7] = {0};
@@ -63,6 +65,17 @@ int digit12(int index1, int index2){
 	return Accl;
 }
 
+int positions(int gravity_val){
+	//double integral of the gravity, returns position
+	//TODO: decide the time interval to take values at, and how to update the time variable 
+
+	int a = gravity_val;
+	int vel = a*time_in + 1; //assuming c = 1;
+	int position = (vel*vel) + (1)*time_in + 0; //asuming d = 0;
+
+	return position;
+}
+
 
 void readData(int file){
 	
@@ -75,26 +88,19 @@ void readData(int file){
 		printf("Error : Input/Output error \n");
 	}
 	else{
-		int x = digit12(1,2);
-		int y = digit12(3,4);
-		int z = digit12(5,6);
+		int x_acc = digit12(1,2);
+		int y_acc = digit12(3,4);
+		int z_acc = digit12(5,6);
+
+		int x_pos = positions(x_acc);
+		int y_pos = positions(y_acc);
+		int z_pos = positions(z_acc);
+
 		
+		printf("x coordinate : %d \n", x_pos);
+		printf("y coordinate : %d \n", y_pos);
+		printf("z coordinate : %d \n", z_pos);
 		
-		if(x > 200 || x < -200){
-			printf(" x threshold reached \n");
-			printf("Acceleration in X-Axis : %d \n", x);
-			
-		}
-		if(y > 200 || y < -200){
-			printf(" y threshold reached \n");
-			printf("Acceleration in Y-Axis : %d \n", y);
-			
-		}
-		if(z > 1200 || z < -200){
-			printf(" z threshold reached \n");
-			printf("Acceleration in Z-Axis : %d \n", z);
-		
-		}
 	}
 }
 
@@ -110,6 +116,7 @@ void routine(){
 	 standbyMode(file);
 	 activeMode(file);
 	 sleep(0.5);
+	 time_in +=1;
 	 
 	 readData(file);
 	 sleep(2);
