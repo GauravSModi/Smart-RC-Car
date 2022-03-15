@@ -1,14 +1,13 @@
-#include <iostream>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <linux/i2c-dev.h>
-#include <fstream>
-#include <unistd.h>
-#include <string.h>
-#include <thread>
-using namespace std;
+#include "accelerometer.h"
 
-//TODO: Do all these inside an array or ds.
+//TODO: get the accuracy of the positions right
+
+const int MAX_POS = 1000;
+
+int xPOS [MAX_POS];
+int yPOS [MAX_POS];
+int zPOS [MAX_POS];
+
 int time_in = 0;
 
 static char config[2] = {0};
@@ -18,7 +17,7 @@ static int initI2cBus(void)
 {
 	// Create I2C bus
 	int file;
-	//char *bus = ;
+	
 	if((file = open("/dev/i2c-1", O_RDWR)) < 0) 
 	{
 		printf("Failed to open the bus. \n");
@@ -55,7 +54,6 @@ void setRange(int file){
 }
 
 int digit12(int index1, int index2){
-	//int xAccl = (data[1] << 8) | (data[2]);
 	int Accl = ((data[index1] * 256) + data[index2]) / 16;
 	if(Accl > 2047)
 	{
@@ -65,9 +63,12 @@ int digit12(int index1, int index2){
 	return Accl;
 }
 
+//double integral of the gravity, returns position
+//TODO: Do all these inside a circular array or ds.
 int positions(int gravity_val){
-	//double integral of the gravity, returns position
+	
 	//TODO: decide the time interval to take values at, and how to update the time variable 
+	//TODO: correct the units
 
 	int a = gravity_val;
 	int vel = a*time_in + 1; //assuming c = 1;
@@ -80,7 +81,7 @@ int positions(int gravity_val){
 void readData(int file){
 	
 	// Read 7 bytes of data(0x00)
-	// staus, xAccl msb, xAccl lsb, yAccl msb, yAccl lsb, zAccl msb, zAccl lsb
+	
 	char reg[1] = {0x00};
 	write(file, reg, 1);
 	if(read(file, data, 7) != 7)
@@ -88,18 +89,23 @@ void readData(int file){
 		printf("Error : Input/Output error \n");
 	}
 	else{
-		int x_acc = digit12(1,2);
-		int y_acc = digit12(3,4);
-		int z_acc = digit12(5,6);
+		int x_acc = digit12(1,2)/1000; //assuming g = 10 m/s^2
+		int y_acc = digit12(3,4)/1000;
+		int z_acc = digit12(5,6)/1000;
 
-		int x_pos = positions(x_acc);
-		int y_pos = positions(y_acc);
-		int z_pos = positions(z_acc);
+		xPOS[time_in] = positions(x_acc);
+		yPOS[time_in] = positions(y_acc);
+		zPOS[time_in] = positions(z_acc);
 
+		//Remove this once circular array or ds added
+		if(time_in >= 1000){
+			printf("buffer full \n");
+			exit(1);
+		}
 		
-		printf("x coordinate : %d \n", x_pos);
-		printf("y coordinate : %d \n", y_pos);
-		printf("z coordinate : %d \n", z_pos);
+		printf("x coordinate : %d \n", xPOS[time_in]);
+		printf("y coordinate : %d \n", yPOS[time_in]);
+		printf("z coordinate : %d \n", zPOS[time_in]);
 		
 	}
 }
