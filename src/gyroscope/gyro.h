@@ -10,6 +10,15 @@ using namespace std;
 
 #define deviceADDR 0x68
 #define PWR_MGMT_1 0x6B
+
+static int xGyro;
+static int yGyro;
+static int zGyro;
+
+int get_xGyro();
+int get_yGyro();
+int get_zGyro();
+
 /*#define ACCEL_X_OUT_H "0x3B"
 #define ACCEL_X_OUT_L "0x3C"
 #define ACCEL_Y_OUT_H "0x3D"
