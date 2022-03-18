@@ -111,7 +111,6 @@ void readData(int file){
 }
 
 
-
 void routine(){
 
 	int file = initI2cBus();
