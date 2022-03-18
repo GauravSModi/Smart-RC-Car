@@ -2,6 +2,7 @@
 #include <string>
 
 #define MAX_PATH_LENGTH 4096 // set to maxium linux file path length
+#define NANOSECONDS_IN_SECOND 1000000000LL
 
 // fileIO utilities
 bool truncateToFile(std::string filePath, std::string charsToWrite);
@@ -30,3 +31,9 @@ void utilsDummy();
 // =========== sleep =============
 // calls nanosleep for miliseconds
 void msleep(unsigned int forMiliseconds);
+
+// timespec
+typedef struct timespec timespec_t; 
+
+// timespec addtion with overflow protection for tv_nsec only
+timespec_t timespec_add(timespec_t t, int seconds, long long nanoseconds);

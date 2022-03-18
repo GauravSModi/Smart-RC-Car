@@ -99,3 +99,26 @@ void msleep(unsigned int forMiliseconds){
 
   nanosleep(&tspec,&tspec);
 }
+
+// timespec
+timespec_t timespec_add(timespec_t t, int seconds, long long nanoseconds){
+  int _seconds;
+  long long _nanoseconds;
+  if(nanoseconds >= NANOSECONDS_IN_SECOND){
+    _seconds = seconds + (int) (nanoseconds / NANOSECONDS_IN_SECOND);
+    _nanoseconds = nanoseconds % NANOSECONDS_IN_SECOND;
+  } else {
+    _seconds = seconds;
+    _nanoseconds = nanoseconds;
+  }
+
+  t.tv_sec += _seconds;
+  t.tv_nsec += _nanoseconds;
+  
+  if(t.tv_nsec >= NANOSECONDS_IN_SECOND){
+    t.tv_sec += (int) (t.tv_nsec / NANOSECONDS_IN_SECOND);
+    t.tv_nsec = t.tv_nsec % NANOSECONDS_IN_SECOND;
+  }
+
+  return t;
+}
