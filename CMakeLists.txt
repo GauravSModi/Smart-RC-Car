@@ -18,15 +18,15 @@ set(CMAKE_TOOLCHAIN_FILE toolchain/toolchain-arm-linux-gnueabihf.cmake)
 project(SMART-RC-CAR
         LANGUAGES CXX)
 
+# in-source build prevention and Debug mode default adapted from 
 # No in-source build
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
-  message(FATAL_ERROR "In-source builds are not allowed.")
+  message(FATAL_ERROR "In-source builds not allowed.")
 endif("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 
 # Choose Debug mode by default
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "" FORCE)
-  message("-- No build mode chosen - using Debug by default")
 endif(NOT CMAKE_BUILD_TYPE)
 
 set(CMAKE_CXX_STANDARD 11)
