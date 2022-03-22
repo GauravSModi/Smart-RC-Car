@@ -30,15 +30,17 @@ if(NOT CMAKE_BUILD_TYPE)
 endif(NOT CMAKE_BUILD_TYPE)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pthread -liw")
 
 #include_directories()
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/src")
+LINK_DIRECTORIES("${CMAKE_SOURCE_DIR}/lib-multiarch")
 
 # Module Directories
 add_subdirectory(src)
-# Test Directories
+add_subdirectory(lib-multiarch)
 
+# Test Directories
 
 # build main executable
 add_executable(main src/main.cpp)
@@ -48,3 +50,4 @@ target_link_libraries(main ${MODULES})
 if(ENABLE_TEST)
   add_subdirectory(tests)
 endif()
+

@@ -7,3 +7,6 @@ add_executable(tof_sensor_test tof_sensor_test.cpp)
 target_link_libraries(tof_sensor_test distance_sensors common) 
 add_test(NAME tof_sensor_test COMMAND tof_sensor_test)
 
+add_executable(wifi_test wifi_test.cpp)
+target_link_libraries(wifi_test iw) 
+add_test(NAME wifi_test COMMAND wifi_test)

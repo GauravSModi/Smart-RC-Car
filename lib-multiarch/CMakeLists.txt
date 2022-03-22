@@ -1,0 +1,1 @@
+configure_file(libiw.so libiw.so COPYONLY)
