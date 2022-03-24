@@ -1,4 +1,5 @@
 #include "gyro.h"
+#include "accelerometer.h"
 
 char data[6] = {43};
 
@@ -40,7 +41,7 @@ int get_zGyro(){
     return zGyro;
 }
 
-void readData(int file){
+void readGyroData(int file){
     if(read(file, data, 6) != 6)
 	{
 		printf("Error : Input/Output error \n");
@@ -96,17 +97,17 @@ void gyro_routine(){
 	//init current time as well
 
     while(1){
-        readData(file);
+        readGyroData(file);
         sleep(1);
     }
 
 }
 
-
-int main(){
-
-    thread gyro_id (gyro_routine);
-	gyro_id.join();
-
-    return 0;
+void gyro_init(){
+	gyro_readingThread = new std::thread(gyro_routine);
 }
+
+void gyro_cleanup(){
+	gyro_readingThread->join();
+}
+

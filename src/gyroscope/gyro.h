@@ -11,6 +11,8 @@ using namespace std;
 #define deviceADDR 0x68
 #define PWR_MGMT_1 0x6B
 
+static std::thread* gyro_readingThread;
+
 static int xGyro = 0;
 static int yGyro = 0;
 static int zGyro = 0 ;
@@ -33,6 +35,9 @@ static int prev_time = 0;
 int get_xGyro();
 int get_yGyro();
 int get_zGyro();
+
+void gyro_init();
+void gyro_cleanup();
 
 /*#define ACCEL_X_OUT_H "0x3B"
 #define ACCEL_X_OUT_L "0x3C"
