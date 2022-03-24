@@ -89,9 +89,9 @@ void readData(int file){
 		printf("Error : Input/Output error \n");
 	}
 	else{
-		int x_acc = digit12(1,2)/1000; //assuming g = 10 m/s^2
-		int y_acc = digit12(3,4)/1000;
-		int z_acc = digit12(5,6)/1000;
+		int x_acc = digit12(1,2); 
+		int y_acc = digit12(3,4);
+		int z_acc = digit12(5,6);
 
 		xPOS[time_in] = positions(x_acc);
 		yPOS[time_in] = positions(y_acc);
