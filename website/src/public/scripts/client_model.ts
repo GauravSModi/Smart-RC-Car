@@ -1,7 +1,8 @@
 import { io, Socket } from "socket.io-client";
 
-//const IP_ADDRESS = '192.168.7.2'
-const IP_ADDRESS = 'localhost'
+const REMOTE_ADDRESS = '192.168.7.2'
+const LOCAL_ADDRESS = 'localhost'
+let ipAddress = REMOTE_ADDRESS
 
 export namespace RemoteCarControl {
 
@@ -19,7 +20,7 @@ export namespace RemoteCarControl {
   }
 
   export async function connect(){
-    _socket = io('http://'+ IP_ADDRESS +':8088/',{})
+    _socket = io('http://'+ ipAddress +':8088/',{})
     _socket.on("connect", async ()=>{
       
       // disable error
@@ -53,6 +54,12 @@ export namespace RemoteCarControl {
       _errorDiv.style.display = 'block'
       _errorDiv.style.backgroundColor = 'red'
       _errorText.innerHTML = "Cannot connect to server, make sure the node server is on"
+      
+      if(ipAddress == LOCAL_ADDRESS){
+        ipAddress = REMOTE_ADDRESS
+      } else {
+        ipAddress = LOCAL_ADDRESS
+      }
     })
 
     _socket.on('disconnect',()=>{

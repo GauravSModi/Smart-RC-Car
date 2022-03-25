@@ -24,19 +24,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <netdb.h>
-#include <string.h>			// for strncmp()
+#include <cstring>			// for strncmp()
 #include <unistd.h>			// for close()
-#include <pthread.h>
 #include "network.h"
+// cpp thread
+#include <thread>
+#include <string>
 
 
 #define MSG_MAX_LEN 1500
 #define PORT 12345
 
-static pthread_t id;
+static std::thread* networkThread;
 static bool stop_barrier=false;
-static void* run(void*);
-
+void run(std::function<void()> shutdownFunction);
 
 void networkDummy(){
   printf("network module Include success\n");
@@ -45,13 +46,12 @@ void networkDummy(){
 //udp inner operation
 void udp_stop(struct sockaddr_in sinRemote,int socketDescriptor);
 
-
-void init_udp(void){
-	id=pthread_create(&id,NULL,run,NULL);
+void init_udp(std::function<void()> shutdownFunction){
+	networkThread = new std::thread(run, shutdownFunction);
 }
 
 void clean_udp(void){
-	pthread_join(id,NULL);
+	networkThread->join();
 }
 
 void udp_stop(struct sockaddr_in sinRemote,int socketDescriptor){
@@ -67,9 +67,19 @@ void udp_stop(struct sockaddr_in sinRemote,int socketDescriptor){
 	stop_barrier=true;
 }
 
+void udp_reply(struct sockaddr_in sinRemote,int socketDescriptor, std::string message){
 
-static void* run(void* args)
-{
+	// Transmit a reply:
+	int sin_len = sizeof(sinRemote);
+	sendto(socketDescriptor,
+		message.c_str(), message.length(),
+		0,
+		(struct sockaddr *) &sinRemote, sin_len);
+
+}
+
+
+void run(std::function<void()> shutdownFunction) {
 	// Address
 	struct sockaddr_in sin;
 	memset(&sin, 0, sizeof(sin));
@@ -103,13 +113,29 @@ static void* run(void* args)
 		// Make it null terminated (so string functions work)
 		// - recvfrom given max size - 1, so there is always room for the null
 		messageRx[bytesRx] = 0;
-		
+	
+		// split into tokens
+    char* command = strtok(messageRx," \n");
+    //char* value = strtok(NULL," \n");
+		bool reportMessage = true;
+
 		//make some rover command here
+		if(strcmp(command,"stop") == 0) {
+      udp_stop(sinRemote, socketDescriptor);
+    } else if (strcmp(command,"alive") == 0) {
+			udp_reply(sinRemote, socketDescriptor, "alive");
+			reportMessage = false;
+		}
 
-
+		if(reportMessage){
+			std::string messageStr(messageRx);
+			printf("Recieved: %s\n",messageStr.c_str());
+		}
+		
 	}
 
 	// Close
 	close(socketDescriptor);
-	return NULL;
+
+	shutdownFunction();
 }

@@ -14,7 +14,6 @@ int main(){
   utilsDummy();
   joystickDummy();
   //ledDummy();
-  networkDummy();
   roverDummy();
 
   // intialize modules
