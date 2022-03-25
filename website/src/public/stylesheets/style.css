@@ -1,0 +1,44 @@
+body {
+	width: 800px;
+	margin-left: auto;
+	margin-right: auto;
+}
+h1, h2 {
+	margin-bottom: 1px;
+	padding-bottom: 1px;
+}
+
+#content {
+	margin-top: 10pt;
+}
+
+
+#error-box {
+	border: thin black solid;
+	clear: both;
+	background-color: red;
+	padding-left: 10pt;
+	padding-right: 10pt;
+	min-height: 100pt;
+	margin-top: 20px;
+	display: none;
+}
+
+#shutdown-box {
+	float: right;
+	width: 250px;
+	min-height: fit-content;
+	border: thin black solid;
+	background-color: #f3f3f3;
+	padding: 10pt;
+	clear: right;
+	margin-top: 10pt;
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+}
+#shutdown-button{
+	width: auto;
+	height: auto;
+	font-size: 12pt;
+}
