@@ -12,6 +12,13 @@ h1, h2 {
 	margin-top: 10pt;
 }
 
+#p5-canvas-div {
+	margin-right: 300px;	
+	border: thin black solid;
+	padding-left: 10pt;
+	padding-right: 10pt;
+	min-height: 200pt;
+}
 
 #error-box {
 	border: thin black solid;
@@ -31,7 +38,6 @@ h1, h2 {
 	border: thin black solid;
 	background-color: #f3f3f3;
 	padding: 10pt;
-	clear: right;
 	margin-top: 10pt;
 	display: flex;
 	align-items: center;
