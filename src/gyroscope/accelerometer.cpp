@@ -2,11 +2,11 @@
 
 //TODO: get the accuracy of the positions right
 
-const int MAX_POS = 1000;
+//const int MAX_POS = 1000;
 
-int xPOS [MAX_POS];
-int yPOS [MAX_POS];
-int zPOS [MAX_POS];
+//int xPOS [MAX_POS];//
+//int yPOS [MAX_POS];
+//int zPOS [MAX_POS];
 
 int time_in = 0;
 
@@ -63,9 +63,19 @@ int digit12(int index1, int index2){
 	return Accl;
 }
 
+int get_xacc(){
+	return x_acc;
+}
+int get_yacc(){
+	return y_acc;
+}
+int get_zacc(){
+	return z_acc;
+}
+
 //double integral of the gravity, returns position
 //TODO: Do all these inside a circular array or ds.
-int positions(int gravity_val){
+/*int positions(int gravity_val){
 	
 	//TODO: decide the time interval to take values at, and how to update the time variable 
 	//TODO: correct the units
@@ -75,7 +85,7 @@ int positions(int gravity_val){
 	int position = (vel*vel) + (1)*time_in + 0; //asuming d = 0;
 
 	return position;
-}
+}*/
 
 
 void readData(int file){
@@ -89,23 +99,23 @@ void readData(int file){
 		printf("Error : Input/Output error \n");
 	}
 	else{
-		int x_acc = digit12(1,2); 
-		int y_acc = digit12(3,4);
-		int z_acc = digit12(5,6);
+		x_acc = digit12(1,2); 
+	    y_acc = digit12(3,4);
+		z_acc = digit12(5,6);
 
-		xPOS[time_in] = positions(x_acc);
-		yPOS[time_in] = positions(y_acc);
-		zPOS[time_in] = positions(z_acc);
+		//xPOS[time_in] = positions(x_acc);
+		//yPOS[time_in] = positions(y_acc);
+		//zPOS[time_in] = positions(z_acc);
 
 		//Remove this once circular array or ds added
-		if(time_in >= 1000){
+		/*if(time_in >= 1000){
 			printf("buffer full \n");
 			exit(1);
-		}
+		}*/
 		
-		printf("x coordinate : %d \n", xPOS[time_in]);
-		printf("y coordinate : %d \n", yPOS[time_in]);
-		printf("z coordinate : %d \n", zPOS[time_in]);
+		printf("x coordinate : %d \n", get_xacc());
+		printf("y coordinate : %d \n", get_yacc());
+		printf("z coordinate : %d \n", get_zacc());
 		
 	}
 }
@@ -131,11 +141,11 @@ void routine(){
 	
 }
 
- 
-int main(){
-
-	thread id (routine);
-	id.join();
-	
-	return 0;
+void acc_init(){
+	readingThread = new std::thread(routine);
 }
+
+void acc_cleanup(){
+	readingThread->join();
+}
+ 
