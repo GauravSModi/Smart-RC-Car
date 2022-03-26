@@ -1,5 +1,5 @@
 #include "gyro.h"
-#include "accelerometer.h"
+//#include "accelerometer.h"
 
 char data[6] = {43};
 
@@ -111,3 +111,9 @@ void gyro_cleanup(){
 	gyro_readingThread->join();
 }
 
+int main(){
+	gyro_init();
+	gyro_cleanup();
+
+	return 0;
+}
