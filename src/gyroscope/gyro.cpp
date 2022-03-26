@@ -1,5 +1,5 @@
 #include "gyro.h"
-//#include "accelerometer.h"
+//#include "../acclerometer/accelerometer.h"
 
 char data[6] = {43};
 
@@ -41,6 +41,35 @@ int get_zGyro(){
     return zGyro;
 }
 
+double elapsed_time(){
+	auto start = std::chrono::system_clock::now();
+    // Some computation here
+    auto end = std::chrono::system_clock::now();
+
+    std::chrono::duration<double> elapsed_seconds = end-start;
+	double res = (double)elapsed_seconds.count();
+	return res;
+}
+
+
+void calculateAngle() {  
+  
+  double elapsed_t = elapsed_time();
+  gyroAngleX = gyroAngleX + get_xGyro()*elapsed_t; // deg/s * s = deg
+  gyroAngleY = gyroAngleY + get_yGyro()*elapsed_t;
+
+  //add roll and pitch by including the acc module
+  //roll = roll + ...
+  //pitch = pitch + ...
+  yaw= yaw + get_zGyro()*elapsed_t;
+
+
+  printf(" GyroAnglex : %f \n", gyroAngleX);
+  printf(" GyroAngley : %f \n", gyroAngleY);
+  printf(" yaw : %f \n", yaw);
+  
+}
+
 void readGyroData(int file){
     if(read(file, data, 6) != 6)
 	{
@@ -48,33 +77,20 @@ void readGyroData(int file){
 	}
 	else
 	{
-		xGyro_past = get_xGyro();
-		yGyro_past = get_yGyro();
-		zGyro_past = get_zGyro();
 
 		 xGyro = ((data[0] << 8) | data[1]) / 131; //angular velocity
 		 yGyro = ((data[2] << 8) + data[3]) / 131;
 		 zGyro = ((data[4] << 8) + data[5]) / 131;
  
 		// Output data to screen
-		printf("Angle of X-Axis : %d \n", get_xGyro()); //value range = 250 deg/s   
-		printf("Angle of Y-Axis : %d \n", get_yGyro()); //TODO : fix calculation
-		printf("Angle of Z-Axis : %d \n", get_zGyro());
+		//printf("Angle of X-Axis : %d \n", get_xGyro()); //value range = 250 deg/s   
+		//printf("Angle of Y-Axis : %d \n", get_yGyro()); //TODO : fix range
+		//printf("Angle of Z-Axis : %d \n", get_zGyro());
+		calculateAngle() ;
 	}
 }
 
 
-void calculateAngle() {  
-  // same equation can be written as 
-  // angelZ = angelZ + ((timePresentZ - timePastZ)*(gyroZPresent + gyroZPast - 2*gyroZCalli)) / (2*1000*131);
-  // 1/(1000*2*131) = 0.00000382
-  // 1000 --> convert milli seconds into seconds
-  // 2 --> comes when calculation area of trapezium
-  // substacted the callibated result two times because there are two gyro readings
-  angle_x = angle_x + ((current_time - prev_time)*(xGyro + xGyro_past - 2*error_x)) * 0.00000382;
-  angle_y = angle_y + ((current_time - prev_time)*(yGyro + yGyro_past - 2*error_y)) * 0.00000382;
-  angle_z = angle_z + ((current_time - prev_time)*(zGyro + zGyro_past - 2*error_z)) * 0.00000382;
-}
 
 void avg_error(){
     for(int i = 0 ; i < 1000; i++){
@@ -97,6 +113,7 @@ void gyro_routine(){
 	//init current time as well
 
     while(1){
+
         readGyroData(file);
         sleep(1);
     }

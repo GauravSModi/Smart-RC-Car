@@ -167,7 +167,7 @@ void acc_cleanup(){
 	readingThread->join();
 }
  
-int main(){
+/*int main(){
 	acc_init();
 	acc_cleanup();
-}
+}*/
