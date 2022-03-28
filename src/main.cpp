@@ -8,7 +8,6 @@
 //#include <network/network.h>
 //#include <rover/rover.h>
 //#include <led/led.h>
-#include <distance_sensor/sharpIR_ds.h>
 
 
 
@@ -19,7 +18,6 @@ int main(){
   //ledDummy();
   //networkDummy();
   //roverDummy();
-  SHARPDistanceSensor* dis=SHARPDistanceSensor::getInstance(); while(1){dis->getVoltageValues();}
   
   // intialize modules
 
