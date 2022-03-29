@@ -1,5 +1,5 @@
 #include "gyro.h"
-//#include "../acclerometer/accelerometer.h"
+#include "accelerometer.h"
 
 char data[6] = {43};
 
@@ -31,6 +31,7 @@ static void writeI2cReg(int i2cFileDesc, unsigned char regAddr, unsigned char va
 	}
 }
 
+
 int get_xGyro(){
     return xGyro;
 }
@@ -55,17 +56,17 @@ double elapsed_time(){
 void calculateAngle() {  
   
   double elapsed_t = elapsed_time();
-  gyroAngleX = gyroAngleX + get_xGyro()*elapsed_t; // deg/s * s = deg
-  gyroAngleY = gyroAngleY + get_yGyro()*elapsed_t;
+  gyroAngleX = gyroAngleX + (get_xGyro()-error_x)*elapsed_t; // deg/s * s = deg
+  gyroAngleY = gyroAngleY + (get_yGyro()-error_y)*elapsed_t;
 
   //add roll and pitch by including the acc module
-  //roll = roll + ...
-  //pitch = pitch + ...
-  yaw= yaw + get_zGyro()*elapsed_t;
+  roll = 0.96 * gyroAngleX + 0.04 * get_accAngleX();
+  pitch = 0.96 * gyroAngleY + 0.04 * get_accAngleY();
+  yaw= yaw + (get_zGyro()-error_z)*elapsed_t;
 
 
-  printf(" GyroAnglex : %f \n", gyroAngleX);
-  printf(" GyroAngley : %f \n", gyroAngleY);
+  printf(" roll : %f \n", roll);
+  printf(" pitch : %f \n", pitch);
   printf(" yaw : %f \n", yaw);
   
 }
@@ -79,21 +80,34 @@ void readGyroData(int file){
 	{
 
 		 xGyro = ((data[0] << 8) | data[1]) / 131; //angular velocity
+		 if(xGyro > 250){
+			 xGyro -= 500;
+		 }
 		 yGyro = ((data[2] << 8) + data[3]) / 131;
+		 if(yGyro > 250){
+			 yGyro -= 500;
+		 }
 		 zGyro = ((data[4] << 8) + data[5]) / 131;
+		 if(zGyro > 250){
+			 zGyro -= 500;
+		 }
  
 		// Output data to screen
 		//printf("Angle of X-Axis : %d \n", get_xGyro()); //value range = 250 deg/s   
 		//printf("Angle of Y-Axis : %d \n", get_yGyro()); //TODO : fix range
 		//printf("Angle of Z-Axis : %d \n", get_zGyro());
-		calculateAngle() ;
+		//calculateAngle() ;
 	}
 }
 
 
 
-void avg_error(){
+void avg_error(int file){
+
+
     for(int i = 0 ; i < 1000; i++){
+
+		readGyroData(file);
         error_x = error_x + get_xGyro();
 		error_y = error_y + get_yGyro();
 		error_z = error_z + get_zGyro();
@@ -106,15 +120,16 @@ void avg_error(){
 
 void gyro_routine(){
     int file = initI2cBus();
-    printf("loaded the file, %d \n", file);
+    //printf("loaded the file, %d \n", file);
     writeI2cReg(file, PWR_MGMT_1, 0);
 
-	avg_error();
+	avg_error(file);
 	//init current time as well
 
     while(1){
 
         readGyroData(file);
+		calculateAngle();
         sleep(1);
     }
 
@@ -129,7 +144,11 @@ void gyro_cleanup(){
 }
 
 int main(){
+	
 	gyro_init();
+	acc_init();
+
+	acc_cleanup();
 	gyro_cleanup();
 
 	return 0;
