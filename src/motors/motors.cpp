@@ -23,7 +23,7 @@ Motors::Motors(){
 	}
 
 	// give system time to export
-	msleep(330);
+	msleep(500);
 
 	// set options
 	char dir[] = "out";
@@ -42,7 +42,7 @@ Motors::Motors(){
 	}
 }
 
-void Motors::moveForward(){
+void Motors::moveBackward(){
 	for (int i = 0; i < NUM_PINS; i ++){
 		int maxLength = 50;
 		char buffer[maxLength];
@@ -54,9 +54,10 @@ void Motors::moveForward(){
 		}
 		system(buffer);
 	}
+	printf("Moving forward\n");
 }
 
-void Motors::moveBackward(){
+void Motors::moveForward(){
 	for (int i = 0; i < NUM_PINS; i ++){
 		int maxLength = 50;
 		char buffer[maxLength];
@@ -68,6 +69,7 @@ void Motors::moveBackward(){
 		}
 		system(buffer);
 	}
+	printf("Moving backward\n");
 }
 
 void Motors::moveLeft(){
@@ -82,6 +84,7 @@ void Motors::moveLeft(){
 		}
 		system(buffer);
 	}
+	printf("Moving left\n");
 }
 
 void Motors::moveRight(){
@@ -96,7 +99,20 @@ void Motors::moveRight(){
 		}
 		system(buffer);
 	}
+	printf("Moving right\n");
 }
+
+
+void Motors::stopMoving(){
+	for (int i = 0; i < NUM_PINS; i ++){
+		int maxLength = 50;
+		char buffer[maxLength];
+		std::snprintf(buffer, maxLength, "echo 0 > /sys/class/gpio/gpio%d/value", gpio_pins[i]);
+		system(buffer);
+	}
+	printf("Stopping movement...\n");
+}
+
 
 // int Motors::getDirection(){
 // 	return direction;
@@ -127,20 +143,15 @@ Motors::~Motors(){
 
 void Motors_init(void){
 	Motors newMotors;
-
-	newMotors.moveLeft();
 	while (true){
 		// stay here
+		newMotors.moveForward();
+		msleep(3000);
+		newMotors.moveBackward();
+		msleep(3000);
+		newMotors.moveRight();
+		msleep(3000);
+		newMotors.moveLeft();
+		msleep(3000);
 	}
 }
-
-// Motors* Motors_init(void){
-// 	Motors newMotors();
-
-// 	return &newMotors;
-// }
-
-
-// void Motors_cleanup(void){
-
-// }
