@@ -16,7 +16,6 @@ export namespace RemoteCarControl {
     _errorDiv = document.getElementById("error-box") as HTMLDivElement
     _errorText = document.getElementById("error-text") as HTMLElement
     _statusText = document.getElementById("status") as HTMLElement
-
   }
 
   export async function connect(){
@@ -79,6 +78,22 @@ export namespace RemoteCarControl {
       //notifyUpdateUI()
     })
 
+  }
+
+  export function moveLeft(){
+    _socket.emit("relayMessage","moveLeft")
+  }
+
+  export function moveRight(){
+    _socket.emit("relayMessage","moveRight")
+  }
+
+  export function moveFront(){
+    _socket.emit("relayMessage","moveFront")
+  }
+
+  export function moveBack(){
+    _socket.emit("relayMessage","moveBack")
   }
 
   export async function fetchAllValueUpdates(){

@@ -3,10 +3,14 @@ import { RemoteCarControl } from './client_model'
 import P5 from "p5"
 
 // Get reference to DOM elements
-// status 
-
 // shutdown Button
 const shutdownButton = document.getElementById("shutdown-button") as HTMLInputElement
+
+// controls button
+const leftButton = document.getElementById("keyboard_key_left") as HTMLButtonElement
+const rightButton = document.getElementById("keyboard_key_right") as HTMLButtonElement
+const upButton = document.getElementById("keyboard_key_up") as HTMLButtonElement
+const downButton = document.getElementById("keyboard_key_down") as HTMLButtonElement
 
 async function main(){
   RemoteCarControl.initialize(document)
@@ -15,6 +19,27 @@ async function main(){
   //notifyUpdateUI()
   //alert("JS loaded successfully YAY")
   //statusText.innerHTML = "Device up for:\n" + await BeatBox.getUpTime()
+
+  leftButton.onclick = () => {
+    console.log("left")
+    RemoteCarControl.moveLeft()
+  }
+
+  rightButton.onclick = () => {
+    console.log("right")
+    RemoteCarControl.moveRight()
+  }
+
+  upButton.onclick = () => {
+    console.log("up")
+    RemoteCarControl.moveFront()
+  }
+
+  downButton.onclick = () => {
+    console.log("down")
+    RemoteCarControl.moveBack()
+  }
+
 
   shutdownButton.onclick = function (event: MouseEvent) {
     RemoteCarControl.remoteShutdown()

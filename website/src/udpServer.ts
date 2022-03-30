@@ -97,6 +97,14 @@ export namespace UDPRelay {
       })
     })
 
+    socket.on("relayMessage",(message:string)=>{
+      if(message && message != ""){
+        clientIO.send(message, PORT,HOST,(error:Error | null, bytes:number)=>{
+          
+        })
+      }
+    })
+
     // =========> NODE SERVER TO NODE CLIENT
     const onTimeout = ()=>{socket.emit("networkModuleTimeout")}
     events.on("timeout",onTimeout)
