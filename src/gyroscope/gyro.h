@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <thread>
+#include <ctime>
 using namespace std;
 
 #define deviceADDR 0x68
@@ -17,20 +18,23 @@ static int xGyro = 0;
 static int yGyro = 0;
 static int zGyro = 0 ;
 
-static int xGyro_past = 0;
-static int yGyro_past = 0;
-static int zGyro_past = 0;
+//static int xGyro_past = 0;
+//static int yGyro_past = 0;
+//static int zGyro_past = 0;
 
-static float angle_x=0;
-static float angle_y=0;
-static float angle_z=0;
+static float gyroAngleX = 0;
+static float gyroAngleY =0;
+
+static float roll=0;
+static float pitch=0;
+static float yaw=0;
 
 static int error_x = 0;
 static int error_y = 0;
 static int error_z = 0;
 
-static int current_time = 0;
-static int prev_time = 0;
+//static int current_time = 0;
+//static int prev_time = 0;
 
 int get_xGyro();
 int get_yGyro();

@@ -1,12 +1,5 @@
 #include "accelerometer.h"
 
-//TODO: get the accuracy of the positions right
-
-//const int MAX_POS = 1000;
-
-//int xPOS [MAX_POS];//
-//int yPOS [MAX_POS];
-//int zPOS [MAX_POS];
 
 int time_in = 0;
 
@@ -34,7 +27,11 @@ void standbyMode(int file){
 	// Standby mode(0x00)
 	config[0] = 0x2A;
 	config[1] = 0x00;
-	write(file, config, 2);
+	int result = write(file, config, 2);
+	/*if (result != 2) {
+		perror("I2C: Unable to write i2c register.");
+		exit(1);
+	}*/
 }
 
 void activeMode(int file){
@@ -42,7 +39,11 @@ void activeMode(int file){
 	// Active mode(0x01)
 	config[0] = 0x2A;
 	config[1] = 0x01;
-	write(file, config, 2);
+	int result = write(file, config, 2);
+	/*if (result != 2) {
+		perror("I2C: Unable to write i2c register.");
+		exit(1);
+	}*/
 }
 
 void setRange(int file){
@@ -50,7 +51,11 @@ void setRange(int file){
 	// Set range to +/- 2g(0x00)
 	config[0] = 0x0E;
 	config[1] = 0x00;
-	write(file, config, 2);
+	int result = write(file, config, 2);
+	/*if (result != 2) {
+		perror("I2C: Unable to write i2c register.");
+		exit(1);
+	}*/
 }
 
 int digit12(int index1, int index2){
@@ -73,6 +78,13 @@ int get_zacc(){
 	return z_acc;
 }
 
+int get_accAngleX(){
+	return accAngleX;
+}
+int get_accAngleY(){
+	return accAngleY;
+}
+
 //double integral of the gravity, returns position
 //TODO: Do all these inside a circular array or ds.
 /*int positions(int gravity_val){
@@ -93,7 +105,11 @@ void readData(int file){
 	// Read 7 bytes of data(0x00)
 	
 	char reg[1] = {0x00};
-	write(file, reg, 1);
+	int res = write(file, reg, 1);
+	/*if (res != 2) {
+		perror("I2C: Unable to write i2c register.");
+		exit(1);
+	}*/
 	if(read(file, data, 7) != 7)
 	{
 		printf("Error : Input/Output error \n");
@@ -103,20 +119,11 @@ void readData(int file){
 	    y_acc = digit12(3,4);
 		z_acc = digit12(5,6);
 
-		//xPOS[time_in] = positions(x_acc);
-		//yPOS[time_in] = positions(y_acc);
-		//zPOS[time_in] = positions(z_acc);
+		//calculating roll and pitch
+		//TODO : adjust the error
+		accAngleX = (atan(y_acc / sqrt(pow(x_acc, 2) + pow(z_acc, 2))) * 180 / 3.14);
+		accAngleY = (atan(-1 * x_acc / sqrt(pow(y_acc, 2) + pow(z_acc, 2))) * 180 / 3.14);
 
-		//Remove this once circular array or ds added
-		/*if(time_in >= 1000){
-			printf("buffer full \n");
-			exit(1);
-		}*/
-		
-		printf("x coordinate : %d \n", get_xacc());
-		printf("y coordinate : %d \n", get_yacc());
-		printf("z coordinate : %d \n", get_zacc());
-		
 	}
 }
 

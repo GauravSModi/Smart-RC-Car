@@ -36,16 +36,10 @@ public:
 	// 		right two motors backwards
 	void moveRight();
 
+	void stopMoving();
+
 	// int getDirection(){
 	// 	return direction;
-	// }
-
-	// void turnOn(){
-
-	// }
-
-	// void turnOff(){
-
 	// }
 
 	// int powerStatus(){
@@ -57,7 +51,5 @@ public:
 };
 
 void Motors_init(void);
-
-// Motors* Motors_init(void);
 
 #endif

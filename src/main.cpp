@@ -3,19 +3,22 @@
 #include <condition_variable>
 #include <thread>
 #include <iostream>
-#include <common/utils.h>
-#include <joystick/joystick.h>
-#include <network/network.h>
-#include <rover/rover.h>
-#include <led/led.h>
+//#include <common/utils.h>
+//#include <joystick/joystick.h>
+//#include <network/network.h>
+//#include <rover/rover.h>
+//#include <led/led.h>
+
+
 
 int main(){
   // dummy functions to test project build status
-  utilsDummy();
-  joystickDummy();
+  //utilsDummy();
+  //joystickDummy();
   //ledDummy();
-  roverDummy();
-
+  //networkDummy();
+  //roverDummy();
+  
   // intialize modules
 
   // wait on condition var
