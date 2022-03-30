@@ -27,6 +27,7 @@
 #include <cstring>			// for strncmp()
 #include <unistd.h>			// for close()
 #include "network.h"
+#include <motors/motors.h>
 // cpp thread
 #include <thread>
 #include <string>
@@ -125,6 +126,14 @@ void run(std::function<void()> shutdownFunction) {
     } else if (strcmp(command,"alive") == 0) {
 			udp_reply(sinRemote, socketDescriptor, "alive");
 			reportMessage = false;
+		} else if (strcmp(command,"moveLeft") == 0) {
+			printf("moveLeft\n");
+		} else if (strcmp(command,"moveRight") == 0) {
+			printf("moveRight\n");
+		} else if (strcmp(command,"moveFront") == 0) {
+			printf("moveFront\n");
+		} else if (strcmp(command,"moveBack") == 0) {
+			printf("moveBack\n");
 		}
 
 		if(reportMessage){
