@@ -141,17 +141,17 @@ Motors::~Motors(){
 }
 
 
-void Motors_init(void){
-	Motors newMotors;
-	while (true){
-		// stay here
-		newMotors.moveForward();
-		msleep(3000);
-		newMotors.moveBackward();
-		msleep(3000);
-		newMotors.moveRight();
-		msleep(3000);
-		newMotors.moveLeft();
-		msleep(3000);
-	}
-}
+// void Motors_init(void){
+// 	Motors newMotors;
+// 	while (true){
+// 		// stay here
+// 		newMotors.moveForward();
+// 		msleep(3000);
+// 		newMotors.moveBackward();
+// 		msleep(3000);
+// 		newMotors.moveRight();
+// 		msleep(3000);
+// 		newMotors.moveLeft();
+// 		msleep(3000);
+// 	}
+// }
