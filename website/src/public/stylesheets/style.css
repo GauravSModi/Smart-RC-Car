@@ -12,6 +12,13 @@ h1, h2 {
 	margin-top: 10pt;
 }
 
+#p5-canvas-div {
+	margin-right: 300px;	
+	border: thin black solid;
+	padding-left: 10pt;
+	padding-right: 10pt;
+	min-height: 200pt;
+}
 
 #error-box {
 	border: thin black solid;
@@ -31,14 +38,55 @@ h1, h2 {
 	border: thin black solid;
 	background-color: #f3f3f3;
 	padding: 10pt;
-	clear: right;
 	margin-top: 10pt;
 	display: flex;
 	align-items: center;
 	flex-direction: column;
 }
+
 #shutdown-button{
 	width: auto;
 	height: auto;
 	font-size: 12pt;
+}
+
+#controls-box {
+	float: right;
+	width: 250px;
+	min-height: fit-content;
+	border: thin black solid;
+	background-color: #f3f3f3;
+	padding: 10pt;
+	clear: right;
+	margin-top: 10pt;
+	display: flex;
+	justify-content: center;
+}
+
+#controls {
+  display: inline-grid;
+  grid-column-gap: 0;
+  align-self: end;
+}
+
+.movements_control {
+  border: solid 1px black;  
+  margin: 0;
+  padding: 0;
+	width: 40px;
+	height: 40px;
+}
+
+#keyboard_key_up {
+  grid-column-start: 2;
+}
+
+#keyboard_key_left {
+  grid-column-start: 1;
+}
+
+#keyboard_key_down {}
+
+#keyboard_key_right {
+  grid-column-start: 3;
 }

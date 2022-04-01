@@ -10,3 +10,7 @@ add_test(NAME tof_sensor_test COMMAND tof_sensor_test)
 add_executable(wifi_test wifi_test.cpp)
 target_link_libraries(wifi_test iw) 
 add_test(NAME wifi_test COMMAND wifi_test)
+
+add_executable(network_test network_test.cpp)
+target_link_libraries(network_test network rover) 
+add_test(NAME network_test COMMAND network_test)

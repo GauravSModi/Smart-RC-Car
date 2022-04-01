@@ -1,42 +1,14 @@
-/*
- * UDP Listening program on port 12345
- * By Brian Fraser, Modified from Linux Programming Unleashed (book)
- *
- * Usage:
- *	On the target, run this program (netListenTest).
- *	On the host:
- *		> netcat -u 192.168.7.2 12345
- *		(Change the IP address to your board)
- *
- *	On the host, type in a number and press enter:
- *		4<ENTER>
- *
- *	On the target, you'll see a debug message:
- *	    Message received (2 bytes):
- *	    '4
- *	    '
- *
- *	On the host, you'll see the message:
- *	    Math: 4 + 1 = 5
- *
- */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <netdb.h>
-#include <string.h>			// for strncmp()
-#include <unistd.h>			// for close()
-#include <pthread.h>
 #include "network.h"
-
 
 #define MSG_MAX_LEN 1500
 #define PORT 12345
 
-static pthread_t id;
+static std::thread* networkThread;
 static bool stop_barrier=false;
-static void* run(void*);
+static rover* _myRover;
 
+
+void run(std::function<void()> shutdownFunction);
 
 void networkDummy(){
   printf("network module Include success\n");
@@ -45,13 +17,16 @@ void networkDummy(){
 //udp inner operation
 void udp_stop(struct sockaddr_in sinRemote,int socketDescriptor);
 
-
-void init_udp(void){
-	id=pthread_create(&id,NULL,run,NULL);
+void init_udp(std::function<void()> shutdownFunction, rover* myRover){
+	networkThread = new std::thread(run, shutdownFunction);
+	if(myRover == NULL){
+		throw;
+	}
+	_myRover = myRover;
 }
 
 void clean_udp(void){
-	pthread_join(id,NULL);
+	networkThread->join();
 }
 
 void udp_stop(struct sockaddr_in sinRemote,int socketDescriptor){
@@ -67,9 +42,19 @@ void udp_stop(struct sockaddr_in sinRemote,int socketDescriptor){
 	stop_barrier=true;
 }
 
+void udp_reply(struct sockaddr_in sinRemote,int socketDescriptor, std::string message){
 
-static void* run(void* args)
-{
+	// Transmit a reply:
+	int sin_len = sizeof(sinRemote);
+	sendto(socketDescriptor,
+		message.c_str(), message.length(),
+		0,
+		(struct sockaddr *) &sinRemote, sin_len);
+
+}
+
+
+void run(std::function<void()> shutdownFunction) {
 	// Address
 	struct sockaddr_in sin;
 	memset(&sin, 0, sizeof(sin));
@@ -103,13 +88,40 @@ static void* run(void* args)
 		// Make it null terminated (so string functions work)
 		// - recvfrom given max size - 1, so there is always room for the null
 		messageRx[bytesRx] = 0;
+	
+		// split into tokens
+    char* command = strtok(messageRx," \n");
+    // char* value = strtok(NULL," \n");
+		bool reportMessage = true;
+
+		// make some rover command here
+		if(strcmp(command,"stop") == 0) {
+      udp_stop(sinRemote, socketDescriptor);
+    } else if (strcmp(command,"alive") == 0) {
+			udp_reply(sinRemote, socketDescriptor, "alive");
+			reportMessage = false;
+		} else if (strcmp(command,"moveLeft") == 0) {
+			_myRover->move_left();
+			printf("moveLeft\n");
+		} else if (strcmp(command,"moveRight") == 0) {
+			printf("moveRight\n");
+			_myRover->move_right();
+		} else if (strcmp(command,"moveFront") == 0) {
+			_myRover->move_forward();
+		} else if (strcmp(command,"moveBack") == 0) {
+			_myRover->move_backward();
+			printf("moveBack\n");
+		}
+
+		if(reportMessage){
+			std::string messageStr(messageRx);
+			printf("Recieved: %s\n",messageStr.c_str());
+		}
 		
-		//make some rover command here
-
-
 	}
 
 	// Close
 	close(socketDescriptor);
-	return NULL;
+
+	shutdownFunction();
 }
