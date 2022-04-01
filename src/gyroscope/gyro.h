@@ -7,6 +7,16 @@
 #include <string.h>
 #include <thread>
 #include <ctime>
+
+#include <cerrno>
+#include <cstring>
+#include <system_error>
+#include <string>
+#include <unistd.h>
+#include <fcntl.h>
+#include <linux/i2c-dev.h>
+#include <linux/i2c.h>
+
 using namespace std;
 
 #define deviceADDR 0x68
@@ -29,16 +39,16 @@ static float roll=0;
 static float pitch=0;
 static float yaw=0;
 
-static int error_x = 0;
-static int error_y = 0;
-static int error_z = 0;
+static float error_x = 0;
+static float error_y = 0;
+static float error_z = 0;
 
 //static int current_time = 0;
 //static int prev_time = 0;
 
-int get_xGyro();
-int get_yGyro();
-int get_zGyro();
+float get_xGyro();
+float get_yGyro();
+float get_zGyro();
 
 void gyro_init();
 void gyro_cleanup();

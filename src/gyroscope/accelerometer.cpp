@@ -133,7 +133,6 @@ void routine(){
 	int file = initI2cBus();
 	setRange(file);
 	
-	
 	while(1){
 	 standbyMode(file);
 	 activeMode(file);
@@ -144,7 +143,6 @@ void routine(){
 	 sleep(2);
 
 	}
-	
 	
 }
 
