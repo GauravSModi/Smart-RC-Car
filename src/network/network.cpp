@@ -1,43 +1,13 @@
-/*
- * UDP Listening program on port 12345
- * By Brian Fraser, Modified from Linux Programming Unleashed (book)
- *
- * Usage:
- *	On the target, run this program (netListenTest).
- *	On the host:
- *		> netcat -u 192.168.7.2 12345
- *		(Change the IP address to your board)
- *
- *	On the host, type in a number and press enter:
- *		4<ENTER>
- *
- *	On the target, you'll see a debug message:
- *	    Message received (2 bytes):
- *	    '4
- *	    '
- *
- *	On the host, you'll see the message:
- *	    Math: 4 + 1 = 5
- *
- */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <netdb.h>
-#include <cstring>			// for strncmp()
-#include <unistd.h>			// for close()
 #include "network.h"
-#include <motors/motors.h>
-// cpp thread
-#include <thread>
-#include <string>
-
 
 #define MSG_MAX_LEN 1500
 #define PORT 12345
 
 static std::thread* networkThread;
 static bool stop_barrier=false;
+static rover* _myRover;
+
+
 void run(std::function<void()> shutdownFunction);
 
 void networkDummy(){
@@ -47,8 +17,12 @@ void networkDummy(){
 //udp inner operation
 void udp_stop(struct sockaddr_in sinRemote,int socketDescriptor);
 
-void init_udp(std::function<void()> shutdownFunction){
+void init_udp(std::function<void()> shutdownFunction, rover* myRover){
 	networkThread = new std::thread(run, shutdownFunction);
+	if(myRover == NULL){
+		throw;
+	}
+	_myRover = myRover;
 }
 
 void clean_udp(void){
@@ -117,22 +91,25 @@ void run(std::function<void()> shutdownFunction) {
 	
 		// split into tokens
     char* command = strtok(messageRx," \n");
-    //char* value = strtok(NULL," \n");
+    // char* value = strtok(NULL," \n");
 		bool reportMessage = true;
 
-		//make some rover command here
+		// make some rover command here
 		if(strcmp(command,"stop") == 0) {
       udp_stop(sinRemote, socketDescriptor);
     } else if (strcmp(command,"alive") == 0) {
 			udp_reply(sinRemote, socketDescriptor, "alive");
 			reportMessage = false;
 		} else if (strcmp(command,"moveLeft") == 0) {
+			_myRover->move_left();
 			printf("moveLeft\n");
 		} else if (strcmp(command,"moveRight") == 0) {
 			printf("moveRight\n");
+			_myRover->move_right();
 		} else if (strcmp(command,"moveFront") == 0) {
-			printf("moveFront\n");
+			_myRover->move_forward();
 		} else if (strcmp(command,"moveBack") == 0) {
+			_myRover->move_backward();
 			printf("moveBack\n");
 		}
 

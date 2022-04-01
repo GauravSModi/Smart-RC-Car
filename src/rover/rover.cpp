@@ -46,9 +46,8 @@ void rover::move_right(){
 rover::~rover(){
 	shutdown = true;
 	roverThread->join();
-
+	delete myMotors;
 }
-
 
 void init_rover(void){
 	myRover = new rover;
@@ -56,4 +55,8 @@ void init_rover(void){
 
 void clean_rover(){
 	delete myRover;
+}
+
+rover* get_rover(){
+	return myRover;
 }

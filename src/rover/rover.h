@@ -38,4 +38,6 @@ void init_rover();
 
 void clean_rover();
 
+rover* get_rover();
+
 #endif

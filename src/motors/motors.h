@@ -13,11 +13,14 @@
 class Motors {
 private:
 	bool exit;
-	int direction;		// 0 = backward, 1 = forward
+	int direction;		// -1 = none, 0 = backward, 1 = forward, 2 = left, 3 = right
 	int power;			// 0 = off, 	 1 = on
 	int forwardPin;		// GPIO pin for forward motion
 	int backwardPin;	// GPIO pin for backward motion
 	std::thread motorsThread;
+
+	void exportAll();
+	void unexportAll();
 
 public:
 	Motors();
@@ -36,15 +39,14 @@ public:
 	// 		right two motors backwards
 	void moveRight();
 
+	// Stop all motors
 	void stopMoving();
 
-	// int getDirection(){
-	// 	return direction;
-	// }
+	// -1 = none, 0 = backward, 1 = forward, 2 = left, 3 = right
+	int getDirection();
 
-	// int powerStatus(){
-
-	// }
+	// 0 = off, 1 = on
+	int getPowerStatus();
 
 	~Motors();
 

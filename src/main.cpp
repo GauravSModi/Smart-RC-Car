@@ -7,6 +7,7 @@
 //#include "joystick/joystick.h"
 #include "network/network.h"
 #include "rover/rover.h"
+//#include "gyroscope/gyro.h"
 //#include "led/led.h"
 
 static std::mutex _shutdownLock;
@@ -19,12 +20,13 @@ int main(){
   std::unique_lock<std::mutex> shutdownLock(_shutdownLock);
 
   // initialize modules
-  init_udp(signalShutdown);
   init_rover();
+  init_udp(signalShutdown,get_rover());
+  gyro_init();
 
   // wait on shutdown signal
   isRunning = true;
-  printf("[Main] Waiting on Condition.\n");
+  printf("[Main] waiting on condition.\n");
   shutdownCondition.wait(shutdownLock);
 
   // clean up and unlock shutdown mutex
@@ -33,7 +35,6 @@ int main(){
 
   isRunning = false;
   shutdownLock.unlock();
-
 
   // exit
   return 0;

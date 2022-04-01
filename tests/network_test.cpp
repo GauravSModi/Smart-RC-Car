@@ -15,7 +15,7 @@ int main(){
   std::unique_lock<std::mutex> shutdownLock(_shutdownLock);
 
   // initialize
-  init_udp(signalShutdown);
+  init_udp(signalShutdown,NULL);
 
   // wait on shutdown signal
   isRunning = true;

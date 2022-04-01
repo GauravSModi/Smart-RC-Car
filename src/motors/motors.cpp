@@ -12,15 +12,10 @@ static const int gpio_pins[] = {LEFT_BACKWARD, LEFT_FORWARD, RIGHT_FORWARD, RIGH
 
 
 // Motors::Motors(int forPin, int backPin) : motorsThread{}{
-Motors::Motors(){
-	exit = false;
 
-	for (int i = 0; i < NUM_PINS; i ++){
-		int maxLength = 50;
-		char buffer[maxLength];
-		std::snprintf(buffer, maxLength, "echo %d > /sys/class/gpio/export", gpio_pins[i]);
-		system(buffer);
-	}
+Motors::Motors(){
+	direction = -1;
+	power = 0;
 
 	// give system time to export
 	msleep(500);
@@ -43,6 +38,9 @@ Motors::Motors(){
 }
 
 void Motors::moveBackward(){
+	direction = 0;
+	power = 1;
+
 	for (int i = 0; i < NUM_PINS; i ++){
 		int maxLength = 50;
 		char buffer[maxLength];
@@ -58,6 +56,9 @@ void Motors::moveBackward(){
 }
 
 void Motors::moveForward(){
+	direction = 1;
+	power = 1;
+
 	for (int i = 0; i < NUM_PINS; i ++){
 		int maxLength = 50;
 		char buffer[maxLength];
@@ -73,6 +74,9 @@ void Motors::moveForward(){
 }
 
 void Motors::moveLeft(){
+	direction = 2;
+	power = 1;
+
 	for (int i = 0; i < NUM_PINS; i ++){
 		int maxLength = 50;
 		char buffer[maxLength];
@@ -88,6 +92,9 @@ void Motors::moveLeft(){
 }
 
 void Motors::moveRight(){
+	direction = 3;
+	power = 1;
+
 	for (int i = 0; i < NUM_PINS; i ++){
 		int maxLength = 50;
 		char buffer[maxLength];
@@ -102,8 +109,10 @@ void Motors::moveRight(){
 	printf("Moving right\n");
 }
 
-
 void Motors::stopMoving(){
+	direction = -1;
+	power = 0;
+
 	for (int i = 0; i < NUM_PINS; i ++){
 		int maxLength = 50;
 		char buffer[maxLength];
@@ -114,24 +123,24 @@ void Motors::stopMoving(){
 }
 
 
-// int Motors::getDirection(){
-// 	return direction;
-// }
+int Motors::getDirection(){
+	return direction;
+}
 
-// void Motors::turnOn(){
+int Motors::getPowerStatus(){
+	return power;
+}
 
-// }
+void Motors::exportAll(){
+	for (int i = 0; i < NUM_PINS; i ++){
+		int maxLength = 50;
+		char buffer[maxLength];
+		std::snprintf(buffer, maxLength, "echo %d > /sys/class/gpio/export", gpio_pins[i]);
+		system(buffer);
+	}
+}
 
-// void Motors::turnOff(){
-
-// }
-
-// int Motors::powerStatus(){
-
-// }
-
-Motors::~Motors(){
-	exit = true;
+void Motors::unexportAll(){
 	for (int i = 0; i < NUM_PINS; i ++){
 		int maxLength = 50;
 		char buffer[maxLength];
@@ -140,18 +149,7 @@ Motors::~Motors(){
 	}
 }
 
-
-// void Motors_init(void){
-// 	Motors newMotors;
-// 	while (true){
-// 		// stay here
-// 		newMotors.moveForward();
-// 		msleep(3000);
-// 		newMotors.moveBackward();
-// 		msleep(3000);
-// 		newMotors.moveRight();
-// 		msleep(3000);
-// 		newMotors.moveLeft();
-// 		msleep(3000);
-// 	}
-// }
+Motors::~Motors(){
+	stopMoving();
+	unexportAll();
+}
