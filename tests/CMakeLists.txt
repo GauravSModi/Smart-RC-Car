@@ -16,5 +16,5 @@ target_link_libraries(network_test network rover)
 add_test(NAME network_test COMMAND network_test)
 
 add_executable(network_controls_test network_controls_test.cpp)
-target_link_libraries(network_controls_test networkControls) 
+target_link_libraries(network_controls_test networkControls network rover) 
 add_test(NAME network_controls_test COMMAND network_controls_test)
