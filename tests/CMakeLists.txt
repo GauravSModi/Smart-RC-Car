@@ -12,7 +12,7 @@ target_link_libraries(wifi_test iw wireless)
 add_test(NAME wifi_test COMMAND wifi_test)
 
 add_executable(network_test network_test.cpp)
-target_link_libraries(network_test network) 
+target_link_libraries(network_test network rover) 
 add_test(NAME network_test COMMAND network_test)
 
 add_executable(network_controls_test network_controls_test.cpp)

@@ -30,7 +30,8 @@ if(NOT CMAKE_BUILD_TYPE)
 endif(NOT CMAKE_BUILD_TYPE)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pthread -liw")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pthread -liw")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -liw")
 
 #include_directories()
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/src")

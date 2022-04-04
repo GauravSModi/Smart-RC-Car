@@ -3,3 +3,4 @@ add_library(networkControls networkControls.cpp)
 target_link_libraries(networkControls network)
 
 
+target_link_libraries(network motors)

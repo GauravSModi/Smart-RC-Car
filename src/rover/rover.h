@@ -1,28 +1,43 @@
-#pragma once 
+#ifndef _ROVER_H_
+#define _ROVER_H_
 
-void roverDummy();
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>			
+#include <unistd.h>			
+#include <thread>
+
+#include "../motors/motors.h"
+#include "../common/utils.h"
 
 class rover{
-
 private:
-	int joy_input;
-	int web_input;
-	double current_speed;
+	Motors* myMotors;
+	bool shutdown;
+	std::thread* roverThread;
+
 public:
-	rover(int j_input, int w_input); //constructor
+	rover(); //constructor
 	
-	void setInput(int j_input,int w_input); //instead of set input, set direction
-	int getJoyInput();
-	int getWebInput();
-	
-	void start_rover(); //pthread create
+	void main_rover();
+
+	void move_forward();
+
+	void move_backward();
+
+	void move_left();
+
+	void move_right();
+
 	void stop_rover();
-	
-	void takingInput(); //main routine for the rover.
-	
-	void init_gpio_pins();
-	
-	void move();
-	void turn();
+
+	~rover();
 };
 
+void init_rover();
+
+void clean_rover();
+
+rover* get_rover();
+
+#endif

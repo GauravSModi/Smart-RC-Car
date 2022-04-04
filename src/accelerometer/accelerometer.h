@@ -24,6 +24,9 @@ int get_xacc();
 int get_yacc();
 int get_zacc();
 
+int get_accAngleX();
+int get_accAngleY();
+
 
 //implement init function
 //implement cleanup function
