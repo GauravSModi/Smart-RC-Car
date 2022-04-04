@@ -7,7 +7,7 @@
 //#include "joystick/joystick.h"
 #include "network/network.h"
 #include "rover/rover.h"
-//#include "gyroscope/gyro.h"
+#include "gyroscope/gyro.h"
 //#include "led/led.h"
 
 static std::mutex _shutdownLock;
@@ -30,6 +30,7 @@ int main(){
   shutdownCondition.wait(shutdownLock);
 
   // clean up and unlock shutdown mutex
+  gyro_cleanup();
   clean_udp();
   clean_rover();
 

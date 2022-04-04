@@ -1,10 +1,11 @@
 #include "gyro.h"
-//#include "accelerometer.h"
+
 
 char data[6] = {0};
 char results[6];
 
 double elapsed_t = 0;
+
 std::chrono::_V2::system_clock::time_point prev_time ;
 std::chrono::_V2::system_clock::time_point current_time ;
 
@@ -71,41 +72,51 @@ float get_zGyro(){
 
 void calculateAngle() {  
   
-  
-  gyroAngleX = gyroAngleX + (get_xGyro()-error_x)*elapsed_t; // deg/s * s = deg
-  gyroAngleY = gyroAngleY + (get_yGyro()-error_y)*elapsed_t;
+ //Only need the yaw readings for left and right movement.
+  yaw= yaw + (zGyro-error_z)*elapsed_t;
 
-  //add roll and pitch by including the acc module
-  //roll = 0.96 * gyroAngleX + 0.04 * get_accAngleX();
-  //pitch = 0.96 * gyroAngleY + 0.04 * get_accAngleY();
+  printf(" Yaw = %f \n", yaw);
 
-  //gyroAngleX = 0.96 * gyroAngleX + 0.04 * get_accAngleX();
-  //gyroAngleY = 0.96 * gyroAngleY + 0.04 * get_accAngleY();
+  //cap the yaw
+  //assume for now that once its more than 90, set yaw back to 0.
+  //originally set yaw back to 0, once the rover is not moving
+  if(yaw > 90){
+	  printf("Yaw is over 90 right now \n"); 
 
-  roll = gyroAngleX;
-  pitch = gyroAngleY;
+	  yaw = 0;
+	  sleep(1);
+	  //stop moving
+  }
+  else if( yaw < -90){
 
-  //yaw= yaw + (get_zGyro()-error_z)*elapsed_t;
-  yaw= yaw + (get_zGyro()-error_z)*elapsed_t;
+	  printf("Yaw is under -90 right now \n");
+	  yaw = 0;
+	  sleep(1);
+	  //stop moving
+  }
 
+
+}
+
+
+double elapsed_time(){
+
+	double ret_val;
+	prev_time = current_time;
+	auto temp = std::chrono::system_clock::now();
+	current_time =temp;
+
+	std::chrono::duration<double> elapsed_seconds = current_time - prev_time;
+	ret_val = (double)elapsed_seconds.count();
+
+	return ret_val;
+	
 }
 
 void readGyroData(int file){
 
-	//data[0] = getRegisterValue(file, 0x43);
-	//lseek(file, 67, SEEK_SET);
-    /*if(read(file, data, 6) != 6)
-	{
-		printf("Error : Input/Output error \n");
-	}
-	else
-	{*/
-		prev_time = current_time;
-		auto temp = std::chrono::system_clock::now();
-		current_time =temp;
-
-		std::chrono::duration<double> elapsed_seconds = current_time - prev_time;
-		elapsed_t = (double)elapsed_seconds.count();
+		
+		elapsed_t = elapsed_time();
 
 		for(int i = 0; i <6; i++){
 			results[i] = readI2cReg(file, data[i]);
@@ -127,9 +138,6 @@ void readGyroData(int file){
 		if(zGyro > 250){
 			zGyro -= 500;
 		}
-		 
-
-		printf("[%d, %d, %d] \n", xGyro, yGyro, zGyro);
 		
 }
 
@@ -138,7 +146,7 @@ void readGyroData(int file){
 void avg_error(int file){
 
 
-    for(int i = 0 ; i < 5000; i++){
+    for(int i = 0 ; i < 1000; i++){
 
 		readGyroData(file);
 
@@ -147,9 +155,9 @@ void avg_error(int file){
 		error_z = error_z + zGyro;
     }
 
-	error_x = error_x/5000;
-	error_y = error_y/5000;
-	error_z = error_z/5000;
+	error_x = error_x/1000;
+	error_y = error_y/1000;
+	error_z = error_z/1000;
 }
 
 void gyro_routine(){
@@ -157,7 +165,6 @@ void gyro_routine(){
     
     writeI2cReg(file, PWR_MGMT_1, 0);
 
-	//avg_error(file);
 	
 	data[0] = 0x43;
 	data[1] = 0x44;
@@ -166,12 +173,15 @@ void gyro_routine(){
 	data[4] = 0x47;
 	data[5] = 0x48;
 
+	avg_error(file);
+
     while(1){
 
         readGyroData(file);
-		//calculateAngle();
+		sleep(0.01);
+		calculateAngle();
 
-        sleep(1);
+        sleep(0.01);
     }
 
 }
@@ -184,13 +194,3 @@ void gyro_cleanup(){
 	gyro_readingThread->join();
 }
 
-int main(){
-	
-	gyro_init();
-	//acc_init();
-
-	//acc_cleanup();
-	gyro_cleanup();
-
-	return 0;
-}
