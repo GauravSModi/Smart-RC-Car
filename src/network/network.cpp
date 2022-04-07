@@ -1,6 +1,5 @@
 #include "network.h"
 
-#define MSG_MAX_LEN 1500
 #define PORT 12345
 
 static std::thread* networkThread;
@@ -61,7 +60,7 @@ void run(std::function<void()> shutdownFunction) {
 	sin.sin_family = AF_INET;                   // Connection may be from network
 	sin.sin_addr.s_addr = htonl(INADDR_ANY);    // Host to Network long
 	sin.sin_port = htons(PORT);                 // Host to Network short
-	
+
 	// Create the server socket for UDP
 	int socketDescriptor = socket(PF_INET, SOCK_DGRAM, 0);
 

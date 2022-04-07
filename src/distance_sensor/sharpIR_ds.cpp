@@ -6,7 +6,7 @@
 #include <cmath>
 
 
-#define A2D_FILE_VOLTAGE0 "/sys/bus/iio/devices/iio:device0/in_voltage1_raw"
+#define A2D_FILE_VOLTAGE1 "/sys/bus/iio/devices/iio:device0/in_voltage1_raw"
 #define A2D_VOLTAGE_REF_V 1.8
 #define A2D_MAX_READING 4095
 #define TRAIN_DATA_LENGTH 14
@@ -27,7 +27,7 @@ SHARPDistanceSensor::SHARPDistanceSensor(){
 }
 
 unsigned int SHARPDistanceSensor::getVoltageValues(){
-    this->sensorFD=fopen(A2D_FILE_VOLTAGE0,"r");
+    this->sensorFD=fopen(A2D_FILE_VOLTAGE1,"r");
     if(!this->sensorFD){
         printf("ERROR: UNABLE TO OPEN VOLTAGE FILE\n");
         exit(-1);
@@ -64,10 +64,17 @@ double SHARPDistanceSensor::getSensorValues(){
     //use voltage graph to train the data
     //in order to calculate the distance
     double ret=0;
-    int a2dValue=this->getVoltageValues();
-    double voltage=((double)a2dValue/A2D_MAX_READING)*A2D_VOLTAGE_REF_V;
+    double average_correspondVoltage=0;
+    double correspondVoltage=0;
 
-    double correspondVoltage=voltage*5/1.8*0.9;
+
+    for(int i=0;i<10;i++){
+        int a2dValue=this->getVoltageValues();
+        double voltage=((double)a2dValue/A2D_MAX_READING)*A2D_VOLTAGE_REF_V;
+
+        correspondVoltage+=voltage*5/1.8*0.9;
+    }
+    correspondVoltage/=10;
 
     // if(correspondVoltage<=data[0][1]&&correspondVoltage>data[1][1]){
     //     return pwlAlgorithm(correspondVoltage,data[0][0],data[1][0],data[0][1],data[1][1]);
@@ -96,6 +103,9 @@ double SHARPDistanceSensor::getSensorValues(){
 
     //linear approximation: Distance=29.988*pow(voltage,-1.173);
     ret=29.988*pow(correspondVoltage,-1);
+    if((ret<=10)||(ret>=80)){
+        ret=1000;
+    }
 
     return ret;
     //return correspondVoltage;

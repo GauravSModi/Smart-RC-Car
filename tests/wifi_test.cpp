@@ -1,5 +1,9 @@
 #include <iostream>
 #include <iwlib.h>
+#include <wireless/wireless.h>
+
+#define WIFI_NAME "baden"
+#define INTERFACE_NAME "wlan0"
 
 // wireless-tools example referenced https://github.com/simonschuang/iwlib-example/blob/master/main.c
 
@@ -36,10 +40,44 @@ void testscanwifi(){
   }
 }
 
+void testClassScanWifi(){
+  WirelessManager* manager = WirelessManager::getInstance();
+  auto result = manager->scanWifi();
+
+  for(int i = 0; i < (int) result.size();i++){
+    std::cout << "wifi: "<< result[i].b.name << "::::" << result[i].b.essid << "\n";
+    
+  }
+}
+
+void testConnectTo(){
+  WirelessManager* manager = WirelessManager::getInstance();
+  bool status = manager->connectTo(WIFI_NAME);
+  std::cout << "wifi status: " << status << "\n";
+}
+
+void printCurrent(){
+  int skfd = iw_sockets_open();
+
+  wireless_config iwconfig;
+  iw_get_basic_config(skfd, INTERFACE_NAME, &iwconfig);
+
+  
+  std::cout 
+  << "name: " << iwconfig.essid << "\n"
+  << "mode: " << iwconfig.mode << "\n"
+  << "essid_on: " << iwconfig.essid_on << "\n";
+
+  iw_sockets_close(skfd);
+}
+
 int main(int argc, char const *argv[]){
 
   //testwifistats();
-  testscanwifi();
+  //testscanwifi();
+  //testClassScanWifi();
+  printCurrent();
+  //testConnectTo();
 
   return 0;
 }
