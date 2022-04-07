@@ -1,6 +1,9 @@
 #include "rover.h"
+#include "gyroscope/gyro.h"
 
 rover* myRover;
+
+bool value = 0; 
 
 rover::rover(){
 	shutdown = false;
@@ -22,6 +25,12 @@ void rover::main_rover(){
 		// msleep(3000);
 		// myMotors->moveLeft();
 		// msleep(3000);
+
+		while(value != 1){
+			this->move_right();
+			value = is90();
+		}
+		
 	}
 
 	return;

@@ -1,5 +1,7 @@
 #include "gyro.h"
 
+//Start calculating the yaw once object encountered
+//Once at a certain distance from the the object, start counting the yaw
 
 char data[6] = {0};
 char results[6];
@@ -68,7 +70,35 @@ float get_yGyro(){
 float get_zGyro(){
     return zGyro;
 }
+float getYaw(){
+	return yaw;
+}
 
+
+bool is90(void){
+
+
+	//cap the yaw
+    //assume for now that once its more than 90, set yaw back to 0.
+    //originally set yaw back to 0, once the rover is not moving
+	if(getYaw() > 90){
+	  printf("Yaw is over 90 right now \n"); 
+
+	  yaw = 0;
+	  sleep(1);
+	  
+	 return true;
+  }
+  else if(getYaw() < -90){
+
+	  printf("Yaw is under -90 right now \n");
+	  yaw = 0;
+	  sleep(1);
+	  
+	  return true;
+  }
+	return false;
+}
 
 void calculateAngle() {  
   
@@ -76,26 +106,10 @@ void calculateAngle() {
   yaw= yaw + (zGyro-error_z)*elapsed_t;
 
   printf(" Yaw = %f \n", yaw);
-
-  //cap the yaw
-  //assume for now that once its more than 90, set yaw back to 0.
-  //originally set yaw back to 0, once the rover is not moving
-  if(yaw > 90){
-	  printf("Yaw is over 90 right now \n"); 
-
-	  yaw = 0;
-	  sleep(1);
-	  //stop moving
-  }
-  else if( yaw < -90){
-
-	  printf("Yaw is under -90 right now \n");
-	  yaw = 0;
-	  sleep(1);
-	  //stop moving
-  }
-
-
+  
+  bool value = is90();
+  printf("%d\n", value);
+  
 }
 
 
@@ -115,7 +129,6 @@ double elapsed_time(){
 
 void readGyroData(int file){
 
-		
 		elapsed_t = elapsed_time();
 
 		for(int i = 0; i <6; i++){
@@ -140,8 +153,6 @@ void readGyroData(int file){
 		}
 		
 }
-
-
 
 void avg_error(int file){
 
@@ -180,8 +191,6 @@ void gyro_routine(){
         readGyroData(file);
 		sleep(0.01);
 		calculateAngle();
-
-        sleep(0.01);
     }
 
 }
