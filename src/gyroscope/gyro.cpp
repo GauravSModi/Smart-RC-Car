@@ -77,7 +77,6 @@ float getYaw(){
 
 bool is90(void){
 
-
 	//cap the yaw
     //assume for now that once its more than 90, set yaw back to 0.
     //originally set yaw back to 0, once the rover is not moving
@@ -103,12 +102,15 @@ bool is90(void){
 void calculateAngle() {  
   
  //Only need the yaw readings for left and right movement.
+  //float delta =(zGyro-error_z)*elapsed_t;
+  //int delta =(zGyro-error_z)*elapsed_t;
+  //printf("delat value = %d\n", delta);
   yaw= yaw + (zGyro-error_z)*elapsed_t;
 
   printf(" Yaw = %f \n", yaw);
   
-  bool value = is90();
-  printf("%d\n", value);
+  //bool value = is90();
+  //printf("%d\n", value);
   
 }
 

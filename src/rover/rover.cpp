@@ -15,6 +15,7 @@ rover::rover(){
 void rover::main_rover(){
 	if (!myMotors) return;
 
+	this->move_right();
 	while (!shutdown){
 		// do something
 		// myMotors->moveForward();
@@ -25,10 +26,12 @@ void rover::main_rover(){
 		// msleep(3000);
 		// myMotors->moveLeft();
 		// msleep(3000);
+		value = is90();
+		if(value == 1){
 
-		while(value != 1){
-			this->move_right();
-			value = is90();
+			printf("STOPPING NOW\n");
+			this->myMotors->stopMoving();
+			sleep(5);
 		}
 		
 	}
