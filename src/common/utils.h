@@ -37,3 +37,14 @@ typedef struct timespec timespec_t;
 
 // timespec addtion with overflow protection for tv_nsec only
 timespec_t timespec_add(timespec_t t, int seconds, long long nanoseconds);
+
+// Vectors
+// value stored as array with named access 
+// referenced https://stackoverflow.com/questions/14418595/c-method-for-iterating-through-a-structs-member-like-an-array
+template<class T>
+union Vec3{
+  struct {
+    T x,y,z;
+  };
+  T asArray[3];
+};
