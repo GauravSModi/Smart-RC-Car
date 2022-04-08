@@ -17,6 +17,8 @@ Motors::Motors(){
 	direction = -1;
 	power = 0;
 
+	exportAll();
+
 	// give system time to export
 	msleep(500);
 

@@ -15,8 +15,12 @@ rover::rover(){
 void rover::main_rover(){
 	if (!myMotors) return;
 
-	this->move_right();
+	this->move_left();
+	//calculateAngle();
+	magic();
+
 	while (!shutdown){
+		//calculateAngle();
 		// do something
 		// myMotors->moveForward();
 		// msleep(3000);
@@ -31,8 +35,9 @@ void rover::main_rover(){
 
 			printf("STOPPING NOW\n");
 			this->myMotors->stopMoving();
-			sleep(5);
+			//sleep(5);
 		}
+		sleep(0.01);
 		
 	}
 

@@ -41,10 +41,14 @@ float get_zGyro();
 
 float getYaw();
 
+
+void calculateAngle();
+
 bool is90();
 
 void gyro_init();
 void gyro_cleanup();
 
-
+// FIXME:
+void magic();
  
