@@ -39,6 +39,10 @@ float get_xGyro();
 float get_yGyro();
 float get_zGyro();
 
+float getYaw();
+
+bool is90();
+
 void gyro_init();
 void gyro_cleanup();
 

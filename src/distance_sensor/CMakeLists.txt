@@ -1,2 +1,2 @@
-add_library(distance_sensors adafruit_tof.cpp)
+add_library(distance_sensors adafruit_tof.cpp sharpIR_ds.cpp)
 target_link_libraries(distance_sensors common)

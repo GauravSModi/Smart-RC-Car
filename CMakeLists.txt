@@ -33,13 +33,18 @@ set(CMAKE_CXX_STANDARD 11)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pthread -liw")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -liw")
 
+#find package
+#find_package( OpenCV REQUIRED )
+
 #include_directories()
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/src")
+INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/src/camera/")
 LINK_DIRECTORIES("${CMAKE_SOURCE_DIR}/lib-multiarch")
 
 # Module Directories
 add_subdirectory(src)
 add_subdirectory(lib-multiarch)
+include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 # Test Directories
 
