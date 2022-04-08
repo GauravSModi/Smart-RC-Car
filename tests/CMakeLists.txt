@@ -18,3 +18,7 @@ add_test(NAME network_test COMMAND network_test)
 add_executable(network_controls_test network_controls_test.cpp)
 target_link_libraries(network_controls_test networkControls network rover) 
 add_test(NAME network_controls_test COMMAND network_controls_test)
+
+add_executable(magnetometer_test magnetometer_test.cpp)
+target_link_libraries(magnetometer_test magnetometer common) 
+add_test(NAME magnetometer_test COMMAND magnetometer_test)
