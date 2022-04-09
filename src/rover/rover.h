@@ -10,14 +10,14 @@
 #include "../motors/motors.h"
 #include "../common/utils.h"
 
-class rover{
+class Rover{
 private:
 	Motors* myMotors;
 	bool shutdown;
 	std::thread* roverThread;
 
 public:
-	rover(); //constructor
+	Rover(); //constructor
 	
 	void main_rover();
 
@@ -31,13 +31,13 @@ public:
 
 	void stop_rover();
 
-	~rover();
+	~Rover();
 };
 
 void init_rover();
 
 void clean_rover();
 
-rover* get_rover();
+Rover* get_rover();
 
 #endif

@@ -15,7 +15,7 @@ int main(){
 
   std::unique_lock<std::mutex> shutdownLock(_shutdownLock);
   init_rover();
-  rover* rover = get_rover();
+  Rover* rover = get_rover();
   // initialize
   init_networkModule(signalShutdown,rover);
 

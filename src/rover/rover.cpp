@@ -1,18 +1,24 @@
 #include "rover.h"
 #include "gyroscope/gyro.h"
+#include <mutex>
 
-rover* myRover;
+Rover* myRover;
+std::mutex controlsLatch;
 
 bool value = 0; 
 
-rover::rover(){
+// subroutines
+static bool rover_turn(double degrees);
+static bool rover_move(double seconds);
+
+Rover::Rover(){
 	shutdown = false;
 	myMotors = new Motors();
-	roverThread = new std::thread(&rover::main_rover, this);
+	roverThread = new std::thread(&Rover::main_rover, this);
 	//intialise other dependent modules
 }
 
-void rover::main_rover(){
+void Rover::main_rover(){
 	if (!myMotors) return;
 
 	this->move_left();
@@ -20,16 +26,6 @@ void rover::main_rover(){
 	magic();
 
 	while (!shutdown){
-		//calculateAngle();
-		// do something
-		// myMotors->moveForward();
-		// msleep(3000);
-		// myMotors->moveBackward();
-		// msleep(3000);
-		// myMotors->moveRight();
-		// msleep(3000);
-		// myMotors->moveLeft();
-		// msleep(3000);
 
 		//turn
 		// get current yaw
@@ -45,43 +41,45 @@ void rover::main_rover(){
 			this->myMotors->stopMoving();
 			//sleep(5);
 		}
-		sleep(0.01);
+		
 		
 	}
 
 	return;
 }
 
-void rover::move_forward(){
+bool Rover::move_forward(){
+	controlsLatch.lo
 	myMotors->moveForward();
 }
 
-void rover::move_backward(){
+bool Rover::move_backward(){
 	myMotors->moveBackward();
 }
 
-void rover::move_left(){
+bool Rover::move_left(){
 	myMotors->moveLeft();
 }
 
-void rover::move_right(){
+bool Rover::move_right(){
 	myMotors->moveRight();
 }
-	
-rover::~rover(){
+
+
+Rover::~Rover(){
 	shutdown = true;
 	roverThread->join();
 	delete myMotors;
 }
 
 void init_rover(void){
-	myRover = new rover;
+	myRover = new Rover;
 }
 
 void clean_rover(){
 	delete myRover;
 }
 
-rover* get_rover(){
+Rover* get_rover(){
 	return myRover;
 }

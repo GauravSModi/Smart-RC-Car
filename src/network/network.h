@@ -15,7 +15,7 @@
 
 #define MSG_MAX_LEN 1500
 
-void init_networkModule(std::function<void()> shutdownFunction, rover* myRover);
+void init_networkModule(std::function<void()> shutdownFunction, Rover* myRover);
 void clean_networkModule(void);
 
 void udp_reply(struct sockaddr_in sinRemote,int socketDescriptor, std::string message);

@@ -13,7 +13,7 @@
 static std::thread* networkThread;
 static std::thread* publishingThread;
 static bool stopbarrier = false;
-static rover* _myRover;
+static Rover* _myRover;
 
 // static variables for publishing Thread
 static std::vector<sockaddr_in> _subscribers;
@@ -36,7 +36,7 @@ void networkDummy(){
 //udp inner operation
 void udp_stop(struct sockaddr_in sinRemote,int socketDescriptor);
 
-void init_networkModule(std::function<void()> shutdownFunction, rover* myRover){
+void init_networkModule(std::function<void()> shutdownFunction, Rover* myRover){
 	if(myRover == NULL){
 		throw;
 	}
