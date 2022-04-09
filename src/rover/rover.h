@@ -21,17 +21,21 @@ public:
 	
 	void main_rover();
 
-	void move_forward();
-
-	void move_backward();
-
-	void move_left();
-
-	void move_right();
-
-	void stop_rover();
+	bool move_forward();
+	bool move_backward();
+	bool move_left();
+	bool move_right();
+	bool stop_rover();
+	void force_stop_rover();
 
 	~Rover();
+
+private:
+	// subroutines, locks other controls for duration
+	// turns <degrees> and returns the actual degree turned according to gyro
+	float rover_turn(double degrees, bool turnleft);
+	bool rover_turn_percise(double degrees, bool turnleft, double withinThreshold);
+	bool rover_move(double seconds);
 };
 
 void init_rover();

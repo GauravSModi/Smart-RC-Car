@@ -78,16 +78,18 @@ float getYaw(){
 	return absolute_yaw;
 }*/
 
-void magic(){
+
+void resetYaw(){
 	yaw = 0;
 }
 
-
-bool is90(void){
+bool is90(float goalDegree){
 
 	//cap the yaw
     //assume for now that once its more than 90, set yaw back to 0.
     //originally set yaw back to 0, once the rover is not moving
+
+/* !!!MOVED TO ROVER!!!
 
 	float condition  = yaw - offset;
 	//if(getYaw() > 90){
@@ -109,6 +111,8 @@ bool is90(void){
 	  return true;
   }
 	return false;
+	*/
+	return true;
 }
 
 double elapsed_time(){
