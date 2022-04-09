@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 # Parameter Variables
 # ======================================
 # modules main requies to work
-set(MODULES ${MODULES} rover common joystick network led gyro accelerometer)
+set(MODULES ${MODULES} rover common joystick network led gyro accelerometer distance_sensors)
 # enable testing [YES/NO]
 if (EXISTS "./.enableTest")
   set(ENABLE_TEST YES)

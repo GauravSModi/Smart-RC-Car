@@ -5,6 +5,8 @@
 #include <common/utils.h>
 #include <unistd.h>
 
+#define threshold 200
+
 #define I2C_TOF_SENSOR_DEVICE 0x29
 #define REG_TOF_MSB 0x1E
 #define REG_TOF_LSB 0x1F
@@ -17,19 +19,28 @@
 
 static TOFDistanceSensor* instance = NULL;
 
-TOFDistanceSensor* TOFDistanceSensor::getInstance(){
+/*TOFDistanceSensor* TOFDistanceSensor::getInstance(){
   if(instance == NULL){
     instance = new TOFDistanceSensor();
   }
   return instance;
-}
+}*/
 
 TOFDistanceSensor::TOFDistanceSensor(){
   this->configSensor();
   this->sensorFD = initI2cBus(I2C_TOF_SENSOR_BUS,I2C_TOF_SENSOR_DEVICE);
 
+  this->distance_readingThread = new std::thread(&TOFDistanceSensor::distanceReading_routine,this);
   this->setContinousSensing(true);
   this->setFilterExtremeValues(true);
+}
+
+TOFDistanceSensor::~TOFDistanceSensor(){
+
+  this->distance_readingThread->join();
+  this->setContinousSensing(false);
+  this->setFilterExtremeValues(false);
+
 }
 
 unsigned int TOFDistanceSensor::getSensorValues(){
@@ -77,3 +88,21 @@ void TOFDistanceSensor::setContinousSensing(bool enable){
     writeI2cReg(this->sensorFD,REG_TOF_CONTROL,REG_TOF_SINGLE_MODE);
   }
 }
+
+bool TOFDistanceSensor::objectedDetected(int distance){
+    if (distance <= threshold){
+      return true;
+    }
+    return false;
+}
+
+void TOFDistanceSensor::distanceReading_routine(){
+
+  while(1){
+    int reading = this->getSensorValues();
+    printf("current distance value = %d \n", reading);
+
+  }
+}
+
+

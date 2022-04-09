@@ -8,6 +8,7 @@
 #include "network/network.h"
 #include "rover/rover.h"
 #include "gyroscope/gyro.h"
+#include "distance_sensor/adafruit_tof.h"
 //#include "led/led.h"
 
 static std::mutex _shutdownLock;
@@ -18,11 +19,14 @@ void signalShutdown();
 
 int main(){
   std::unique_lock<std::mutex> shutdownLock(_shutdownLock);
-
+  TOFDistanceSensor* sensor = new TOFDistanceSensor() ;
+  
   // initialize modules
-  gyro_init();
+  //gyro_init();
+  //TOFDistanceSensor();
   sleep(7);
   init_rover();
+  
   //init_udp(signalShutdown,get_rover());
   
 
@@ -32,8 +36,10 @@ int main(){
   shutdownCondition.wait(shutdownLock);
 
   // clean up and unlock shutdown mutex
-  gyro_cleanup();
+
+  //gyro_cleanup();
   //clean_udp();
+  delete sensor;
   clean_rover();
 
   isRunning = false;

@@ -91,7 +91,7 @@ bool is90(void){
 
 	float condition  = yaw - offset;
 	//if(getYaw() > 90){
-	if(condition > 75){	
+	if(condition > 90){	
 	  printf("Yaw is over 90 right now \n"); 
 	  offset = getYaw();
 
@@ -100,7 +100,7 @@ bool is90(void){
 	 return true;
   }
   //else if(getYaw() < -90){
-	else if( condition < -75){  
+	else if( condition < -90){  
 
 	  printf("Yaw is under -90 right now \n");
 	  offset = getYaw();
