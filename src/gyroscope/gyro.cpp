@@ -145,7 +145,7 @@ void calculateAngle() {
   //float temp = yaw;
   //absolute_yaw = temp;
   //printf("delat value = %f, actual = %f, yaw = %f \n", delta,actual,yaw);
-  printf("running sum = %f\n", yaw);
+  //printf("running sum = %f\n", yaw);
   
   
 }
@@ -179,7 +179,7 @@ void readGyroData(int file){
 }
 
 void avg_error(int file){
-
+	std::cout << "Cacluating gryo Errors\n";
 
     for(int i = 0 ; i < 1000; i++){
 
@@ -193,6 +193,7 @@ void avg_error(int file){
 	error_x = error_x/1000;
 	error_y = error_y/1000;
 	error_z = error_z/1000;
+	std::cout << "Finished cacluating gryo Errors\n";
 }
 
 void gyro_routine(){

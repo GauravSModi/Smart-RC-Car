@@ -2,7 +2,9 @@
 #include "gyroscope/gyro.h"
 #include <mutex>
 
-#define DIRECTION_POLLING_INTERVAL_MS 5
+#define DIRECTION_POLLING_INTERVAL_MS 1
+#define DIRECTION_CORRECTION_RATE 0.78
+#define JIGGLE_DURATION_MS 100
 
 Rover* myRover;
 std::mutex controlsLatch;
@@ -26,9 +28,9 @@ void Rover::main_rover(){
 	//calculateAngle();
 	resetYaw();
 
-	rover_turn(90,true);
+	//rover_turn(90,false);
 
-	//rover_turn_percise(90,true,2);
+	rover_turn_percise(90,true,0.3);
 	
 	std::cout << "Routine finished!\n";
 
@@ -91,20 +93,29 @@ Rover::~Rover(){
 
 
 
-float Rover::rover_turn(double degrees, bool turnleft){
+float Rover::rover_turn(double degrees, bool turnleft, bool slow){
 	// lock controls
 	controlsLatch.lock();
+	
+	float offset = getYaw(); // snapshot yaw when initiating routine
 
 	// Start turning
 	if(turnleft){
-		this->myMotors->moveLeft();
+		if(slow){
+			this->myMotors->slowLeft();
+		} else {
+			this->myMotors->moveLeft();
+		}
 	} else {
-		this->myMotors->moveRight();
+		if(slow){
+			this->myMotors->slowRight();
+		} else {
+			this->myMotors->moveRight();
+		}
 	}
 
 	// turn until degree
 	bool turnConditionMet = false;
-	float offset = getYaw(); // snapshot yaw when initiating routine
 
 	float degreeCondition;
 	while (!turnConditionMet){
@@ -133,29 +144,42 @@ float Rover::rover_turn(double degrees, bool turnleft){
 
 		msleep(DIRECTION_POLLING_INTERVAL_MS);
 	}
-	//msleep(300);
 	this->myMotors->stopMoving();
 
 	controlsLatch.unlock();
 
-	return degreeCondition;
+	return getYaw() - offset;
 }
 
 bool Rover::rover_turn_percise(double degrees, bool isTurnLeft, double withinThreshold){
-	bool successTurn = false;
-	bool turningLeft = isTurnLeft;
-	double nextTurnDegrees = degrees;
-	while(!successTurn){
-		float actualTurned = this->rover_turn(nextTurnDegrees, turningLeft);
- 		float errorAngle = abs(nextTurnDegrees - actualTurned);
+	
+	const double initialYaw = getYaw();
+	double actualTurned = this->rover_turn(degrees, isTurnLeft, false);
+	std::cout << "actualTurned: " << actualTurned << "\n";
 
-		if(errorAngle < withinThreshold){
-			successTurn = true;
+	// correct for overshooting
+	
+	double errorAngle;
+	bool successTurn = false;
+	while(!successTurn){
+
+		std::cout << "Getting finalize position in 4 seconds.......\n";
+		msleep(4000);
+
+		errorAngle = initialYaw - getYaw();
+		std::cout << "errorAngle: " << errorAngle << "\n";
+		
+		if(errorAngle > withinThreshold){
+			this->myMotors->moveLeft();
+			msleep(JIGGLE_DURATION_MS);
+			this->myMotors->stopMoving();
+		} else if (errorAngle < withinThreshold) {
+			this->myMotors->moveRight();
+			msleep(JIGGLE_DURATION_MS);
+			this->myMotors->stopMoving();
 		} else {
-			// switch direction and keep turning
-			turningLeft = !turningLeft;
-			nextTurnDegrees = errorAngle;
-		}
+			successTurn = true;
+		}		
 	}
 	return true;
 }

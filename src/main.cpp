@@ -20,13 +20,11 @@ int main(){
   std::unique_lock<std::mutex> shutdownLock(_shutdownLock);
 
   // initialize modules
-  init_rover();
   gyro_init();
   sleep(7);
-  init_rover();
   //init_networkModule(signalShutdown,get_rover());
   //init_udp(signalShutdown,get_rover());
-  
+  init_rover(); 
 
   // wait on shutdown signal
   isRunning = true;
