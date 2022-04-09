@@ -2,30 +2,32 @@
 //#include <unistd.h>
 #include <condition_variable>
 #include <mutex>
+#include <rover/rover.h>
 
 
 static std::mutex _shutdownLock;
 static std::condition_variable shutdownCondition;
-static bool isRunning = false;
+static bool stopbarrier = false;
 
 void signalShutdown();
 
 int main(){
 
   std::unique_lock<std::mutex> shutdownLock(_shutdownLock);
-
+  init_rover();
+  rover* rover = get_rover();
   // initialize
-  init_udp(signalShutdown,NULL);
+  init_networkModule(signalShutdown,rover);
 
   // wait on shutdown signal
-  isRunning = true;
+  stopbarrier = true;
   printf("[Main] Waiting on Condition.\n");
   shutdownCondition.wait(shutdownLock);
 
   // clean up and unlock shutdown mutex
-  clean_udp();
+  clean_networkModule();
 
-  isRunning = false;
+  stopbarrier = false;
   shutdownLock.unlock();
 
   return 0;
@@ -37,7 +39,7 @@ void signalShutdown(){
   // 2) if main has already shut down, isRunning will prevent shut down again
   // 3) if main has released shutdownLatch, error EINVAL will prevent acquiring lock
   if(_shutdownLock.try_lock()){
-    if(isRunning){
+    if(stopbarrier){
       // signal shutdown
       printf("[main] Shutting down...\n");
       shutdownCondition.notify_all();
