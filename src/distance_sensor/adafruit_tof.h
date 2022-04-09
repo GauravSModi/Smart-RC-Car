@@ -2,6 +2,7 @@
 // referenced VL53L0X guide by
 // Irene Abrea, Heidi Tong and Joanna Niemczyk
 #include "distance_sensor.h"
+#include "rover/rover.h"
 #include <thread>
 
 class TOFDistanceSensor : public DistanceSensor {
@@ -24,6 +25,7 @@ public:
 private:
 
   std::thread* distance_readingThread;
+  Rover* rover;
   
   void configSensor();
 
