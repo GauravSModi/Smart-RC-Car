@@ -36,7 +36,7 @@ static void writeI2cReg(int i2cFileDesc, unsigned char regAddr, unsigned char va
 	int res = write(i2cFileDesc, buff, 2);
 	if (res != 2) {
 		perror("I2C: Unable to write i2c register.");
-		exit(1);
+		//exit(1);
 	}
 }
 
@@ -46,7 +46,7 @@ static unsigned char readI2cReg(int i2cFileDesc, unsigned char regAddr)
 	int res = write(i2cFileDesc, &regAddr, sizeof(regAddr));
 	if (res != sizeof(regAddr)) {
 		perror("Unable to write i2c register.");
-		exit(-1);
+		//exit(-1);
 	}
 
 	// Now read the value and return it
@@ -54,7 +54,7 @@ static unsigned char readI2cReg(int i2cFileDesc, unsigned char regAddr)
 	res = read(i2cFileDesc, &value, sizeof(value));
 	if (res != sizeof(value)) {
 		perror("Unable to read i2c register");
-		exit(-1);
+		//exit(-1);
 	}
 	return value;
 }
@@ -74,6 +74,10 @@ float getYaw(){
 	return yaw;
 }
 
+/*float getAbsYaw(){
+	return absolute_yaw;
+}*/
+
 void magic(){
 	yaw = 0;
 }
@@ -84,19 +88,23 @@ bool is90(void){
 	//cap the yaw
     //assume for now that once its more than 90, set yaw back to 0.
     //originally set yaw back to 0, once the rover is not moving
-	if(getYaw() > 90){
-	  printf("Yaw is over 90 right now \n"); 
 
-	  yaw = 0;
-	  // sleep(1);
-	  
+	float condition  = yaw - offset;
+	//if(getYaw() > 90){
+	if(condition > 75){	
+	  printf("Yaw is over 90 right now \n"); 
+	  offset = getYaw();
+
+	  //yaw = 0;
+
 	 return true;
   }
-  else if(getYaw() < -90){
+  //else if(getYaw() < -90){
+	else if( condition < -75){  
 
 	  printf("Yaw is under -90 right now \n");
-	  yaw = 0;
-	  // sleep(1);
+	  offset = getYaw();
+	  //yaw = 0;
 	  
 	  return true;
   }
@@ -118,22 +126,23 @@ double elapsed_time(){
 }
 
 void calculateAngle() {  
+
+ // prev_yaw = getYaw();	
   elapsed_t = elapsed_time();	
  //Only need the yaw readings for left and right movement.
-  //float delta =(zGyro-error_z)*elapsed_t;
+
   float delta =(zGyro-error_z)*elapsed_t;
   
   float actual =  (delta > 0.0016 || delta < -0.0016)? delta :0.0;
 
-
+ 
   //yaw= yaw + (zGyro-error_z)*elapsed_t;
   yaw= yaw + actual;
-  printf("delat value = %f, actual = %f, yaw = %f \n", delta,actual,yaw);
+  //float temp = yaw;
+  //absolute_yaw = temp;
+  //printf("delat value = %f, actual = %f, yaw = %f \n", delta,actual,yaw);
+  printf("running sum = %f\n", yaw);
   
-  //printf(" Yaw = %f \n", yaw);
-  
-  //bool value = is90();
-  //printf("%d\n", value);
   
 }
 
@@ -141,8 +150,6 @@ void calculateAngle() {
 
 
 void readGyroData(int file){
-
-		//elapsed_t = elapsed_time();
 
 		for(int i = 0; i <6; i++){
 			results[i] = readI2cReg(file, data[i]);
