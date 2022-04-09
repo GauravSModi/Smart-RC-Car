@@ -74,6 +74,10 @@ float getYaw(){
 	return yaw;
 }
 
+void magic(){
+	yaw = 0;
+}
+
 
 bool is90(void){
 
@@ -84,7 +88,7 @@ bool is90(void){
 	  printf("Yaw is over 90 right now \n"); 
 
 	  yaw = 0;
-	  sleep(1);
+	  // sleep(1);
 	  
 	 return true;
   }
@@ -92,28 +96,12 @@ bool is90(void){
 
 	  printf("Yaw is under -90 right now \n");
 	  yaw = 0;
-	  sleep(1);
+	  // sleep(1);
 	  
 	  return true;
   }
 	return false;
 }
-
-void calculateAngle() {  
-  
- //Only need the yaw readings for left and right movement.
-  //float delta =(zGyro-error_z)*elapsed_t;
-  //int delta =(zGyro-error_z)*elapsed_t;
-  //printf("delat value = %d\n", delta);
-  yaw= yaw + (zGyro-error_z)*elapsed_t;
-
-  printf(" Yaw = %f \n", yaw);
-  
-  //bool value = is90();
-  //printf("%d\n", value);
-  
-}
-
 
 double elapsed_time(){
 
@@ -129,9 +117,32 @@ double elapsed_time(){
 	
 }
 
+void calculateAngle() {  
+  elapsed_t = elapsed_time();	
+ //Only need the yaw readings for left and right movement.
+  //float delta =(zGyro-error_z)*elapsed_t;
+  float delta =(zGyro-error_z)*elapsed_t;
+  
+  float actual =  (delta > 0.0016 || delta < -0.0016)? delta :0.0;
+
+
+  //yaw= yaw + (zGyro-error_z)*elapsed_t;
+  yaw= yaw + actual;
+  printf("delat value = %f, actual = %f, yaw = %f \n", delta,actual,yaw);
+  
+  //printf(" Yaw = %f \n", yaw);
+  
+  //bool value = is90();
+  //printf("%d\n", value);
+  
+}
+
+
+
+
 void readGyroData(int file){
 
-		elapsed_t = elapsed_time();
+		//elapsed_t = elapsed_time();
 
 		for(int i = 0; i <6; i++){
 			results[i] = readI2cReg(file, data[i]);
@@ -187,12 +198,13 @@ void gyro_routine(){
 	data[5] = 0x48;
 
 	avg_error(file);
-
+	sleep(2);
     while(1){
 
         readGyroData(file);
-		sleep(0.01);
-		calculateAngle();
+	
+	    calculateAngle();
+	    sleep(0.01);
     }
 
 }

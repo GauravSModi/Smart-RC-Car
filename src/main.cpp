@@ -21,8 +21,12 @@ int main(){
 
   // initialize modules
   init_rover();
-  init_networkModule(signalShutdown,get_rover());
   gyro_init();
+  sleep(7);
+  init_rover();
+  //init_networkModule(signalShutdown,get_rover());
+  //init_udp(signalShutdown,get_rover());
+  
 
   // wait on shutdown signal
   isRunning = true;
@@ -31,7 +35,8 @@ int main(){
 
   // clean up and unlock shutdown mutex
   gyro_cleanup();
-  clean_networkModule();
+  //clean_networkModule();
+  //clean_udp();
   clean_rover();
 
   isRunning = false;
