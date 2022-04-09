@@ -30,6 +30,9 @@ static int16_t zGyro = 0 ;
 
 static float yaw=0;
 
+//static float prev_yaw = 0;
+static float offset = 0 ;
+
 static float error_x = 0;
 static float error_y = 0;
 static float error_z = 0;
@@ -40,6 +43,7 @@ float get_yGyro();
 float get_zGyro();
 
 float getYaw();
+//float getAbsYaw();
 
 
 void calculateAngle();

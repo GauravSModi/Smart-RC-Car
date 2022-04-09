@@ -30,7 +30,15 @@ void rover::main_rover(){
 		// msleep(3000);
 		// myMotors->moveLeft();
 		// msleep(3000);
+
+		//turn
+		// get current yaw
+		// const yaw + 90 -> angleToAimFOr
+		// 
+		// 
+
 		value = is90();
+		//printf("yaw = %f, abs_yaw = %f\n", getYaw(), getAbsYaw());
 		if(value == 1){
 
 			printf("STOPPING NOW\n");
