@@ -1,13 +1,33 @@
 #include "network.h"
+#include <vector>
+#include <mutex>
+//#include <sstream>
+#include <gyroscope/gyro.h>
 
-#define PORT 12345
+#define LISTEN_PORT 12345
+#define PUBLISH_PORT 12346
 
+#define PUBLISH_INTERVAL_MS 1000
+
+// static variables for module
 static std::thread* networkThread;
-static bool stop_barrier=false;
-static rover* _myRover;
+static std::thread* publishingThread;
+static bool stopbarrier = false;
+static Rover* _myRover;
 
+// static variables for publishing Thread
+static std::vector<sockaddr_in> _subscribers;
+static std::vector<std::string> _types;
+static std::mutex subscribersLatch;
 
-void run(std::function<void()> shutdownFunction);
+// main network listening routine
+static void run(std::function<void()> shutdownFunction);
+// routine for publishing update about device to subsribed entities
+// for example the node http server
+static void publishRun();
+static bool registerSubscriber(const sockaddr_in newSubscriber,std::string type);
+static bool removeSubscriber(const sockaddr_in subscriber);
+
 
 void networkDummy(){
   printf("network module Include success\n");
@@ -16,16 +36,20 @@ void networkDummy(){
 //udp inner operation
 void udp_stop(struct sockaddr_in sinRemote,int socketDescriptor);
 
-void init_udp(std::function<void()> shutdownFunction, rover* myRover){
-	networkThread = new std::thread(run, shutdownFunction);
+void init_networkModule(std::function<void()> shutdownFunction, Rover* myRover){
 	if(myRover == NULL){
 		throw;
 	}
+	networkThread = new std::thread(run, shutdownFunction);
+	publishingThread = new std::thread(publishRun);
 	_myRover = myRover;
 }
 
-void clean_udp(void){
+void clean_networkModule(void){
+	publishingThread->join();
 	networkThread->join();
+	delete publishingThread;
+	delete networkThread;
 }
 
 void udp_stop(struct sockaddr_in sinRemote,int socketDescriptor){
@@ -38,7 +62,7 @@ void udp_stop(struct sockaddr_in sinRemote,int socketDescriptor){
 		0,
 		(struct sockaddr *) &sinRemote, sin_len);
 	
-	stop_barrier=true;
+	stopbarrier=true;
 }
 
 void udp_reply(struct sockaddr_in sinRemote,int socketDescriptor, std::string message){
@@ -52,14 +76,13 @@ void udp_reply(struct sockaddr_in sinRemote,int socketDescriptor, std::string me
 
 }
 
-
-void run(std::function<void()> shutdownFunction) {
+static void run(std::function<void()> shutdownFunction) {
 	// Address
 	struct sockaddr_in sin;
 	memset(&sin, 0, sizeof(sin));
 	sin.sin_family = AF_INET;                   // Connection may be from network
 	sin.sin_addr.s_addr = htonl(INADDR_ANY);    // Host to Network long
-	sin.sin_port = htons(PORT);                 // Host to Network short
+	sin.sin_port = htons(LISTEN_PORT);                 // Host to Network short
 
 	// Create the server socket for UDP
 	int socketDescriptor = socket(PF_INET, SOCK_DGRAM, 0);
@@ -69,7 +92,7 @@ void run(std::function<void()> shutdownFunction) {
 
 	// Check for errors (-1)
 
-	while (!stop_barrier) {
+	while (!stopbarrier) {
 		// Get the data (blocking)
 		// Will change sin (the address) to be the address of the client.
 		// Note: sin passes information in and out of call!
@@ -110,6 +133,10 @@ void run(std::function<void()> shutdownFunction) {
 		} else if (strcmp(command,"moveBack") == 0) {
 			_myRover->move_backward();
 			printf("moveBack\n");
+		} else if (strcmp(command,"subscribe") == 0) {
+			registerSubscriber(sinRemote,"webClient");
+		} else if (strcmp(command,"unsubscribe") == 0) {
+			removeSubscriber(sinRemote);
 		}
 
 		if(reportMessage){
@@ -123,4 +150,95 @@ void run(std::function<void()> shutdownFunction) {
 	close(socketDescriptor);
 
 	shutdownFunction();
+}
+
+// =============== PUBLISHING SUBROUTINE ====================
+/*
+void lockSubscribers(){
+	subscribersLatch.lock();
+}
+void unlockSubscribers(){
+	subscribersLatch.unlock();
+}*/
+// thread-safe add subscriber to list if not exist,
+// do nothing if already a subscriber
+// return true if sucess
+// return false if already a subscriber
+static bool registerSubscriber(const sockaddr_in newSubscriber,std::string type){
+	subscribersLatch.lock();
+	// search for same subscriber
+	bool found = false;
+	for(int i = 0; i < _subscribers.size(); i++){
+		// compare PORT + ADDRESS
+		if(_subscribers[i].sin_addr.s_addr == newSubscriber.sin_addr.s_addr && _subscribers[i].sin_port == newSubscriber.sin_port){
+			found = true;
+		}
+	}
+
+	if(!found){
+		_subscribers.emplace_back(newSubscriber);
+		_types.emplace_back(type);
+	}
+
+	subscribersLatch.unlock();
+	return !found;
+}
+static bool removeSubscriber(const sockaddr_in subscriber){
+	subscribersLatch.lock();
+	bool found = false;
+	auto itr = _subscribers.begin();
+	auto typeItr = _types.begin();
+	for(; itr != _subscribers.end(); itr++, typeItr++){
+		// compare PORT + ADDRESS
+		if(itr->sin_addr.s_addr == subscriber.sin_addr.s_addr && itr->sin_port == subscriber.sin_port){
+			found = true;
+			break;
+		}
+	}
+	if(found){
+		_subscribers.erase(itr);
+		_types.erase(typeItr);
+	}
+	subscribersLatch.unlock();
+	return found;
+}
+
+static void publishRun(){
+
+	// Address
+	struct sockaddr_in sin;
+	memset(&sin, 0, sizeof(sin));
+	sin.sin_family = AF_INET;                   // Connection may be from network
+	sin.sin_addr.s_addr = htonl(INADDR_ANY);    // Host to Network long
+	sin.sin_port = htons(PUBLISH_PORT); 
+
+  // Create the server socket for UDP
+  int publishDiscriptor = socket(PF_INET, SOCK_DGRAM, 0);
+	bind(publishDiscriptor, (struct sockaddr*) &sin, sizeof(sin));	
+
+	std::cout<< "Publishing Thread Running\n";
+		
+	while(!stopbarrier){
+		subscribersLatch.lock();
+		std::cout<< "Subscriber count: " << _subscribers.size() << "\n";
+		if(!_subscribers.empty()){
+			// prepare messages for subscribers
+			std::string webClientUpdates = 
+			"publish>>{"
+			"\"yaw\":" + to_string(20.0) +","
+			"\"speed\":" + to_string(10) + "}";
+			//<< "}";
+
+			for(int i = 0; i < _subscribers.size(); i++){	
+				if(_types[i] == "webClient"){
+					udp_reply(_subscribers[i],publishDiscriptor,webClientUpdates);
+				} else if(_types[i] == "controller"){
+					// nothing yet, keep alive maybe?
+				}
+			}
+		}
+		subscribersLatch.unlock();
+		msleep(PUBLISH_INTERVAL_MS);
+	}
+
 }

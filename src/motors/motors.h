@@ -34,10 +34,12 @@ public:
 	// Move left two motors backwards, 
 	// 		right two motors forwards
 	void moveLeft();
+	void slowLeft();
 
 	// Move left two motors forwards, 
 	// 		right two motors backwards
 	void moveRight();
+	void slowRight();
 
 	// Stop all motors
 	void stopMoving();

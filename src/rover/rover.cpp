@@ -1,87 +1,185 @@
 #include "rover.h"
 #include "gyroscope/gyro.h"
+#include <mutex>
 
-rover* myRover;
+#define DIRECTION_POLLING_INTERVAL_MS 1
+#define DIRECTION_CORRECTION_RATE 0.78
+#define JIGGLE_DURATION_MS 100
 
-bool value = 0; 
+Rover* myRover;
+std::mutex controlsLatch;
 
-rover::rover(){
+void init_rover(void){ myRover = new Rover; }
+void clean_rover(){ delete myRover; }
+Rover* get_rover(){	return myRover; }
+
+
+Rover::Rover(){
 	shutdown = false;
 	myMotors = new Motors();
-	roverThread = new std::thread(&rover::main_rover, this);
+	roverThread = new std::thread(&Rover::main_rover, this);
 	//intialise other dependent modules
 }
 
-void rover::main_rover(){
+void Rover::main_rover(){
 	if (!myMotors) return;
 
-	this->move_left();
+	//this->move_left();
 	//calculateAngle();
-	magic();
+	resetYaw();
 
-	while (!shutdown){
-		//calculateAngle();
-		// do something
-		// myMotors->moveForward();
-		// msleep(3000);
-		// myMotors->moveBackward();
-		// msleep(3000);
-		// myMotors->moveRight();
-		// msleep(3000);
-		// myMotors->moveLeft();
-		// msleep(3000);
+	//rover_turn(90,false);
 
-		//turn
-		// get current yaw
-		// const yaw + 90 -> angleToAimFOr
-		// 
-		// 
-
-		value = is90();
-		//printf("yaw = %f, abs_yaw = %f\n", getYaw(), getAbsYaw());
-		if(value == 1){
-
-			printf("STOPPING NOW\n");
-			this->myMotors->stopMoving();
-			//sleep(5);
-		}
-		sleep(0.01);
-		
-	}
+	rover_turn_percise(90,true,0.3);
+	
+	std::cout << "Routine finished!\n";
 
 	return;
 }
 
-void rover::move_forward(){
-	myMotors->moveForward();
+bool Rover::move_forward(){
+	bool success = controlsLatch.try_lock();
+	if(success){
+		myMotors->moveForward();
+		controlsLatch.unlock();
+	}
+	return success;
 }
 
-void rover::move_backward(){
-	myMotors->moveBackward();
+bool Rover::move_backward(){
+	bool success = controlsLatch.try_lock();
+	if(success){
+		myMotors->moveForward();
+		controlsLatch.unlock();
+	}
+	return success;
 }
 
-void rover::move_left(){
-	myMotors->moveLeft();
+bool Rover::move_left(){
+	bool success = controlsLatch.try_lock();
+	if(success){
+		myMotors->moveLeft();
+		controlsLatch.unlock();
+	}
+	return success;
 }
 
-void rover::move_right(){
-	myMotors->moveRight();
+bool Rover::move_right(){
+	bool success = controlsLatch.try_lock();
+	if(success){
+		myMotors->moveRight();
+		controlsLatch.unlock();
+	}
+	return success;
 }
-	
-rover::~rover(){
+bool Rover::stop_rover(){
+	bool success = controlsLatch.try_lock();
+	if(success){
+		myMotors->stopMoving();
+		controlsLatch.unlock();
+	}
+	return success;
+}
+
+void Rover::force_stop_rover(){
+	myMotors->stopMoving();
+}
+
+Rover::~Rover(){
 	shutdown = true;
 	roverThread->join();
 	delete myMotors;
 }
 
-void init_rover(void){
-	myRover = new rover;
+
+
+float Rover::rover_turn(double degrees, bool turnleft, bool slow){
+	// lock controls
+	controlsLatch.lock();
+	
+	float offset = getYaw(); // snapshot yaw when initiating routine
+
+	// Start turning
+	if(turnleft){
+		if(slow){
+			this->myMotors->slowLeft();
+		} else {
+			this->myMotors->moveLeft();
+		}
+	} else {
+		if(slow){
+			this->myMotors->slowRight();
+		} else {
+			this->myMotors->moveRight();
+		}
+	}
+
+	// turn until degree
+	bool turnConditionMet = false;
+
+	float degreeCondition;
+	while (!turnConditionMet){
+
+		//cap the condition
+    //assume for now that once its more than 90, set yaw back to 0.
+    //originally set yaw back to 0, once the rover is not moving
+		degreeCondition = getYaw() - offset;
+
+		if(degreeCondition > degrees){	
+			printf("Yaw is over 90 right now \n"); 
+			//offset = getYaw();
+			turnConditionMet = true;
+			break;
+		}
+		//else if(getYaw() < -90){
+		else if(degreeCondition < -degrees){  
+			printf("Yaw is under -90 right now \n");
+			//offset = getYaw();
+			turnConditionMet = true;
+			break;
+		}
+		
+		//value = is90();
+		//printf("yaw = %f, abs_yaw = %f\n", getYaw(), getAbsYaw());
+
+		msleep(DIRECTION_POLLING_INTERVAL_MS);
+	}
+	this->myMotors->stopMoving();
+
+	controlsLatch.unlock();
+
+	return getYaw() - offset;
 }
 
-void clean_rover(){
-	delete myRover;
-}
+bool Rover::rover_turn_percise(double degrees, bool isTurnLeft, double withinThreshold){
+	
+	const double initialYaw = getYaw();
+	double actualTurned = this->rover_turn(degrees, isTurnLeft, false);
+	std::cout << "actualTurned: " << actualTurned << "\n";
 
-rover* get_rover(){
-	return myRover;
+	// correct for overshooting
+	
+	double errorAngle;
+	bool successTurn = false;
+	while(!successTurn){
+
+		std::cout << "Getting finalize position in 4 seconds.......\n";
+		msleep(4000);
+
+		errorAngle = initialYaw - getYaw();
+		std::cout << "errorAngle: " << errorAngle << "\n";
+		
+		if(errorAngle > withinThreshold){
+			this->myMotors->moveLeft();
+			msleep(JIGGLE_DURATION_MS);
+			this->myMotors->stopMoving();
+		} else if (errorAngle < withinThreshold) {
+			this->myMotors->moveRight();
+			msleep(JIGGLE_DURATION_MS);
+			this->myMotors->stopMoving();
+		} else {
+			successTurn = true;
+		}		
+	}
+	return true;
 }

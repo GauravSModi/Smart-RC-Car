@@ -78,16 +78,18 @@ float getYaw(){
 	return absolute_yaw;
 }*/
 
-void magic(){
+
+void resetYaw(){
 	yaw = 0;
 }
 
-
-bool is90(void){
+bool is90(float goalDegree){
 
 	//cap the yaw
     //assume for now that once its more than 90, set yaw back to 0.
     //originally set yaw back to 0, once the rover is not moving
+
+/* !!!MOVED TO ROVER!!!
 
 	float condition  = yaw - offset;
 	//if(getYaw() > 90){
@@ -109,6 +111,8 @@ bool is90(void){
 	  return true;
   }
 	return false;
+	*/
+	return true;
 }
 
 double elapsed_time(){
@@ -141,7 +145,7 @@ void calculateAngle() {
   //float temp = yaw;
   //absolute_yaw = temp;
   //printf("delat value = %f, actual = %f, yaw = %f \n", delta,actual,yaw);
-  printf("running sum = %f\n", yaw);
+  //printf("running sum = %f\n", yaw);
   
   
 }
@@ -175,7 +179,7 @@ void readGyroData(int file){
 }
 
 void avg_error(int file){
-
+	std::cout << "Cacluating gryo Errors\n";
 
     for(int i = 0 ; i < 1000; i++){
 
@@ -189,6 +193,7 @@ void avg_error(int file){
 	error_x = error_x/1000;
 	error_y = error_y/1000;
 	error_z = error_z/1000;
+	std::cout << "Finished cacluating gryo Errors\n";
 }
 
 void gyro_routine(){

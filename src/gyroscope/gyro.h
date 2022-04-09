@@ -31,7 +31,6 @@ static int16_t zGyro = 0 ;
 static float yaw=0;
 
 //static float prev_yaw = 0;
-static float offset = 0 ;
 
 static float error_x = 0;
 static float error_y = 0;
@@ -53,6 +52,6 @@ bool is90();
 void gyro_init();
 void gyro_cleanup();
 
-// FIXME:
-void magic();
+// reset yaw to 0
+void resetYaw();
  

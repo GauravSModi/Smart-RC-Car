@@ -25,10 +25,9 @@ int main(){
   //gyro_init();
   //TOFDistanceSensor();
   sleep(7);
-  init_rover();
-  
+  //init_networkModule(signalShutdown,get_rover());
   //init_udp(signalShutdown,get_rover());
-  
+  init_rover(); 
 
   // wait on shutdown signal
   isRunning = true;
@@ -36,8 +35,8 @@ int main(){
   shutdownCondition.wait(shutdownLock);
 
   // clean up and unlock shutdown mutex
-
-  //gyro_cleanup();
+  gyro_cleanup();
+  //clean_networkModule();
   //clean_udp();
   delete sensor;
   clean_rover();

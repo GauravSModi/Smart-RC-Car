@@ -10,34 +10,38 @@
 #include "../motors/motors.h"
 #include "../common/utils.h"
 
-class rover{
+class Rover{
 private:
 	Motors* myMotors;
 	bool shutdown;
 	std::thread* roverThread;
 
 public:
-	rover(); //constructor
+	Rover(); //constructor
 	
 	void main_rover();
 
-	void move_forward();
+	bool move_forward();
+	bool move_backward();
+	bool move_left();
+	bool move_right();
+	bool stop_rover();
+	void force_stop_rover();
 
-	void move_backward();
+	~Rover();
 
-	void move_left();
-
-	void move_right();
-
-	void stop_rover();
-
-	~rover();
+private:
+	// subroutines, locks other controls for duration
+	// turns <degrees> and returns the actual degree turned according to gyro
+	float rover_turn(double degrees, bool turnleft, bool slowMode);
+	bool rover_turn_percise(double degrees, bool turnleft, double withinThreshold);
+	bool rover_move(double seconds);
 };
 
 void init_rover();
 
 void clean_rover();
 
-rover* get_rover();
+Rover* get_rover();
 
 #endif

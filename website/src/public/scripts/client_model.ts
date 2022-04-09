@@ -25,22 +25,22 @@ export namespace RemoteCarControl {
       // disable error
       _errorDiv.style.display = 'none'
       //notifyUpdateUI()
-      console.log("client: connected to server")
+      console.log("client: connected to server!")
       //alert("connected to server!")
     })
     
-/*
+
     // ==== DEBUG =====
     // log every message
     _socket.on('message',(message:string)=>{
       console.log("Message recieved: " + message)
-      _socket.send("Test message from client")
+      //_socket.send("Test message from client")
     })
     // log every events
     _socket.onAny((eventName:string)=>{
       console.log("event: " + eventName)
     })
-*/
+
 /*
     // generalization of error displaying
     _socket.on('emitError',(errorMessage:string) => {
@@ -48,6 +48,14 @@ export namespace RemoteCarControl {
       _errorText.innerHTML = errorMessage
     })
 */
+    _socket.on('updateUI',(message:string)=>{
+      //JSON.parse()
+      console.log("updating UI")
+      const jsonStr = message.split(">>")[1]
+      console.log(JSON.parse(jsonStr));
+    })
+
+
     _socket.on('connect_error',()=>{
       // happens when cannot connect to server
       _errorDiv.style.display = 'block'

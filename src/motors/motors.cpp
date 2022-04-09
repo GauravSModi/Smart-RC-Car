@@ -92,6 +92,23 @@ void Motors::moveLeft(){
 	}
 	printf("Moving left\n");
 }
+void Motors::slowLeft(){
+	direction = 2;
+	power = 1;
+
+	for (int i = 0; i < NUM_PINS; i ++){
+		int maxLength = 50;
+		char buffer[maxLength];
+		if (gpio_pins[i] == LEFT_BACKWARD){
+			std::snprintf(buffer, maxLength, "echo 1 > /sys/class/gpio/gpio%d/value", gpio_pins[i]);
+		}
+		else{
+			std::snprintf(buffer, maxLength, "echo 0 > /sys/class/gpio/gpio%d/value", gpio_pins[i]);
+		}
+		system(buffer);
+	}
+	printf("Moving left\n");
+}
 
 void Motors::moveRight(){
 	direction = 3;
@@ -101,6 +118,23 @@ void Motors::moveRight(){
 		int maxLength = 50;
 		char buffer[maxLength];
 		if (gpio_pins[i] == LEFT_FORWARD || gpio_pins[i] == RIGHT_BACKWARD){
+			std::snprintf(buffer, maxLength, "echo 1 > /sys/class/gpio/gpio%d/value", gpio_pins[i]);
+		}
+		else{
+			std::snprintf(buffer, maxLength, "echo 0 > /sys/class/gpio/gpio%d/value", gpio_pins[i]);
+		}
+		system(buffer);
+	}
+	printf("Moving right\n");
+}
+void Motors::slowRight(){
+	direction = 3;
+	power = 1;
+
+	for (int i = 0; i < NUM_PINS; i ++){
+		int maxLength = 50;
+		char buffer[maxLength];
+		if (gpio_pins[i] == RIGHT_BACKWARD){
 			std::snprintf(buffer, maxLength, "echo 1 > /sys/class/gpio/gpio%d/value", gpio_pins[i]);
 		}
 		else{

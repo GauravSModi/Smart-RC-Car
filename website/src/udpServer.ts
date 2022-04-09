@@ -76,9 +76,10 @@ export namespace UDPRelay {
     })*/
 
     const clientBroadCast = dgram.createSocket('udp4')
-    clientBroadCast.on('message',(message:string, remote:dgram.RemoteInfo)=>{
-      console.log("Broadcast Recieved: ["+message+"]")
-      socket.emit("notifyChange",parseInt(message)) 
+    clientBroadCast.on('message',(message:Buffer, remote:dgram.RemoteInfo)=>{
+      const messageStr = message.toString('utf8')
+      console.log("Broadcast Recieved: ["+messageStr+"]")
+      socket.emit("updateUI",messageStr) 
     })
 
     clientBroadCast.send('subscribe', PORT, HOST, (error:Error | null, bytes:number)=>{})
@@ -126,6 +127,7 @@ export namespace UDPRelay {
 
     // remove listeners on disconnect
     socket.on("disconnect",()=>{
+      clientBroadCast.send('unsubscribe', PORT, HOST, (error:Error | null, bytes:number)=>{})
       events.removeListener("timeout",onTimeout)
       events.removeListener("reconnect",onReconnect)
       //clearInterval(intervalID)
