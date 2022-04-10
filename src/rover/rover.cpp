@@ -1,10 +1,13 @@
 #include "rover.h"
 #include "gyroscope/gyro.h"
 #include <mutex>
+#include <math.h>
 
 #define DIRECTION_POLLING_INTERVAL_MS 1
 #define DIRECTION_CORRECTION_RATE 0.78
-#define JIGGLE_DURATION_MS 100
+#define JIGGLE_DURATION_MS 5
+
+#define POSITION_UPDATE_INTERVAL_MS 5
 
 Rover* myRover;
 std::mutex controlsLatch;
@@ -13,9 +16,11 @@ void init_rover(void){ myRover = new Rover; }
 void clean_rover(){ delete myRover; }
 Rover* get_rover(){	return myRover; }
 
-
 Rover::Rover(){
+	this->position.x = 0.0;
+	this->position.y = 0.0;
 	shutdown = false;
+	driveMode = MANUAL_MODE;
 	myMotors = new Motors();
 	roverThread = new std::thread(&Rover::main_rover, this);
 	//intialise other dependent modules
@@ -23,16 +28,12 @@ Rover::Rover(){
 
 void Rover::main_rover(){
 	if (!myMotors) return;
-
-	//this->move_left();
-	//calculateAngle();
 	resetYaw();
 
-	//rover_turn(90,false);
-
-	//rover_turn_percise(90,true,0.3);
-	
-	std::cout << "Routine finished!\n";
+	while (!shutdown){
+		this->updatePosition();
+		msleep(POSITION_UPDATE_INTERVAL_MS);
+	}
 
 	return;
 }
@@ -90,8 +91,6 @@ Rover::~Rover(){
 	roverThread->join();
 	delete myMotors;
 }
-
-
 
 float Rover::rover_turn(double degrees, bool turnleft, bool slow){
 	// lock controls
@@ -164,16 +163,16 @@ bool Rover::rover_turn_percise(double degrees, bool isTurnLeft, double withinThr
 	while(!successTurn){
 
 		std::cout << "Getting finalize position in 4 seconds.......\n";
-		msleep(4000);
+		msleep(100);
 
-		errorAngle = initialYaw - getYaw();
+		errorAngle = initialYaw - getYaw() + (isTurnLeft?-degrees:degrees);
 		std::cout << "errorAngle: " << errorAngle << "\n";
 		
 		if(errorAngle > withinThreshold){
 			this->myMotors->moveRight();
 			msleep(JIGGLE_DURATION_MS);
 			this->myMotors->stopMoving();
-		} else if (errorAngle < withinThreshold) {
+		} else if (errorAngle < -withinThreshold) {
 			this->myMotors->moveLeft();
 			msleep(JIGGLE_DURATION_MS);
 			this->myMotors->stopMoving();
@@ -182,4 +181,68 @@ bool Rover::rover_turn_percise(double degrees, bool isTurnLeft, double withinThr
 		}		
 	}
 	return true;
+}
+
+bool Rover::objectSensedSubroutine(){
+	this->myMotors->stopMoving();
+	if(driveMode == MANUAL_MODE){
+  		this->rover_turn_percise(90.0,true,0.5);
+	}
+	return true;
+}
+
+void Rover::toggle_mode(){
+	driveMode = 1 - driveMode;
+}
+
+int Rover::get_mode(){
+	return driveMode;
+}
+
+void Rover::updatePosition(){
+	if(this->myMotors->getPowerStatus()==1){
+		int direction = this->myMotors->getDirection();
+
+		if(direction == 0 || direction == 1){
+			if(this->wasTurning){
+				this->wasTurning = false;
+				updateSteadyYaw();
+			}
+			// if motors were on
+			if(prev_time != current_time){
+				std::chrono::duration<double> elapsed_seconds = current_time - prev_time;
+				double deltaTime = (double)elapsed_seconds.count();
+				
+				double deltaDistance = deltaTime * UNITS_PER_SECOND * (direction==1?1:-1);
+
+				// update values
+				mapLatch.lock();
+				position.x += deltaDistance * cos(steadyYaw);
+				position.y += deltaDistance * sin(steadyYaw);
+				mapLatch.unlock();
+			}
+		} else if(direction == 2 || direction == 3){
+			this->wasTurning = true;
+		}
+	} 
+	
+
+	// update time
+	prev_time = current_time;
+	current_time = std::chrono::system_clock::now();
+}
+
+Vec2<double> Rover::getPosition(){
+	Vec2<double> result;
+	mapLatch.lock();
+	result.x = this->position.x;
+	result.y = this->position.y;
+	mapLatch.unlock();
+	return result;
+}
+
+void Rover::updateSteadyYaw(){
+	mapLatch.lock();
+	this->steadyYaw = getYaw();
+	mapLatch.unlock();
 }

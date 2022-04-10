@@ -6,7 +6,8 @@
 #include <unistd.h>
 
 #include <atomic>
-#include <common/utils.h>
+
+
 
 
 #define DIRECTION_STRENGTH 1.0 // from 0.0 to 1.0, how much should the strength change per sample
@@ -19,8 +20,8 @@ void joystickDummy(){
   printf("joystick module Include success\n");
 }
 
-static void printVec2(Vec2 vectors){
-  printf("Vector[x:%f,z:%f]\n",vectors.x,vectors.z);
+static void printVec2(Vec2<double> vectors){
+  printf("Vector[x:%f,z:%f]\n",vectors.x,vectors.y);
 }
 
 Joystick::Joystick(){
@@ -42,7 +43,8 @@ Joystick::Joystick(){
     exit(1);
   }
 
-  this->strengthVector = {0.0, 0.0};
+  this->strengthVector.x = 0;
+  this->strengthVector.y = 0;
   this->isRunning = false;
 }
 
@@ -106,10 +108,10 @@ void Joystick::run(){
 
     switch (event){
     case UP:
-      this->strengthVector.z = clamp(this->strengthVector.z + DIRECTION_STRENGTH,1.0,-1.0);
+      this->strengthVector.y = clamp(this->strengthVector.y + DIRECTION_STRENGTH,1.0,-1.0);
       break;
     case DOWN:
-      this->strengthVector.z = clamp(this->strengthVector.z - DIRECTION_STRENGTH,1.0,-1.0);
+      this->strengthVector.y = clamp(this->strengthVector.y - DIRECTION_STRENGTH,1.0,-1.0);
       break;
     case LEFT:
       this->strengthVector.x = clamp(this->strengthVector.x - DIRECTION_STRENGTH,1.0,-1.0);
@@ -209,8 +211,8 @@ void Joystick::strengthDecayer(){
   std::atomic<int> threadDecaying(0);
   auto decay = [&](){
     this->lockStrength();
-    Vec2 strengthCopied = Vec2(this->getStrength());
-    Vec2 strength = Vec2(this->getStrength());
+    auto strengthCopied = Vec2<double>(this->getStrength());
+    auto strength = Vec2<double>(this->getStrength());
     
     if(strength.x != 0.0){
       if(strength.x > 0.0){
@@ -222,17 +224,17 @@ void Joystick::strengthDecayer(){
       }
     }
 
-    if(strength.z != 0.0){
-      if(strength.z > 0.0){
+    if(strength.y != 0.0){
+      if(strength.y > 0.0){
         // had postive value
-        strength.z = max(strengthCopied.z - DIRECTION_DECAY_PERSECOND,0.0);
+        strength.y = max(strengthCopied.y - DIRECTION_DECAY_PERSECOND,0.0);
       } else {
         // had negative value
-        strength.z = min(strengthCopied.z + DIRECTION_DECAY_PERSECOND,0.0);
+        strength.y = min(strengthCopied.y + DIRECTION_DECAY_PERSECOND,0.0);
       }
     }
-    printf("Setting strength from to [%f,%f] -> [%f,%f]\n\n",strengthCopied.x,strengthCopied.z,strength.x,strength.z);
-    this->setStrength(strength.x,strength.z);
+    printf("Setting strength from to [%f,%f] -> [%f,%f]\n\n",strengthCopied.x,strengthCopied.y,strength.x,strength.y);
+    this->setStrength(strength.x,strength.y);
 
     this->unlockStrength();
     // finished decaying

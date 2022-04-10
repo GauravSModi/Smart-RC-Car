@@ -1,6 +1,7 @@
 #pragma once
 #include <thread>
 #include <mutex>
+#include <common/utils.h>
 
 #define JOYSTICK_UP_PATH "/sys/class/gpio/gpio26/"
 #define JOYSTICK_DOWN_PATH "/sys/class/gpio/gpio46/"
@@ -8,19 +9,6 @@
 #define JOYSTICK_RIGHT_PATH "/sys/class/gpio/gpio47/"
 
 void joystickDummy();
-
-struct Vec2 {
-  //        FRONT
-  //         +z
-  // LEFT  -x  +x     RIGHT
-  //         -z
-  //        BACK
-
-  // right is when x is positve
-  double x; 
-  // front is when z is positive
-  double z;
-};
 
 enum JoystickDirection{
   UP,
@@ -42,7 +30,7 @@ class Joystick {
     // instance variables
     std::thread* joystickThread;
     std::thread* decayerThread;
-    Vec2 strengthVector;
+    Vec2<double> strengthVector;
     bool isRunning;
     std::mutex strengthMutex;
 
@@ -63,10 +51,10 @@ class Joystick {
 
     void lockStrength(){this->strengthMutex.lock();}
     void unlockStrength(){this->strengthMutex.unlock();}
-    Vec2 getStrength(){return this->strengthVector;}
+    Vec2<double> getStrength(){return this->strengthVector;}
     double getStrengthX(){return this->strengthVector.x;}
-    double getStrengthZ(){return this->strengthVector.z;}
-    void setStrength(double _x, double _z){this->strengthVector.x = _x, this->strengthVector.z = _z;};
+    double getStrengthZ(){return this->strengthVector.y;}
+    void setStrength(double _x, double _z){this->strengthVector.x = _x, this->strengthVector.y = _z;};
 
   private:
     // thread function for event loop in main module thread

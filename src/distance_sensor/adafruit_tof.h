@@ -21,6 +21,8 @@ public:
   //int askHysteresis(int reading); //change
   void decideTurn(int count);
 
+  bool checkDistanceSensorEnabled();
+  // void disableReading();
 
   ~TOFDistanceSensor();
   TOFDistanceSensor(Rover* rover);
@@ -29,7 +31,7 @@ private:
 
   std::thread* distance_readingThread;
   Rover* rover;
-  bool disableReading;
+  // bool disableReading;
   
   int current_reading; //change
   int prev_reading;

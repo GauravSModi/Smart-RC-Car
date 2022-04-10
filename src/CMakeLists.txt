@@ -1,5 +1,4 @@
 add_subdirectory(common)
-add_subdirectory(joystick)
 add_subdirectory(led)
 add_subdirectory(network)
 add_subdirectory(rover)
