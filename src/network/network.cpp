@@ -226,10 +226,13 @@ static void publishRun(){
 		std::cout<< "Subscriber count: " << _subscribers.size() << "\n";
 		if(!_subscribers.empty()){
 			// prepare messages for subscribers
+			Vec2<double> position = _myRover->getPosition();
 			std::string webClientUpdates = 
 			"publish>>{"
-			"\"yaw\":" + to_string(20.0) +","
-			"\"speed\":" + to_string(10) + "}";
+			"\"yaw\":" + to_string(getYaw()) +","
+			"\"xPos\":" + to_string(position.x) + ","
+			"\"yPos\":" + to_string(position.y) +
+			"}";
 			//<< "}";
 
 			for(int i = 0; i < _subscribers.size(); i++){	
