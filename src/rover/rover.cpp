@@ -89,6 +89,7 @@ void Rover::force_stop_rover(){
 Rover::~Rover(){
 	shutdown = true;
 	roverThread->join();
+	printf("Destroyed Rover\n");
 	delete myMotors;
 }
 
@@ -192,6 +193,7 @@ bool Rover::objectSensedSubroutine(){
 }
 
 void Rover::toggle_mode(){
+	printf("Changing mode\n");
 	driveMode = 1 - driveMode;
 }
 

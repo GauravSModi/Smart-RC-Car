@@ -10,9 +10,6 @@ enum direction{LEFT_BACKWARD = 66, LEFT_FORWARD = 67, RIGHT_FORWARD = 68, RIGHT_
 static const int gpio_pins[] = {LEFT_BACKWARD, LEFT_FORWARD, RIGHT_FORWARD, RIGHT_BACKWARD};
 	
 
-
-// Motors::Motors(int forPin, int backPin) : motorsThread{}{
-
 Motors::Motors(){
 	direction = -1;
 	power = 0;
@@ -23,19 +20,19 @@ Motors::Motors(){
 	msleep(500);
 
 	// set options
-	char dir[] = "out";
+	std::string direction= "out";
 	for (int i = 0; i < NUM_PINS; i ++){
 		int maxLength = 50;
 		char buffer[maxLength];
-		std::snprintf(buffer, maxLength, "echo %s > /sys/class/gpio/gpio%d/direction", dir, gpio_pins[i]);
-		system(buffer);
+		std::snprintf(buffer, maxLength, "/sys/class/gpio/gpio%d/direction", gpio_pins[i]);
+		writeGPIOValue(buffer, direction);
 	}
-	char value[] = "0";
+	std::string value = "0";
 	for (int i = 0; i < NUM_PINS; i ++){
 		int maxLength = 50;
 		char buffer[maxLength];
-		std::snprintf(buffer, maxLength, "echo %s > /sys/class/gpio/gpio%d/value", value, gpio_pins[i]);
-		system(buffer);
+		std::snprintf(buffer, maxLength, "/sys/class/gpio/gpio%d/value", gpio_pins[i]);
+		writeGPIOValue(buffer, value);
 	}
 }
 
@@ -47,14 +44,15 @@ void Motors::moveBackward(){
 		int maxLength = 50;
 		char buffer[maxLength];
 		if (gpio_pins[i] == LEFT_FORWARD || gpio_pins[i] == RIGHT_FORWARD){
-			std::snprintf(buffer, maxLength, "echo 1 > /sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			std::snprintf(buffer, maxLength, "/sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			writeGPIOValue(buffer, "1");
 		}
 		else{
-			std::snprintf(buffer, maxLength, "echo 0 > /sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			std::snprintf(buffer, maxLength, "/sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			writeGPIOValue(buffer, "0");
 		}
-		system(buffer);
 	}
-	printf("Moving forward\n");
+	printf("Moving backwards\n");
 }
 
 void Motors::moveForward(){
@@ -65,14 +63,15 @@ void Motors::moveForward(){
 		int maxLength = 50;
 		char buffer[maxLength];
 		if (gpio_pins[i] == LEFT_BACKWARD || gpio_pins[i] == RIGHT_BACKWARD){
-			std::snprintf(buffer, maxLength, "echo 1 > /sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			std::snprintf(buffer, maxLength, "/sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			writeGPIOValue(buffer, "1");
 		}
 		else{
-			std::snprintf(buffer, maxLength, "echo 0 > /sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			std::snprintf(buffer, maxLength, "/sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			writeGPIOValue(buffer, "0");
 		}
-		system(buffer);
 	}
-	printf("Moving backward\n");
+	printf("Moving forwards\n");
 }
 
 void Motors::moveLeft(){
@@ -83,12 +82,13 @@ void Motors::moveLeft(){
 		int maxLength = 50;
 		char buffer[maxLength];
 		if (gpio_pins[i] == LEFT_BACKWARD || gpio_pins[i] == RIGHT_FORWARD){
-			std::snprintf(buffer, maxLength, "echo 1 > /sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			std::snprintf(buffer, maxLength, "/sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			writeGPIOValue(buffer, "1");
 		}
 		else{
-			std::snprintf(buffer, maxLength, "echo 0 > /sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			std::snprintf(buffer, maxLength, "/sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			writeGPIOValue(buffer, "0");
 		}
-		system(buffer);
 	}
 	printf("Moving left\n");
 }
@@ -100,12 +100,13 @@ void Motors::slowLeft(){
 		int maxLength = 50;
 		char buffer[maxLength];
 		if (gpio_pins[i] == LEFT_BACKWARD){
-			std::snprintf(buffer, maxLength, "echo 1 > /sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			std::snprintf(buffer, maxLength, "/sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			writeGPIOValue(buffer, "1");
 		}
 		else{
-			std::snprintf(buffer, maxLength, "echo 0 > /sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			std::snprintf(buffer, maxLength, "/sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			writeGPIOValue(buffer, "0");
 		}
-		system(buffer);
 	}
 	printf("Moving left\n");
 }
@@ -118,12 +119,13 @@ void Motors::moveRight(){
 		int maxLength = 50;
 		char buffer[maxLength];
 		if (gpio_pins[i] == LEFT_FORWARD || gpio_pins[i] == RIGHT_BACKWARD){
-			std::snprintf(buffer, maxLength, "echo 1 > /sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			std::snprintf(buffer, maxLength, "/sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			writeGPIOValue(buffer, "1");
 		}
 		else{
-			std::snprintf(buffer, maxLength, "echo 0 > /sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			std::snprintf(buffer, maxLength, "/sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			writeGPIOValue(buffer, "0");
 		}
-		system(buffer);
 	}
 	printf("Moving right\n");
 }
@@ -135,12 +137,13 @@ void Motors::slowRight(){
 		int maxLength = 50;
 		char buffer[maxLength];
 		if (gpio_pins[i] == RIGHT_BACKWARD){
-			std::snprintf(buffer, maxLength, "echo 1 > /sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			std::snprintf(buffer, maxLength, "/sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			writeGPIOValue(buffer, "1");
 		}
 		else{
-			std::snprintf(buffer, maxLength, "echo 0 > /sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			std::snprintf(buffer, maxLength, "/sys/class/gpio/gpio%d/value", gpio_pins[i]);
+			writeGPIOValue(buffer, "0");
 		}
-		system(buffer);
 	}
 	printf("Moving right\n");
 }
@@ -152,8 +155,8 @@ void Motors::stopMoving(){
 	for (int i = 0; i < NUM_PINS; i ++){
 		int maxLength = 50;
 		char buffer[maxLength];
-		std::snprintf(buffer, maxLength, "echo 0 > /sys/class/gpio/gpio%d/value", gpio_pins[i]);
-		system(buffer);
+		std::snprintf(buffer, maxLength, "/sys/class/gpio/gpio%d/value", gpio_pins[i]);
+		writeGPIOValue(buffer, "0");
 	}
 	printf("Stopping movement...\n");
 }
@@ -168,20 +171,18 @@ int Motors::getPowerStatus(){
 }
 
 void Motors::exportAll(){
+	std::string filePath = "/sys/class/gpio/export";
 	for (int i = 0; i < NUM_PINS; i ++){
-		int maxLength = 50;
-		char buffer[maxLength];
-		std::snprintf(buffer, maxLength, "echo %d > /sys/class/gpio/export", gpio_pins[i]);
-		system(buffer);
+		std::string pin = std::to_string(gpio_pins[i]);
+		writeGPIOValue(filePath, pin);
 	}
 }
 
 void Motors::unexportAll(){
+	std::string filePath = "/sys/class/gpio/unexport";
 	for (int i = 0; i < NUM_PINS; i ++){
-		int maxLength = 50;
-		char buffer[maxLength];
-		std::snprintf(buffer, maxLength, "echo %d > /sys/class/gpio/unexport", gpio_pins[i]);
-		system(buffer);
+		std::string pin = std::to_string(gpio_pins[i]);
+		writeGPIOValue(filePath, pin);
 	}
 }
 

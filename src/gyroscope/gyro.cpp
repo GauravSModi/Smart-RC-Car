@@ -1,5 +1,7 @@
 #include "gyro.h"
 
+static bool shutdown;
+
 //Start calculating the yaw once object encountered
 //Once at a certain distance from the the object, start counting the yaw
 
@@ -211,7 +213,7 @@ void gyro_routine(){
 
 	avg_error(file);
 	sleep(2);
-    while(1){
+    while(!shutdown){
 
         readGyroData(file);
 	
@@ -222,10 +224,13 @@ void gyro_routine(){
 }
 
 void gyro_init(){
+	shutdown = false;
 	gyro_readingThread = new std::thread(gyro_routine);
 }
 
 void gyro_cleanup(){
+	shutdown = true;
 	gyro_readingThread->join();
+	printf("Destroyed gyroscope module\n");
 }
 

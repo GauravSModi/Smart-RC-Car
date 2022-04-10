@@ -6,6 +6,7 @@
 #include <linux/i2c-dev.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <iostream>
 
 // fileIO
 bool truncateToFile(std::string filePath, std::string charsToWrite){
@@ -21,6 +22,20 @@ bool truncateToFile(std::string filePath, std::string charsToWrite){
   }
   fclose(file);
   return true;
+}
+
+// void writeGPIOValue(char* filePath, char* value){
+void writeGPIOValue(std::string filePath, std::string value){
+  int file = open(filePath.c_str(), O_WRONLY);
+  if (file == -1){
+    printf("Unable to open %s\n", filePath);
+    return;
+  }
+  if (write(file, value.c_str(), value.length()) != value.length()){
+    printf("Error writing to %s\n", filePath);
+    return;
+  }
+  close(file);
 }
 
 char readGPIOValue(std::string filePath){

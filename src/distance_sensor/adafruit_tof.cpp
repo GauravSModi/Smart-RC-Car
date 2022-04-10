@@ -32,6 +32,8 @@ static TOFDistanceSensor* instance = NULL;
 }*/
 
 TOFDistanceSensor::TOFDistanceSensor(Rover* rover){
+  shutdown = false;
+
   this->configSensor();
   this->sensorFD = initI2cBus(I2C_TOF_SENSOR_BUS,I2C_TOF_SENSOR_DEVICE);
 
@@ -46,7 +48,7 @@ TOFDistanceSensor::TOFDistanceSensor(Rover* rover){
 }
 
 TOFDistanceSensor::~TOFDistanceSensor(){
-
+  shutdown = true;
   this->distance_readingThread->join();
   this->setContinousSensing(false);
   this->setFilterExtremeValues(false);
@@ -124,7 +126,7 @@ bool TOFDistanceSensor::objectedDetected(int distance){
 void TOFDistanceSensor::decideTurn(int count){
   if(count == 60){
     printf("Calling turn\n");
-    this->rover->objectSensedSubroutine();
+    // this->rover->objectSensedSubroutine();
     //this->rover->rover_turn(90.0,true,false);
     //move_f = false; //only for testing
   }
@@ -135,7 +137,7 @@ void TOFDistanceSensor::decideTurn(int count){
 
 void TOFDistanceSensor::distanceReading_routine(){
 
-  while(1){
+  while(!shutdown){
 
     //only for testing
    /* if(move_f){
@@ -148,7 +150,7 @@ void TOFDistanceSensor::distanceReading_routine(){
     sleep(0.005);
 
 
-    printf("current distance value = %d \n", this->current_reading);
+    // printf("current distance value = %d \n", this->current_reading);
     if(this->current_reading == 0){
       continue;
     }
@@ -156,7 +158,7 @@ void TOFDistanceSensor::distanceReading_routine(){
     bool objectClose = this->objectedDetected(this->current_reading);
     if(!objectClose){
     
-      this->rover->force_stop_rover();
+      // this->rover->force_stop_rover();
       //move_f = true; //only for testing
       
     } else {

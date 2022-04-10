@@ -9,6 +9,9 @@ bool truncateToFile(std::string filePath, std::string charsToWrite);
 
 // ========== GPIOs ============
 
+// write desired value to GPIO specified in filePath
+// void writeGPIOValue(char* filePath, char* value);
+void writeGPIOValue(std::string filePath, std::string value);
 // read one char value from GPIO specified in filePath
 char readGPIOValue(std::string filePath);
 // enable GPIO Edge detection mode, set to "onRising"
