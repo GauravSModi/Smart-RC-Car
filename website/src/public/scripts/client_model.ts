@@ -1,4 +1,6 @@
 import { io, Socket } from "socket.io-client";
+import { MapUpdate } from "../../utils";
+import { addMapUpdate } from "./client_ui";
 
 const REMOTE_ADDRESS = '192.168.7.2'
 const LOCAL_ADDRESS = 'localhost'
@@ -52,7 +54,8 @@ export namespace RemoteCarControl {
       //JSON.parse()
       console.log("updating UI")
       const jsonStr = message.split(">>")[1]
-      console.log(JSON.parse(jsonStr));
+      const updatePayload = JSON.parse(jsonStr) as MapUpdate
+      addMapUpdate(updatePayload)
     })
 
 
