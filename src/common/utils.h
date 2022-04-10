@@ -55,3 +55,5 @@ union Vec2{
   };
   T asArray[2];
 };
+
+template union Vec2<int>;
