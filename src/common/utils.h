@@ -9,6 +9,9 @@ bool truncateToFile(std::string filePath, std::string charsToWrite);
 
 // ========== GPIOs ============
 
+// write desired value to GPIO specified in filePath
+// void writeGPIOValue(char* filePath, char* value);
+void writeGPIOValue(std::string filePath, std::string value);
 // read one char value from GPIO specified in filePath
 char readGPIOValue(std::string filePath);
 // enable GPIO Edge detection mode, set to "onRising"
@@ -21,6 +24,8 @@ void enableJoyStickEdgeOnRising(std::string joyStickPath);
 int initI2cBus(std::string busPath, int address);
 // from I2CGuide.pdf by Brian Fraser, only changing var-names
 void writeI2cReg(int i2cFD, unsigned char regAddr, unsigned char value);
+unsigned char readI2cReg(int i2cFileDesc, unsigned char regAddr);
+
 
 // ======== Math operations ==========
 double max(double left, double right);
@@ -47,6 +52,12 @@ union Vec3{
     T x,y,z;
   };
   T asArray[3];
+  Vec3(T x, T y, T z){
+    this->x = x;
+    this->y = y;
+    this->z = z;
+  }
+  Vec3():x(),y(),z(){}
 };
 template<class T>
 union Vec2{

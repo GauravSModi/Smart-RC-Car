@@ -6,6 +6,7 @@
 #include <linux/i2c-dev.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <iostream>
 
 // fileIO
 bool truncateToFile(std::string filePath, std::string charsToWrite){
@@ -21,6 +22,20 @@ bool truncateToFile(std::string filePath, std::string charsToWrite){
   }
   fclose(file);
   return true;
+}
+
+// void writeGPIOValue(char* filePath, char* value){
+void writeGPIOValue(std::string filePath, std::string value){
+  int file = open(filePath.c_str(), O_WRONLY);
+  if (file == -1){
+    printf("Unable to open %s\n", filePath);
+    return;
+  }
+  if (write(file, value.c_str(), value.length()) != value.length()){
+    printf("Error writing to %s\n", filePath);
+    return;
+  }
+  close(file);
 }
 
 char readGPIOValue(std::string filePath){
@@ -61,18 +76,49 @@ int initI2cBus(std::string busPath, int address){
 
   return i2cFD;
 }
+
 // from I2CGuide.pdf by Brian Fraser, only changing var-names
-void writeI2cReg(int i2cFD, unsigned char regAddr, unsigned char value){
+void writeI2cReg(int i2cFileDesc, unsigned char regAddr, unsigned char value){
+	unsigned char buff[2];
+	buff[0] = regAddr;
+	buff[1] = value;
+	int res = write(i2cFileDesc, buff, 2);
+	if (res != 2) {
+		perror("I2C: Unable to write i2c register.");
+		//exit(1);
+	}
+}
+/*{
   unsigned char buff[2];
   buff[0] = regAddr;
   buff[1] = value;
   int res = write(i2cFD, buff, 2);
   if(res != 2){
     perror("I2C: Unable to write i2c register.");
-    exit(1);
+    //exit(1);
   }
+}*/
+
+unsigned char readI2cReg(int i2cFileDesc, unsigned char regAddr)
+{
+	// To read a register, must first write the address
+	int res = write(i2cFileDesc, &regAddr, sizeof(regAddr));
+	if (res != sizeof(regAddr)) {
+		perror("Unable to write i2c register.");
+		//exit(-1);
+	}
+
+	// Now read the value and return it
+	char value = 0;
+	res = read(i2cFileDesc, &value, sizeof(value));
+	if (res != sizeof(value)) {
+		perror("Unable to read i2c register");
+		//exit(-1);
+	}
+	return value;
 }
 
+// ============= MATH ==============
 
 double max(double left, double right){
   return left > right ? left : right;

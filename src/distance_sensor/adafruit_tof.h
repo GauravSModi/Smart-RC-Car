@@ -31,6 +31,7 @@ private:
 
   std::thread* distance_readingThread;
   Rover* rover;
+  bool shutdown;
   
   int current_reading; 
   int prev_reading;

@@ -11,12 +11,15 @@
 #include "network_js.h"
 
 // #define ROVER_ADDRESS "192.168.43.100"
-#define ROVER_ADDRESS "192.168.7.2"
+// #define ROVER_ADDRESS "192.168.7.2"
+#define ROVER_ADDRESS "127.0.0.1"
 #define JS_FILE_PATH "/dev/input/js0"
 #define VERTICAL_AXIS 1
 #define HORIZONTAL_AXIS 0
 #define SELECT_BUTTON 8
 #define STOP_BUTTON 9
+#define RED_BUTTON 1
+#define YELLOW_BUTTON 2
 
 enum input_mapping{UP=1, DOWN=2, LEFT=3, RIGHT=4, STOP=0, ON=32767};
 
@@ -34,11 +37,14 @@ int main(int argc, char **argv){
 
 	NetworkControls network(ROVER_ADDRESS);
 
-	int js_file = open(JS_FILE_PATH, O_RDONLY | O_NONBLOCK);
+	int js = -1;
+	
+	while (js < 0){
+		js_file = open(JS_FILE_PATH, O_RDONLY | O_NONBLOCK);
 
-	if (js_file < 0){
-		printf("Error: Couldn't open joystick file\n");
-		return 1;
+		if (js_file < 0){
+			printf("Error: Couldn't open joystick file\n");
+		}
 	}
 
 	bool quit = false;
@@ -173,11 +179,18 @@ static void event_handler(struct js_event event, NetworkControls* network){
 		}
 	}else if (event.type == JS_EVENT_BUTTON && event.value == 1){	// Button event
 		switch(event.number){
-			case STOP_BUTTON:
-				network->udp_reply("stop");
+			case START_BUTTON:
+				network->udp_reply("moveFront");
+				// start smart routine?
 				break;
 			case SELECT_BUTTON:
-				network->udp_reply("moveBack");
+				network->udp_reply("toggleMode");
+				break;
+			case RED_BUTTON:
+				network->udp_reply("stop");
+				break;
+			case YELLOW_BUTTON:
+				network->udp_reply("stopMotors");
 				break;
 		}
 	}
