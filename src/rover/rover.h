@@ -11,7 +11,7 @@
 #include "../motors/motors.h"
 #include "../common/utils.h"
 
-#define UNITS_PER_SECOND 1.0 // how much the rover moves
+#define UNITS_PER_SECOND 5.0 // how much the rover moves
 
 class Rover{
 private:
@@ -24,8 +24,8 @@ private:
 	double steadyYaw = 30.0;
 	std::mutex mapLatch;
 	bool wasTurning = false;
-	std::chrono::_V2::system_clock::time_point prev_time;
-	std::chrono::_V2::system_clock::time_point current_time;
+	std::chrono::_V2::system_clock::time_point prev_time = std::chrono::system_clock::now();
+	std::chrono::_V2::system_clock::time_point current_time = std::chrono::system_clock::now();
 	
 public:
 	Rover(); //constructor

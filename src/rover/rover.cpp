@@ -187,7 +187,7 @@ bool Rover::objectSensedSubroutine(){
 	this->myMotors->stopMoving();
 	if(true){
   	this->rover_turn_percise(90.0,true,0.5);
-		updateSteadyYaw();
+		//updateSteadyYaw();
 	}
 
 }
@@ -199,7 +199,7 @@ void Rover::updatePosition(){
 		if(direction == 0 || direction == 1){
 			if(this->wasTurning){
 				this->wasTurning = false;
-				updateSteadyYaw();
+				//updateSteadyYaw();
 			}
 			// if motors were on
 			if(prev_time != current_time){
@@ -208,10 +208,11 @@ void Rover::updatePosition(){
 				
 				double deltaDistance = deltaTime * UNITS_PER_SECOND * (direction==1?1:-1);
 
+				double currYaw = getYaw() * M_PI / 180;
 				// update values
 				mapLatch.lock();
-				position.x += deltaDistance * cos(steadyYaw);
-				position.y += deltaDistance * sin(steadyYaw);
+				position.x += deltaDistance * cos(currYaw);
+				position.y += deltaDistance * sin(currYaw);
 				mapLatch.unlock();
 			}
 		} else if(direction == 2 || direction == 3){
