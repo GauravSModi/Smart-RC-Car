@@ -9,8 +9,6 @@
 
 static int hysteresis_count = 0;
 
-//only for testing
-//static bool move_f = true;
 
 #define I2C_TOF_SENSOR_DEVICE 0x29
 #define REG_TOF_MSB 0x1E
@@ -38,8 +36,8 @@ TOFDistanceSensor::TOFDistanceSensor(Rover* rover){
   this->distance_readingThread = new std::thread(&TOFDistanceSensor::distanceReading_routine,this);
   this->rover = rover;
 
-  this->prev_reading = 0; //change
-  this->current_reading = 0; //change
+  this->prev_reading = 0; 
+  this->current_reading = 0; 
 
   this->setContinousSensing(true);
   this->setFilterExtremeValues(true);
@@ -99,18 +97,6 @@ void TOFDistanceSensor::setContinousSensing(bool enable){
   }
 }
 
-/*int TOFDistanceSensor::askHysteresis(int reading){
-
-  int hysteresis_count = 0;
-  if(reading == prev_reading){
-    hysteresis_count +=1;
-  }
-  else{
-    hysteresis_count = 0;
-  }
-
-  return hysteresis_count;
-}*/
 
 bool TOFDistanceSensor::objectedDetected(int distance){
     if ((distance <= threshold) && ((this->prev_reading - distance) < 50)){
@@ -125,8 +111,7 @@ void TOFDistanceSensor::decideTurn(int count){
   if(count == 60){
     printf("Calling turn\n");
     this->rover->objectSensedSubroutine();
-    //this->rover->rover_turn(90.0,true,false);
-    //move_f = false; //only for testing
+   
   }
   else{
     //do nothing
@@ -137,12 +122,6 @@ void TOFDistanceSensor::distanceReading_routine(){
 
   while(1){
 
-    //only for testing
-   /* if(move_f){
-      this->rover->move_forward();
-    }*/
-
-    //change
     this->prev_reading = this->current_reading;
     this->current_reading = this->getSensorValues();
     sleep(0.005);
@@ -156,14 +135,12 @@ void TOFDistanceSensor::distanceReading_routine(){
     bool objectClose = this->objectedDetected(this->current_reading);
     if(!objectClose){
     
-      this->rover->force_stop_rover();
-      //move_f = true; //only for testing
+      //this->rover->force_stop_rover();
+      this->rover->move_forward();
       
     } else {
       
-      //printf("Calling turn\n", reading);
-
-      //int count = askHysteresis(this->current_reading);
+      //this->rover->force_stop_rover();
       decideTurn(hysteresis_count);
 
       //this->rover->rover_turn(90.0,true,false);
