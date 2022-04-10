@@ -48,3 +48,10 @@ union Vec3{
   };
   T asArray[3];
 };
+template<class T>
+union Vec2{
+  struct {
+    T x,y;
+  };
+  T asArray[2];
+};
