@@ -19,15 +19,16 @@ void signalShutdown();
 
 int main(){
   std::unique_lock<std::mutex> shutdownLock(_shutdownLock);
-  TOFDistanceSensor* sensor = new TOFDistanceSensor() ;
+
   
   // initialize modules
-  //gyro_init();
+  gyro_init();
   //TOFDistanceSensor();
   sleep(7);
   //init_networkModule(signalShutdown,get_rover());
   //init_udp(signalShutdown,get_rover());
   init_rover(); 
+  TOFDistanceSensor* sensor = new TOFDistanceSensor(get_rover()) ;
 
   // wait on shutdown signal
   isRunning = true;

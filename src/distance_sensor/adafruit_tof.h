@@ -20,7 +20,7 @@ public:
   bool objectedDetected(int distance);
 
   ~TOFDistanceSensor();
-  TOFDistanceSensor();
+  TOFDistanceSensor(Rover* rover);
 
 private:
 

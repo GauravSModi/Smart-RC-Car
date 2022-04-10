@@ -30,7 +30,7 @@ void Rover::main_rover(){
 
 	//rover_turn(90,false);
 
-	rover_turn_percise(90,true,0.3);
+	//rover_turn_percise(90,true,0.3);
 	
 	std::cout << "Routine finished!\n";
 
@@ -170,11 +170,11 @@ bool Rover::rover_turn_percise(double degrees, bool isTurnLeft, double withinThr
 		std::cout << "errorAngle: " << errorAngle << "\n";
 		
 		if(errorAngle > withinThreshold){
-			this->myMotors->moveLeft();
+			this->myMotors->moveRight();
 			msleep(JIGGLE_DURATION_MS);
 			this->myMotors->stopMoving();
 		} else if (errorAngle < withinThreshold) {
-			this->myMotors->moveRight();
+			this->myMotors->moveLeft();
 			msleep(JIGGLE_DURATION_MS);
 			this->myMotors->stopMoving();
 		} else {
