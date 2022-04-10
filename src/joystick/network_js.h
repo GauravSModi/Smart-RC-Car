@@ -21,9 +21,6 @@ public:
     close(this->socketDescriptor);
   }
 
-  std::string send(std::string message);
-
-  void udp_reply(std::string message);
-
+  void sendMessage(std::string message);
 };
 

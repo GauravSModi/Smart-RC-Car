@@ -33,35 +33,18 @@ NetworkControls::NetworkControls(std::string remoteAddress){
   inet_pton(AF_INET, remoteAddress.c_str(), &(this->sinRemote.sin_addr));
   this->sinRemote.sin_port = htons(ROVER_PORT);
   
-  // send to network module and recieve a message to handshake
-  std::string response = this->send("alive");
+  // // send to network module and recieve a message to handshake
+  // std::string response = this->sendMessage("alive");
 
   // printf("Constructor Recieved: %s\n",response.c_str());
   
 }
 
-void NetworkControls::udp_reply(std::string message){
 
-  // Transmit a reply:
+void NetworkControls::sendMessage(std::string message){
   int sin_len = sizeof(sinRemote);
   sendto(socketDescriptor,
     message.c_str(), message.length(),
     0,
     (struct sockaddr *) &sinRemote, sin_len);
-
-}
-
-std::string NetworkControls::send(std::string message){
-  udp_reply(message);
-  
-  unsigned int sin_len = sizeof(this->sinRemote);
-  char messageRx[MSG_MAX_LEN];
-
-  // recieve reply
-  int bytesRx = recvfrom(this->socketDescriptor,
-    messageRx, MSG_MAX_LEN - 1, 0,
-    (struct sockaddr *) &this->sinRemote, &sin_len);
-  messageRx[bytesRx] = '\0';
-
-  return messageRx;
 }
