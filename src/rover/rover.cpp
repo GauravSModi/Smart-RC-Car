@@ -16,6 +16,7 @@ Rover* get_rover(){	return myRover; }
 
 Rover::Rover(){
 	shutdown = false;
+	driveMode = MANUAL_MODE;
 	myMotors = new Motors();
 	roverThread = new std::thread(&Rover::main_rover, this);
 	//intialise other dependent modules
@@ -185,9 +186,16 @@ bool Rover::rover_turn_percise(double degrees, bool isTurnLeft, double withinThr
 }
 
 bool Rover::objectSensedSubroutine(){
-
 	this->myMotors->stopMoving();
-	if(true){
-  	this->rover_turn_percise(90.0,true,0.5);
+	if(driveMode == AUTO_MODE){
+  		this->rover_turn_percise(90.0,true,0.5);
 	}
+}
+
+void Rover::toggle_mode(){
+	driveMode = 1 - driveMode;
+}
+
+int Rover::get_mode(){
+	return driveMode;
 }
