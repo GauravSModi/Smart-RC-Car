@@ -102,8 +102,8 @@ static void run(std::function<void()> shutdownFunction) {
 
 		// Pass buffer size - 1 for max # bytes so room for the null (string data)
 		int bytesRx = recvfrom(socketDescriptor,
-			messageRx, MSG_MAX_LEN - 1, 0,
-			(struct sockaddr *) &sinRemote, &sin_len);
+		messageRx, MSG_MAX_LEN - 1, 0,
+		(struct sockaddr *) &sinRemote, &sin_len);
 
 		// Check for errors (-1)
 
@@ -116,30 +116,34 @@ static void run(std::function<void()> shutdownFunction) {
     // char* value = strtok(NULL," \n");
 		bool reportMessage = true;
 
+		bool manualDriveMode = (_myRover->get_mode() == MANUAL_MODE) ? true : false; 
+
 		// make some rover command here
 		if(strcmp(command,"stop") == 0) {
       udp_stop(sinRemote, socketDescriptor);
     } else if (strcmp(command,"alive") == 0) {
 			udp_reply(sinRemote, socketDescriptor, "alive");
 			reportMessage = false;
-		} else if (strcmp(command,"moveLeft") == 0) {
+		} else if (strcmp(command,"moveLeft") == 0 && manualDriveMode) {
 			_myRover->move_left();
 			printf("moveLeft\n");
-		} else if (strcmp(command,"moveRight") == 0) {
+		} else if (strcmp(command,"moveRight") == 0 && manualDriveMode) {
 			printf("moveRight\n");
 			_myRover->move_right();
-		} else if (strcmp(command,"moveFront") == 0) {
+		} else if (strcmp(command,"moveFront") == 0 && manualDriveMode) {
 			_myRover->move_forward();
-		} else if (strcmp(command,"moveBack") == 0) {
+		} else if (strcmp(command,"moveBack") == 0 && manualDriveMode) {
 			_myRover->move_backward();
 			printf("moveBack\n");
 		} else if (strcmp(command,"subscribe") == 0) {
 			registerSubscriber(sinRemote,"webClient");
 		} else if (strcmp(command,"unsubscribe") == 0) {
 			removeSubscriber(sinRemote);
-		} else if (strcmp(command,"stopMotors") == 0) {
+		} else if (strcmp(command,"stopMotors") == 0 && manualDriveMode) {
 			_myRover->stop_rover();
 			printf("stopMotors\n");
+		} else if (strcmp(command,"toggleMode") == 0) {
+			_myRover->toggle_mode();
 		} 
 
 		if(reportMessage){

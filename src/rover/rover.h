@@ -11,13 +11,19 @@
 #include "../motors/motors.h"
 #include "../common/utils.h"
 
-#define UNITS_PER_SECOND 5.0 // how much the rover moves
+#define MANUAL_MODE 0
+#define AUTO_MODE 1
+#define UNITS_PER_SECOND 1.0 // how much the rover moves
 
 class Rover{
 private:
 	Motors* myMotors;
 	bool shutdown;
 	std::thread* roverThread;
+
+	// 0 = controller/webpage (default)
+	// 1 = object-avoidance routine
+	int driveMode;	
 
 	// MAPPING
 	Vec2<double> position;
@@ -43,6 +49,8 @@ public:
 	bool move_right();
 	bool stop_rover();
 	void force_stop_rover();
+	void toggle_mode();
+	int get_mode();
 
 	// Exposed subroutines
 	bool objectSensedSubroutine();

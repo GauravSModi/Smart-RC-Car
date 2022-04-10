@@ -7,6 +7,11 @@
 
 #define threshold 250
 
+static int hysteresis_count = 0;
+
+//only for testing
+//static bool move_f = true;
+
 #define I2C_TOF_SENSOR_DEVICE 0x29
 #define REG_TOF_MSB 0x1E
 #define REG_TOF_LSB 0x1F
@@ -32,6 +37,10 @@ TOFDistanceSensor::TOFDistanceSensor(Rover* rover){
 
   this->distance_readingThread = new std::thread(&TOFDistanceSensor::distanceReading_routine,this);
   this->rover = rover;
+
+  this->prev_reading = 0; //change
+  this->current_reading = 0; //change
+
   this->setContinousSensing(true);
   this->setFilterExtremeValues(true);
 }
@@ -90,28 +99,77 @@ void TOFDistanceSensor::setContinousSensing(bool enable){
   }
 }
 
+/*int TOFDistanceSensor::askHysteresis(int reading){
+
+  int hysteresis_count = 0;
+  if(reading == prev_reading){
+    hysteresis_count +=1;
+  }
+  else{
+    hysteresis_count = 0;
+  }
+
+  return hysteresis_count;
+}*/
+
 bool TOFDistanceSensor::objectedDetected(int distance){
-    if (distance <= threshold){
+    if ((distance <= threshold) && ((this->prev_reading - distance) < 50)){
+      hysteresis_count +=1;
       return true;
     }
+    hysteresis_count = 0;
     return false;
+}
+
+void TOFDistanceSensor::decideTurn(int count){
+  if(count == 60){
+    printf("Calling turn\n");
+    this->rover->objectSensedSubroutine();
+    //this->rover->rover_turn(90.0,true,false);
+    //move_f = false; //only for testing
+  }
+  else{
+    //do nothing
+  }
 }
 
 void TOFDistanceSensor::distanceReading_routine(){
 
   while(1){
-    int reading = this->getSensorValues();
-    printf("current distance value = %d \n", reading);
-    if(reading == 0){
+
+    //only for testing
+   /* if(move_f){
+      this->rover->move_forward();
+    }*/
+
+    //change
+    this->prev_reading = this->current_reading;
+    this->current_reading = this->getSensorValues();
+    sleep(0.005);
+
+
+    printf("current distance value = %d \n", this->current_reading);
+    if(this->current_reading == 0){
       continue;
     }
 
-    bool objectClose = this->objectedDetected(reading);
+    bool objectClose = this->objectedDetected(this->current_reading);
     if(!objectClose){
-      this->rover->move_forward();
-      //this->rover->force_stop_rover();
+    
+      this->rover->force_stop_rover();
+      //move_f = true; //only for testing
+      
     } else {
-      this->rover->objectSensedSubroutine();
+      
+      //printf("Calling turn\n", reading);
+
+      //int count = askHysteresis(this->current_reading);
+      decideTurn(hysteresis_count);
+
+      //this->rover->rover_turn(90.0,true,false);
+      //this->rover->move_forward();
+      //this->rover->force_stop_rover();
+     
     }    
 
   }

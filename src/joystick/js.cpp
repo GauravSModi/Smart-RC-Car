@@ -10,9 +10,13 @@
 
 #include "network_js.h"
 
+// #define ROVER_ADDRESS "192.168.43.100"
+#define ROVER_ADDRESS "192.168.7.2"
 #define JS_FILE_PATH "/dev/input/js0"
 #define VERTICAL_AXIS 1
 #define HORIZONTAL_AXIS 0
+#define SELECT_BUTTON 8
+#define STOP_BUTTON 9
 
 enum input_mapping{UP=1, DOWN=2, LEFT=3, RIGHT=4, STOP=0, ON=32767};
 
@@ -24,11 +28,11 @@ static std::condition_variable cv_stop;
 
 static void listen_for_shutdown(bool* quit);
 static void queue_handler(bool* quit, NetworkControls* network);
-static void event_handler(struct js_event event);
+static void event_handler(struct js_event event, NetworkControls* network);
 
 int main(int argc, char **argv){
 
-	NetworkControls network("192.168.43.100");
+	NetworkControls network(ROVER_ADDRESS);
 
 	int js_file = open(JS_FILE_PATH, O_RDONLY | O_NONBLOCK);
 
@@ -46,7 +50,7 @@ int main(int argc, char **argv){
 		struct js_event event;
 
 		if (read(js_file, &event, sizeof(struct js_event)) > 0){
-			event_handler(event);
+			event_handler(event, &network);
 		}
 	}
 
@@ -141,7 +145,7 @@ static void queue_handler(bool* quit, NetworkControls* network){
 }
 
 
-static void event_handler(struct js_event event){
+static void event_handler(struct js_event event, NetworkControls* network){
 	if (event.type == JS_EVENT_AXIS){	// Joystick event
 		if (event.number == VERTICAL_AXIS){
 			if (event.value == -ON){
@@ -167,8 +171,15 @@ static void event_handler(struct js_event event){
 				cv_stop.notify_all();
 			}
 		}
-	}else if (event.type == JS_EVENT_BUTTON){	// Button event
-		// do something with button input
+	}else if (event.type == JS_EVENT_BUTTON && event.value == 1){	// Button event
+		switch(event.number){
+			case STOP_BUTTON:
+				network->udp_reply("stop");
+				break;
+			case SELECT_BUTTON:
+				network->udp_reply("moveBack");
+				break;
+		}
 	}
 }
 
