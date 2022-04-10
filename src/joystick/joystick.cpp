@@ -6,7 +6,8 @@
 #include <unistd.h>
 
 #include <atomic>
-#include <common/utils.h>
+
+
 
 
 #define DIRECTION_STRENGTH 1.0 // from 0.0 to 1.0, how much should the strength change per sample
@@ -19,7 +20,7 @@ void joystickDummy(){
   printf("joystick module Include success\n");
 }
 
-static void printVec2(Vec2<int> vectors){
+static void printVec2(Vec2<double> vectors){
   printf("Vector[x:%f,z:%f]\n",vectors.x,vectors.y);
 }
 
@@ -210,8 +211,8 @@ void Joystick::strengthDecayer(){
   std::atomic<int> threadDecaying(0);
   auto decay = [&](){
     this->lockStrength();
-    auto strengthCopied = Vec2<int>(this->getStrength());
-    auto strength = Vec2<int>(this->getStrength());
+    auto strengthCopied = Vec2<double>(this->getStrength());
+    auto strength = Vec2<double>(this->getStrength());
     
     if(strength.x != 0.0){
       if(strength.x > 0.0){
