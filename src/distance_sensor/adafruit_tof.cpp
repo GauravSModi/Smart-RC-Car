@@ -5,7 +5,7 @@
 #include <common/utils.h>
 #include <unistd.h>
 
-#define threshold 200
+#define threshold 250
 
 #define I2C_TOF_SENSOR_DEVICE 0x29
 #define REG_TOF_MSB 0x1E
@@ -108,12 +108,10 @@ void TOFDistanceSensor::distanceReading_routine(){
 
     bool objectClose = this->objectedDetected(reading);
     if(!objectClose){
-      //this->rover->move_forward();
-      this->rover->force_stop_rover();
+      this->rover->move_forward();
+      //this->rover->force_stop_rover();
     } else {
-      printf("Calling turn\n", reading);
-    
-      this->rover->rover_turn(90.0,true,false);
+      this->rover->objectSensedSubroutine();
     }    
 
   }

@@ -29,12 +29,13 @@ public:
 	void force_stop_rover();
 
 	~Rover();
-	
-float rover_turn(double degrees, bool turnleft, bool slowMode);
-	
+
+bool objectSensedSubroutine();
+
 private:
 	// subroutines, locks other controls for duration
 	// turns <degrees> and returns the actual degree turned according to gyro
+	float rover_turn(double degrees, bool turnleft, bool slowMode);
 	bool rover_turn_percise(double degrees, bool turnleft, double withinThreshold);
 	bool rover_move(double seconds);
 };

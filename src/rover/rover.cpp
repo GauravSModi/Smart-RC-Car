@@ -4,7 +4,7 @@
 
 #define DIRECTION_POLLING_INTERVAL_MS 1
 #define DIRECTION_CORRECTION_RATE 0.78
-#define JIGGLE_DURATION_MS 100
+#define JIGGLE_DURATION_MS 5
 
 Rover* myRover;
 std::mutex controlsLatch;
@@ -30,7 +30,7 @@ void Rover::main_rover(){
 
 	//rover_turn(90,false);
 
-	//rover_turn_percise(90,true,0.3);
+	//rover_turn_percise(90,true,0.5);
 	
 	std::cout << "Routine finished!\n";
 
@@ -164,16 +164,16 @@ bool Rover::rover_turn_percise(double degrees, bool isTurnLeft, double withinThr
 	while(!successTurn){
 
 		std::cout << "Getting finalize position in 4 seconds.......\n";
-		msleep(4000);
+		msleep(100);
 
-		errorAngle = initialYaw - getYaw();
+		errorAngle = initialYaw - getYaw() + (isTurnLeft?-degrees:degrees);
 		std::cout << "errorAngle: " << errorAngle << "\n";
 		
 		if(errorAngle > withinThreshold){
 			this->myMotors->moveRight();
 			msleep(JIGGLE_DURATION_MS);
 			this->myMotors->stopMoving();
-		} else if (errorAngle < withinThreshold) {
+		} else if (errorAngle < -withinThreshold) {
 			this->myMotors->moveLeft();
 			msleep(JIGGLE_DURATION_MS);
 			this->myMotors->stopMoving();
@@ -182,4 +182,12 @@ bool Rover::rover_turn_percise(double degrees, bool isTurnLeft, double withinThr
 		}		
 	}
 	return true;
+}
+
+bool Rover::objectSensedSubroutine(){
+
+	this->myMotors->stopMoving();
+	if(true){
+  	this->rover_turn_percise(90.0,true,0.5);
+	}
 }
