@@ -30,8 +30,8 @@ private:
 	double steadyYaw = 30.0;
 	std::mutex mapLatch;
 	bool wasTurning = false;
-	std::chrono::_V2::system_clock::time_point prev_time;
-	std::chrono::_V2::system_clock::time_point current_time;
+	std::chrono::_V2::system_clock::time_point prev_time = std::chrono::system_clock::now();
+	std::chrono::_V2::system_clock::time_point current_time = std::chrono::system_clock::now();
 	
 public:
 	Rover(); //constructor

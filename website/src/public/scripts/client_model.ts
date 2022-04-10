@@ -55,6 +55,7 @@ export namespace RemoteCarControl {
       console.log("updating UI")
       const jsonStr = message.split(">>")[1]
       const updatePayload = JSON.parse(jsonStr) as MapUpdate
+      console.log(updatePayload)
       addMapUpdate(updatePayload)
     })
 

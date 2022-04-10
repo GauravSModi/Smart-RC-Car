@@ -1,89 +1,174 @@
+/**
+ * @file gyro.cpp
+ * @brief Start calculating the yaw once object encountered
+ * Once at a certain distance from the the object, start counting the yaw
+ */
+
 #include "gyro.h"
+#include <iostream>
+#include <fcntl.h>
+//#include <sys/ioctl.h>
+//#include <linux/i2c-dev.h>
+//#include <fstream>
+#include <unistd.h>
+//#include <string.h>
+#include <thread>
+//#include <ctime>
 
-static bool shutdown;
-
-//Start calculating the yaw once object encountered
-//Once at a certain distance from the the object, start counting the yaw
-
-char data[6] = {0};
-char results[6];
-
-double elapsed_t = 0;
-
-std::chrono::_V2::system_clock::time_point prev_time ;
-std::chrono::_V2::system_clock::time_point current_time ;
+//#include <cerrno>
+//#include <cstring>
+//#include <system_error>
+//#include <string>
+//#include <unistd.h>
+//#include <fcntl.h>
+//#include <linux/i2c-dev.h>
+//#include <linux/i2c.h>
 
 
-static int initI2cBus(void)
-{
-	// Create I2C bus
-	int file;
-	
-	if((file = open("/dev/i2c-2", O_RDWR)) < 0) 
-	{
-		printf("Failed to open the bus. \n");
-		exit(1);
+// ************ ERROR CACLULATION PARAMS ***********
+#define RAPID_STABILIZE_EXPONENTIAL_FACTOR 0.9 // (0.0 - 1.0) how much previous values are trusted
+#define INITIAL_ERROR_X 0
+#define INITIAL_ERROR_Y 0
+#define INITIAL_ERROR_Z 0
+#define AVG_ERROR_CALC_LIMIT 1000
+#define STABILIZE_CONDITION 40
+
+// Declare Variables
+//static double elapsed_t = 0;
+// ==== MODULE ====
+static std::thread* gyro_readingThread;
+static int gyroFileDiscriptor;
+static bool shutdown = false;
+static void avg_error(int file);
+static void gyro_routine();
+
+// ==== RAW VALUES =====
+static Vec3<int16_t> gyroRaw(0,0,0);
+float get_xGyro_raw(){ return gyroRaw.x; }
+float get_yGyro_raw(){ return gyroRaw.y; }
+float get_zGyro_raw(){ return gyroRaw.z; }
+
+static const char data[6] = {0x43,0x44,0x45,0x46,0x47,0x48};
+static char results[6];
+static void readGyroData(int file);
+
+// ====== ERROR ========
+static Vec3<float> error(0.0,0.0,0.0);
+//static float error_x = 0;
+//static float error_y = 0;
+//static float error_z = 0;
+
+// ======= YAW =========
+static float yaw = 0;
+float getYaw()  { return yaw; }
+void resetYaw() { yaw = 0; }
+// Helper function for calculateAngle
+static std::chrono::_V2::system_clock::time_point prev_time;
+static std::chrono::_V2::system_clock::time_point current_time;
+static double elapsed_time();
+
+
+
+
+
+
+
+// IMPLEMENTATIONS
+static void avg_error(int file){
+	std::cout << "Cacluating gryo Errors\n";
+
+	Vec3<int16_t> avg(INITIAL_ERROR_X,INITIAL_ERROR_Y,INITIAL_ERROR_Z);	
+	Vec3<int16_t> delta(0.0,0.0,0.0);
+
+	bool stablized = false;
+	int attempts = 0;
+	const double expAveragingFactor = RAPID_STABILIZE_EXPONENTIAL_FACTOR;
+	while(!stablized && attempts < AVG_ERROR_CALC_LIMIT){
+		attempts++;
+		// read new Gyro Values
+		readGyroData(file);
+		// update average
+    for(int axis = 0; axis < 3; axis++){
+			// update average based on expoential averaging
+      uint16_t newAverage = avg.asArray[axis] * expAveragingFactor + gyroRaw.asArray[axis] * (1 - expAveragingFactor);
+      delta.asArray[axis] = gyroRaw.asArray[axis] - newAverage;
+      // remove extreme values
+			avg.asArray[axis] = newAverage;
+    }
+
+		int sumDelta = delta.x + delta.y + delta.z;
+		if(abs(sumDelta) < STABILIZE_CONDITION){
+			std::cout << "[gyro] stablized on error["
+			<< avg.x <<","
+			<< avg.y << ","
+			<< avg.z << "]\n";
+			stablized = true;
+		} else {
+			if(attempts % 10 == 0){
+				std::cout << "[gyro] stablizing... (attepmt: "<< attempts <<")\n";
+			}
+		}
 	}
+
+	error.x = avg.x;
+	error.y = avg.y;
+	error.z = avg.z;
+
+	std::cout << "Finished cacluating gryo Errors\n";
+}
+
+// Routine for gyro module's Thread
+static void gyro_routine(){
+	while(1){
+		readGyroData(gyroFileDiscriptor);
+		calculateAngle();
+		sleep(0.01);
+	}
+}
+
+void gyro_init(){
 	// Get I2C device, MMA8452Q I2C address is 0x68
-	ioctl(file, I2C_SLAVE, deviceADDR);
+	gyroFileDiscriptor = initI2cBus("/dev/i2c-2",GYRO_DEVICE_ADDR);
 	
-	return file;
+	writeI2cReg(gyroFileDiscriptor, PWR_MGMT_1, 0);
+
+	// calculate error
+	avg_error(gyroFileDiscriptor);
+	shutdown = false;
+	gyro_readingThread = new std::thread(gyro_routine);
 }
 
-static void writeI2cReg(int i2cFileDesc, unsigned char regAddr, unsigned char value)
-{
-	unsigned char buff[2];
-	buff[0] = regAddr;
-	buff[1] = value;
-	int res = write(i2cFileDesc, buff, 2);
-	if (res != 2) {
-		perror("I2C: Unable to write i2c register.");
-		//exit(1);
-	}
+void gyro_cleanup(){
+	shutdown = true;
+	gyro_readingThread->join();
+	close(gyroFileDiscriptor);
 }
 
-static unsigned char readI2cReg(int i2cFileDesc, unsigned char regAddr)
-{
-	// To read a register, must first write the address
-	int res = write(i2cFileDesc, &regAddr, sizeof(regAddr));
-	if (res != sizeof(regAddr)) {
-		perror("Unable to write i2c register.");
-		//exit(-1);
-	}
+static void readGyroData(int file){
 
-	// Now read the value and return it
-	char value = 0;
-	res = read(i2cFileDesc, &value, sizeof(value));
-	if (res != sizeof(value)) {
-		perror("Unable to read i2c register");
-		//exit(-1);
-	}
-	return value;
+		for(int i = 0; i <6; i++){
+			results[i] = readI2cReg(file, data[i]);
+		}  
+
+		gyroRaw.x = ((results[0] << 8) | results[1]) / 131; //angular velocity
+		if(gyroRaw.x > 250){
+			gyroRaw.x -= 500;
+		}
+
+		 
+		gyroRaw.y = ((results[2] << 8) + results[3]) / 131;
+		if(gyroRaw.y > 250){
+			gyroRaw.y -= 500;
+		}
+
+
+		gyroRaw.z = ((results[4] << 8) + results[5]) / 131;
+		if(gyroRaw.z > 250){
+			gyroRaw.z -= 500;
+		}
+		
 }
 
-
-
-float get_xGyro(){
-    return xGyro;
-}
-float get_yGyro(){
-    return yGyro;
-}
-float get_zGyro(){
-    return zGyro;
-}
-float getYaw(){
-	return yaw;
-}
-
-/*float getAbsYaw(){
-	return absolute_yaw;
-}*/
-
-
-void resetYaw(){
-	yaw = 0;
-}
 
 bool is90(float goalDegree){
 
@@ -117,7 +202,11 @@ bool is90(float goalDegree){
 	return true;
 }
 
-double elapsed_time(){
+/*float getAbsYaw(){
+	return absolute_yaw;
+}*/
+
+static double elapsed_time(){
 
 	double ret_val;
 	prev_time = current_time;
@@ -133,77 +222,32 @@ double elapsed_time(){
 
 void calculateAngle() {  
 
- // prev_yaw = getYaw();	
-  elapsed_t = elapsed_time();	
- //Only need the yaw readings for left and right movement.
+ 	// prev_yaw = getYaw();	
+  double elapsed_t = elapsed_time();	
+	//Only need the yaw readings for left and right movement.
 
-  float delta =(zGyro-error_z)*elapsed_t;
+  float delta =(gyroRaw.z-error.z)*elapsed_t;
   
   float actual =  (delta > 0.0016 || delta < -0.0016)? delta :0.0;
 
- 
   //yaw= yaw + (zGyro-error_z)*elapsed_t;
   yaw= yaw + actual;
   //float temp = yaw;
   //absolute_yaw = temp;
   //printf("delat value = %f, actual = %f, yaw = %f \n", delta,actual,yaw);
-  //printf("running sum = %f\n", yaw);
-  
-  
+  //printf("running sum = %f\n", yaw); 
 }
 
 
+/*
+// MOVED TO common/utils
 
-
-void readGyroData(int file){
-
-		for(int i = 0; i <6; i++){
-			results[i] = readI2cReg(file, data[i]);
-		}  
-
-		xGyro = ((results[0] << 8) | results[1]) / 131; //angular velocity
-		if(xGyro > 250){
-			xGyro -= 500;
-		}
-
-		 
-		yGyro = ((results[2] << 8) + results[3]) / 131;
-		if(yGyro > 250){
-			yGyro -= 500;
-		}
-
-
-		zGyro = ((results[4] << 8) + results[5]) / 131;
-		if(zGyro > 250){
-			zGyro -= 500;
-		}
-		
-}
-
-void avg_error(int file){
-	std::cout << "Cacluating gryo Errors\n";
-
-    for(int i = 0 ; i < 1000; i++){
-
-		readGyroData(file);
-
-		error_x = error_x + xGyro;
-		error_y = error_y + yGyro;
-		error_z = error_z + zGyro;
-    }
-
-	error_x = error_x/1000;
-	error_y = error_y/1000;
-	error_z = error_z/1000;
-	std::cout << "Finished cacluating gryo Errors\n";
-}
-
-void gyro_routine(){
-    int file = initI2cBus();
-    
-    writeI2cReg(file, PWR_MGMT_1, 0);
-
+static int initI2cBus(void)
+{
+	// Create I2C bus
+	int file;
 	
+
 	data[0] = 0x43;
 	data[1] = 0x44;
 	data[2] = 0x45;
@@ -232,5 +276,30 @@ void gyro_cleanup(){
 	shutdown = true;
 	gyro_readingThread->join();
 	printf("Destroyed gyroscope module\n");
+
+	if((file = open("/dev/i2c-2", O_RDWR)) < 0) 
+	{
+		printf("Failed to open the bus. \n");
+		exit(1);
+	}
+	// Get I2C device, MMA8452Q I2C address is 0x68
+	ioctl(file, I2C_SLAVE, GYRO_DEVICE_ADDR);
+	
+	return file;
+}*/
+/*
+static void writeI2cReg(int i2cFileDesc, unsigned char regAddr, unsigned char value)
+{
+	unsigned char buff[2];
+	buff[0] = regAddr;
+	buff[1] = value;
+	int res = write(i2cFileDesc, buff, 2);
+	if (res != 2) {
+		perror("I2C: Unable to write i2c register.");
+		//exit(1);
+	}
+
 }
 
+*/
+//
