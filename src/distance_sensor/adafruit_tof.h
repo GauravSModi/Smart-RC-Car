@@ -19,6 +19,9 @@ public:
   void distanceReading_routine();
   bool objectedDetected(int distance);
 
+  bool checkDistanceSensorEnabled();
+  void disableReading();
+
   ~TOFDistanceSensor();
   TOFDistanceSensor(Rover* rover);
 
@@ -26,6 +29,7 @@ private:
 
   std::thread* distance_readingThread;
   Rover* rover;
+  bool disableReading;
   
   void configSensor();
 

@@ -137,7 +137,10 @@ static void run(std::function<void()> shutdownFunction) {
 			registerSubscriber(sinRemote,"webClient");
 		} else if (strcmp(command,"unsubscribe") == 0) {
 			removeSubscriber(sinRemote);
-		}
+		} else if (strcmp(command,"stopMotors") == 0) {
+			_myRover->stop_rover();
+			printf("stopMotors\n");
+		} 
 
 		if(reportMessage){
 			std::string messageStr(messageRx);
