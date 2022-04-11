@@ -125,4 +125,8 @@ export namespace RemoteCarControl {
   export function remoteShutdown(){
     _socket.emit("remoteShutdown")
   }
+
+  export function stopRover(){
+    _socket.emit("relayMessage","stopMotors")
+  }
 }

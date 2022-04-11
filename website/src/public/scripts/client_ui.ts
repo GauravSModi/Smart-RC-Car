@@ -12,6 +12,8 @@ const leftButton = document.getElementById("keyboard_key_left") as HTMLButtonEle
 const rightButton = document.getElementById("keyboard_key_right") as HTMLButtonElement
 const upButton = document.getElementById("keyboard_key_up") as HTMLButtonElement
 const downButton = document.getElementById("keyboard_key_down") as HTMLButtonElement
+const stopMoveButton = document.getElementById("stop_rover") as HTMLButtonElement
+
 
 // mode buttons
 const manualModeButton = document.getElementById("manual_mode_btn") as HTMLButtonElement
@@ -19,6 +21,7 @@ const autoModeButton = document.getElementById("auto_mode_btn") as HTMLButtonEle
 
 
 let mapUpdateList:MapUpdate[] = []
+
 
 mapUpdateList.push({
   xPos:0.0,
@@ -76,6 +79,11 @@ async function main(){
     RemoteCarControl.moveBack()
   }
 
+  stopMoveButton.onclick = () => {
+    console.log("stopMotors")
+    RemoteCarControl.stopRover()
+  }
+
   manualModeButton.onclick = ()=> {
     console.log("setting manual mode")
     RemoteCarControl.activateManualMode()
@@ -85,7 +93,6 @@ async function main(){
     console.log("setting auto mode")
     RemoteCarControl.activateAutoMode()
   }
-
 
   shutdownButton.onclick = function (event: MouseEvent) {
     RemoteCarControl.remoteShutdown()
@@ -152,9 +159,9 @@ async function main(){
           // for last datapoint in queue
           drawArrow(p5,x,y,yaw);  
 
-          newMapInfo.xPos = mapInfo.xPos + radius / 10
-          newMapInfo.yPos = mapInfo.yPos + radius / 40
-          newMapInfo.yaw = mapInfo.yaw = 4.0
+          //newMapInfo.xPos = mapInfo.xPos + radius / 10
+          //newMapInfo.yPos = mapInfo.yPos + radius / 40
+          //newMapInfo.yaw = mapInfo.yaw = 4.0
           //console.log("x:"+x+",y:"+y+",yaw:"+yaw)
         }      
       }
