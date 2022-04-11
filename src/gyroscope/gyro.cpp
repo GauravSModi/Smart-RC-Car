@@ -75,6 +75,10 @@ static double elapsed_time();
 
 
 // IMPLEMENTATIONS
+bool gyro_isActive(){
+	return !shutdown;
+}
+
 static void avg_error(int file){
 	// restore IO manip config afterwards referenced
 	// https://stackoverflow.com/questions/2273330/restore-the-state-of-stdcout-after-manipulating-it
@@ -149,6 +153,7 @@ void gyro_init(){
 
 	// calculate error
 	avg_error(gyroFileDiscriptor);
+	resetYaw();
 	shutdown = false;
 	gyro_readingThread = new std::thread(gyro_routine);
 }

@@ -9,6 +9,7 @@ using namespace std;
 // ==== MODULE ====
 void gyro_init();
 void gyro_cleanup();
+bool gyro_isActive();
 
 // ==== RAW VALUES =====
 float get_xGyro_raw();

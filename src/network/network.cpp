@@ -241,22 +241,24 @@ static void publishRun(){
 	while(!stopbarrier){
 		subscribersLatch.lock();
 		//std::cout<< "Subscriber count: " << _subscribers.size() << "\n";
-		if(!_subscribers.empty()){
-			// prepare messages for subscribers
-			Vec2<double> position = _myRover->getPosition();
-			std::string webClientUpdates = 
-			"publish>>{"
-			"\"yaw\":" + to_string(-getYaw()) +","
-			"\"xPos\":" + to_string(position.x) + ","
-			"\"yPos\":" + to_string(position.y) +
-			"}";
-			//<< "}";
+		if(gyro_isActive()){	
+			if(!_subscribers.empty()){
+				// prepare messages for subscribers
+				Vec2<double> position = _myRover->getPosition();
+				std::string webClientUpdates = 
+				"publish>>{"
+				"\"yaw\":" + to_string(-getYaw()) +","
+				"\"xPos\":" + to_string(position.x) + ","
+				"\"yPos\":" + to_string(position.y) +
+				"}";
+				//<< "}";
 
-			for(int i = 0; i < _subscribers.size(); i++){	
-				if(_types[i] == "webClient"){
-					udp_reply(_subscribers[i],publishDiscriptor,webClientUpdates);
-				} else if(_types[i] == "controller"){
-					// nothing yet, keep alive maybe?
+				for(int i = 0; i < _subscribers.size(); i++){	
+					if(_types[i] == "webClient"){
+						udp_reply(_subscribers[i],publishDiscriptor,webClientUpdates);
+					} else if(_types[i] == "controller"){
+						// nothing yet, keep alive maybe?
+					}
 				}
 			}
 		}

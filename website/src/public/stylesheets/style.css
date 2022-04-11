@@ -78,7 +78,7 @@ h1, h2 {
 
 .mode_control {
   border: solid 1px black;  
-  margin: 0;
+  margin: 3px;
   padding: 0;
 	width: 60px;
 	height: 40px;
@@ -96,8 +96,8 @@ h1, h2 {
 
 .movements_control {
   border: solid 1px black;  
-  margin: 0;
-  padding: 0;
+  margin: 3px;
+	padding: 0px;
 	width: 40px;
 	height: 40px;
 }
@@ -114,4 +114,9 @@ h1, h2 {
 
 #keyboard_key_right {
   grid-column-start: 3;
+}
+
+#stop_rover {
+	grid-row-start: 3;
+  grid-column-start: 5;
 }

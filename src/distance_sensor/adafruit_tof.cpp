@@ -7,6 +7,7 @@
 
 #define threshold 350
 
+#define D1_HYSTERESIS_THRESHOLD 40
 static int hysteresis_count = 0;
 
 
@@ -20,7 +21,7 @@ static int hysteresis_count = 0;
 
 #define I2C_TOF_SENSOR_BUS "/dev/i2c-2"
 
-static TOFDistanceSensor* instance = NULL;
+static TOFDistanceSensor* sensor = NULL;
 
 /*TOFDistanceSensor* TOFDistanceSensor::getInstance(){
   if(instance == NULL){
@@ -29,8 +30,18 @@ static TOFDistanceSensor* instance = NULL;
   return instance;
 }*/
 
+void init_frontDS(Rover* _myRover){
+  sensor = new TOFDistanceSensor(_myRover);
+}
+void clean_frontDS(){
+  delete sensor;
+}
+bool frontDS_isActive(){
+  return !sensor->shutdown;
+}
+
 TOFDistanceSensor::TOFDistanceSensor(Rover* rover){
-  shutdown = false;
+  this->shutdown = false;
 
   this->configSensor();
   this->sensorFD = initI2cBus(I2C_TOF_SENSOR_BUS,I2C_TOF_SENSOR_DEVICE);
@@ -46,7 +57,7 @@ TOFDistanceSensor::TOFDistanceSensor(Rover* rover){
 }
 
 TOFDistanceSensor::~TOFDistanceSensor(){
-  shutdown = true;
+  this->shutdown = true;
   this->distance_readingThread->join();
   this->setContinousSensing(false);
   this->setFilterExtremeValues(false);
@@ -110,19 +121,17 @@ bool TOFDistanceSensor::objectedDetected(int distance){
 }
 
 void TOFDistanceSensor::decideTurn(int count){
-  if(count == 60){
+  if(count >= D1_HYSTERESIS_THRESHOLD){
     printf("Calling turn\n");
     this->rover->objectSensedSubroutine();
-   
-  }
-  else{
+  } else {
     //do nothing
   }
 }
 
 void TOFDistanceSensor::distanceReading_routine(){
 
-  while(!shutdown){
+  while(!this->shutdown){
 
     this->prev_reading = this->current_reading;
     this->current_reading = this->getSensorValues();
@@ -139,7 +148,7 @@ void TOFDistanceSensor::distanceReading_routine(){
     
       //this->rover->force_stop_rover();
       //this->rover->move_forward();
-      
+      rover->objectNOTSensedSubroutine();
     } else {
       
       //this->rover->force_stop_rover();
