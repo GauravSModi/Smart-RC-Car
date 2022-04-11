@@ -60,7 +60,7 @@ bool Rover::move_forward(){
 bool Rover::move_backward(){
 	bool success = controlsLatch.try_lock();
 	if(success){
-		myMotors->moveForward();
+		myMotors->moveBackward();
 		controlsLatch.unlock();
 	}
 	return success;
@@ -167,18 +167,18 @@ bool Rover::rover_turn_percise(double degrees, bool isTurnLeft, double withinThr
 	// correct for overshooting
 	
 	double errorAngle;
-	bool successTurn = false;
-	while(!successTurn){
+	this->successTurnPercise = false;
+	while(!successTurnPercise){
 
 		std::cout << "Getting finalize position in 4 seconds.......\n";
 		msleep(JIGGLE_INTERVAL_MS);
 
-		errorAngle = initialYaw - getYaw() + (isTurnLeft?-degrees:degrees);
+		errorAngle = initialYaw - getYaw() + (isTurnLeft?degrees:-degrees);
 		std::cout << "errorAngle: " << errorAngle << "\n";
 		
 		if(errorAngle > withinThreshold){
 			
-			if(!this->move_right()){
+			if(!this->move_left()){
 				break;
 			}
 
@@ -186,17 +186,17 @@ bool Rover::rover_turn_percise(double degrees, bool isTurnLeft, double withinThr
 			this->force_stop_rover();
 		} else if (errorAngle < -withinThreshold) {
 			
-			if(!this->move_left()){
+			if(!this->move_right()){
 				break;
 			}
 
 			msleep(JIGGLE_DURATION_MS);
 			this->force_stop_rover();	
 		} else {
-			successTurn = true;
+			this->successTurnPercise = true;
 		}		
 	}
-	return successTurn;
+	return this->successTurnPercise;
 }
 
 
@@ -218,25 +218,25 @@ bool Rover::objectSensedSubroutine(){
 		//success &= this->rover_turn_percise(90.0,false,0.5);
 
 		std::cout << "AUTO: (1)turning 1st left\n";
-		success &= this->rover_turn_percise(90.0,false,0.5);
+		success &= this->rover_turn_percise(90.0,true,0.5);
 		std::cout << "AUTO: (2)moving 1st foward\n";
 		success &= this->move_forward();
 		//sleep(1);		
 		auto startTime = std::chrono::system_clock::now();
 		sideDistanceSensor->AlertPassedObject();
-		std::chrono::duration<double> elapsed_seconds = startTime - std::chrono::system_clock::now();
+		std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - startTime;
 		double secondsPassed = (double)elapsed_seconds.count();
 
 		success &= this->stop_rover();
 		std::cout << "AUTO: (3)turning 1st right\n";
-		success &= this->rover_turn_percise(90.0,true,0.5);
+		success &= this->rover_turn_percise(90.0,false,0.5);
 		std::cout << "AUTO: (4)moving 2nd foward\n";
 		success &= this->move_forward();
 		//sleep(2);
 		sideDistanceSensor->AlertPassedObject();
 		success &= this->stop_rover();
 		std::cout << "AUTO: (5)turning 2nd right\n";
-		success &= this->rover_turn_percise(90.0,true,0.5);
+		success &= this->rover_turn_percise(90.0,false,0.5);
 		std::cout << "AUTO: (6)moving 3rd foward\n";
 		success &= this->move_forward();
 		
@@ -244,7 +244,7 @@ bool Rover::objectSensedSubroutine(){
 		//sideDistanceSensor->AlertPassedObject();
 		success &= this->stop_rover();
 		std::cout << "AUTO: (7)turning 2st left\n";
-		success &= this->rover_turn_percise(90.0,false,0.5);
+		success &= this->rover_turn_percise(90.0,true,0.5);
 		
 	}
 	std::cout << "Finished object detected subroutine\n";
@@ -259,9 +259,14 @@ void Rover::set_mode(int mode){
 
 void Rover::toggle_mode(){
 	printf("Changing mode\n");
+	if(driveMode == AUTO_MODE){
+		this->successTurnPercise = true;
+		this->turnConditionMet = true;
+	}
 	this->myMotors->stopMoving();
 	driveMode = 1 - driveMode;
 	printf("Mode now: %d", driveMode);
+
 }
 
 int Rover::get_mode(){

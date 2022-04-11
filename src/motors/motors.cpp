@@ -74,7 +74,7 @@ void Motors::moveForward(){
 	printf("Moving forwards\n");
 }
 
-void Motors::moveLeft(){
+void Motors::moveRight(){
 	direction = 2;
 	power = 1;
 
@@ -92,7 +92,7 @@ void Motors::moveLeft(){
 	}
 	printf("Moving left\n");
 }
-void Motors::slowLeft(){
+void Motors::slowRight(){
 	direction = 2;
 	power = 1;
 
@@ -111,7 +111,7 @@ void Motors::slowLeft(){
 	printf("Moving left\n");
 }
 
-void Motors::moveRight(){
+void Motors::moveLeft(){
 	direction = 3;
 	power = 1;
 
@@ -129,7 +129,7 @@ void Motors::moveRight(){
 	}
 	printf("Moving right\n");
 }
-void Motors::slowRight(){
+void Motors::slowLeft(){
 	direction = 3;
 	power = 1;
 

@@ -29,6 +29,7 @@ private:
 	// turning
 	bool turnConditionMet = false;
 	bool roverTurning = false;
+	bool successTurnPercise = false;
 
 	// MAPPING
 	Vec2<double> position;
