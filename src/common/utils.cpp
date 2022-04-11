@@ -131,6 +131,17 @@ double clamp(double value, double upper, double lower){
   return max( min(value,upper), lower);
 }
 
+// from https://stackoverflow.com/questions/16782746/what-is-faster-than-stdpow
+double fastPow(double a, double b) {
+  union {
+    double d;
+    int x[2];
+  } u = { a };
+  u.x[1] = (int)(b * (u.x[1] - 1072632447) + 1072632447);
+  u.x[0] = 0;
+  return u.d;
+}
+
 void utilsDummy(){
   printf("utils Include success\n");
 }

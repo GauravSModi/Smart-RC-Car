@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+
+
 //start reading dist sensor 2 values after rover has finsished turning from the object.
 //while(moving forward = true) -> keep reading the sensor 2 values
 //once the reading gets 0 (with the hysteresis) -> moveforward = false;
@@ -16,11 +18,17 @@ class SHARPDistanceSensor{
         double getSensorValues();
         double pwlAlgorithm(double s,double a,double b,double m,double n);
 
+        bool AlertPassedObject();
+
+        //void checkCondition();
+
         ~SHARPDistanceSensor();
         SHARPDistanceSensor();
     
     private:
-        float reading;
+        //std::thread* distance_readingThread;
+        double reading = 0;
+        double prev_reading = 0;
 
 };
 

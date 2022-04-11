@@ -31,7 +31,8 @@ unsigned char readI2cReg(int i2cFileDesc, unsigned char regAddr);
 double max(double left, double right);
 double min(double left, double right);
 double clamp(double value, double upper, double lower);
-
+// from https://stackoverflow.com/questions/16782746/what-is-faster-than-stdpow
+double fastPow(double a, double b);
 void utilsDummy();
 // =========== sleep =============
 // calls nanosleep for miliseconds
