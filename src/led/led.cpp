@@ -14,8 +14,16 @@ static bool shouldFlash = false;
 
 
 static void ledMainThreadRun();
+static void disableLED(std::string lEDPath);
 
 void init_LEDModule(){
+
+    // disable LEDs
+    disableLED(ZERO_LED_DIR_PATH);
+    disableLED(FIRST_LED_DIR_PATH);
+    disableLED(SECOND_LED_DIR_PATH);
+    disableLED(THIRD_LED_DIR_PATH);
+
     isRunning = true;
     ledThread = new std::thread(ledMainThreadRun);
 }
@@ -31,6 +39,11 @@ void startFlashing(){
 }
 void stopFlashing(){
     shouldFlash = false;
+}
+
+// interacting with LEDs
+void disableLED(std::string lEDPath){
+    truncateToFile((lEDPath + "trigger"),"none");
 }
 
 void ledMainThreadRun(){
@@ -56,12 +69,6 @@ void ledMainThreadRun(){
 
         msleep(FLASH_INTERVAL_MS);
     }
-    
-}
-
-
-void ledDummy(){
-  printf("leds module Include success\n");
 }
 
 void turnOnLED(std::string lEDPath){
