@@ -25,6 +25,10 @@ private:
 	// 1 = object-avoidance routine
 	int driveMode;	
 
+	// turning
+	bool turnConditionMet = false;
+	bool roverTurning = false;
+
 	// MAPPING
 	Vec2<double> position;
 	double steadyYaw = 30.0;
@@ -61,12 +65,15 @@ public:
 private:
 	// Internal subroutines, locks other controls for duration
 	// turns <degrees> and returns the actual degree turned according to gyro
-	float rover_turn(double degrees, bool turnleft, bool slowMode);
+	bool rover_turn(double degrees, bool turnleft, bool slowMode);
 	bool rover_turn_percise(double degrees, bool turnleft, double withinThreshold);
 	bool rover_move(double seconds);
 	
 	void updatePosition();
 	void updateSteadyYaw();
+	void forceStopTurn(){
+		this->turnConditionMet = true;
+	}
 };
 
 void init_rover();

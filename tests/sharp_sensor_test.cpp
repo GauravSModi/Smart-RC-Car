@@ -12,7 +12,7 @@ int main(int argc, char* argv[]){
         //int i=dis->getVoltageValues();
         double i=dis->getSensorValues();
         cout<<i<<endl;
-        sleep(1);
+        
     }
 
 

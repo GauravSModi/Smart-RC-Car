@@ -4,26 +4,27 @@
 #include <fcntl.h>
 #include <fstream>
 #include <cmath>
+#include <stdio.h>
+#include <unistd.h>
 
+using namespace std;
 
 #define A2D_FILE_VOLTAGE1 "/sys/bus/iio/devices/iio:device0/in_voltage1_raw"
 #define A2D_VOLTAGE_REF_V 1.8
 #define A2D_MAX_READING 4095
 #define TRAIN_DATA_LENGTH 14
 
-static SHARPDistanceSensor* instance=NULL;
-//first index represent distance(x-axis), second index represent voltage value(y-axis)
-static double data[14][2]={{20,2.5},{30,2},{40,1.5},{50,1.25},{60,1.1},{70,0.9},{80,0.8},{90,0.75},
-                            {100,0.7},{110,0.6},{120,0.55},{130,0.5},{140,0.45},{150,0.4}};
+//static SHARPDistanceSensor* instance=NULL;
 
-SHARPDistanceSensor* SHARPDistanceSensor::getInstance(){
+/*SHARPDistanceSensor* SHARPDistanceSensor::getInstance(){
     if(instance==NULL){
         instance=new SHARPDistanceSensor();
     }
     return instance;
-}
+}*/
 
 SHARPDistanceSensor::SHARPDistanceSensor(){
+    this->reading = 0;
 }
 
 unsigned int SHARPDistanceSensor::getVoltageValues(){
@@ -64,7 +65,7 @@ double SHARPDistanceSensor::getSensorValues(){
     //use voltage graph to train the data
     //in order to calculate the distance
     double ret=0;
-    double average_correspondVoltage=0;
+    //double average_correspondVoltage=0;
     double correspondVoltage=0;
 
 
@@ -76,35 +77,11 @@ double SHARPDistanceSensor::getSensorValues(){
     }
     correspondVoltage/=10;
 
-    // if(correspondVoltage<=data[0][1]&&correspondVoltage>data[1][1]){
-    //     return pwlAlgorithm(correspondVoltage,data[0][0],data[1][0],data[0][1],data[1][1]);
-    // }else if(correspondVoltage<=data[1][1]&&correspondVoltage>data[2][1]){
-    //     return pwlAlgorithm(correspondVoltage,data[1][0],data[2][0],data[1][1],data[2][1]);
-    // }else if(correspondVoltage<=data[2][1]&&correspondVoltage>data[3][1]){
-    //     return pwlAlgorithm(correspondVoltage,data[2][0],data[3][0],data[2][1],data[3][1]);
-    // }else if(correspondVoltage<=data[3][1]&&correspondVoltage>data[4][1]){
-    //     return pwlAlgorithm(correspondVoltage,data[3][0],data[4][0],data[3][1],data[4][1]);
-    // }else if(correspondVoltage<=data[4][1]&&correspondVoltage>data[5][1]){
-    //     return pwlAlgorithm(correspondVoltage,data[4][0],data[5][0],data[4][1],data[5][1]);
-    // }else if(correspondVoltage<=data[5][1]&&correspondVoltage>data[6][1]){
-    //     return pwlAlgorithm(correspondVoltage,data[5][0],data[6][0],data[5][1],data[6][1]);
-    // }else if(correspondVoltage<=data[6][1]&&correspondVoltage>data[7][1]){
-    //     return pwlAlgorithm(correspondVoltage,data[6][0],data[7][0],data[6][1],data[7][1]);
-    // }
-
-
-    // for(int i=0;i<TRAIN_DATA_LENGTH-1;i++){
-    //     if(correspondVoltage<=data[i][1]&&correspondVoltage>data[i+1][1]){
-    //         ret=pwlAlgorithm(correspondVoltage,data[i][0],data[i+1][0],data[i][1],data[i+1][1]);
-    //         break;
-    //     }
-    // }
-
 
     //linear approximation: Distance=29.988*pow(voltage,-1.173);
     ret=29.988*pow(correspondVoltage,-1);
     if((ret<=10)||(ret>=80)){
-        ret=1000;
+        ret=0;
     }
 
     return ret;
@@ -112,3 +89,16 @@ double SHARPDistanceSensor::getSensorValues(){
 
 
 }
+
+/*int main(int argc, char* argv[]){
+
+    SHARPDistanceSensor * dis= new SHARPDistanceSensor();
+    while(1){
+        
+        double i=dis->getSensorValues();
+        cout<<i<<endl;
+        
+    }
+
+    return 0;
+}*/
