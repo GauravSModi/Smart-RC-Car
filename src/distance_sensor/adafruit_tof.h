@@ -5,6 +5,11 @@
 #include "rover/rover.h"
 #include <thread>
 
+void init_frontDS(Rover* _myRover);
+void clean_frontDS();
+bool frontDS_isActive();
+
+
 class TOFDistanceSensor : public DistanceSensor {
   int sensorFD;
   bool filterExtreme;
@@ -37,5 +42,5 @@ private:
   int prev_reading;
   
   void configSensor();
-
+  friend bool frontDS_isActive();
 };

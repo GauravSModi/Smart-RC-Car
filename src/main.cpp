@@ -24,7 +24,7 @@ int main(){
   gyro_init();
   init_rover(); 
   init_networkModule(signalShutdown, get_rover());
-  TOFDistanceSensor* sensor = new TOFDistanceSensor(get_rover());
+  init_frontDS(get_rover());
   init_LEDModule();
 
   // wait on shutdown signal
@@ -34,9 +34,9 @@ int main(){
 
   // clean up and unlock shutdown mutex
   clean_networkModule();
+  clean_frontDS();
   clean_rover();
   gyro_cleanup();
-  delete sensor;
   cleanUp_LEDModule();
 
   isRunning = false;
