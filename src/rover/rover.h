@@ -13,7 +13,7 @@
 
 #define MANUAL_MODE 0
 #define AUTO_MODE 1
-#define UNITS_PER_SECOND 1.0 // how much the rover moves
+#define UNITS_PER_SECOND 50.0 // how much the rover moves
 
 class Rover{
 private:

@@ -229,13 +229,13 @@ static void publishRun(){
 		
 	while(!stopbarrier){
 		subscribersLatch.lock();
-		std::cout<< "Subscriber count: " << _subscribers.size() << "\n";
+		//std::cout<< "Subscriber count: " << _subscribers.size() << "\n";
 		if(!_subscribers.empty()){
 			// prepare messages for subscribers
 			Vec2<double> position = _myRover->getPosition();
 			std::string webClientUpdates = 
 			"publish>>{"
-			"\"yaw\":" + to_string(getYaw()) +","
+			"\"yaw\":" + to_string(-getYaw()) +","
 			"\"xPos\":" + to_string(position.x) + ","
 			"\"yPos\":" + to_string(position.y) +
 			"}";

@@ -5,7 +5,8 @@
 
 #define DIRECTION_POLLING_INTERVAL_MS 1
 #define DIRECTION_CORRECTION_RATE 0.78
-#define JIGGLE_DURATION_MS 5
+#define JIGGLE_DURATION_MS 25
+#define JIGGLE_INTERVAL_MS 100
 
 #define POSITION_UPDATE_INTERVAL_MS 5
 
@@ -19,10 +20,10 @@ Rover* get_rover(){	return myRover; }
 Rover::Rover(){
 	this->position.x = 0.0;
 	this->position.y = 0.0;
-	shutdown = false;
-	driveMode = MANUAL_MODE;
-	myMotors = new Motors();
-	roverThread = new std::thread(&Rover::main_rover, this);
+	this->shutdown = false;
+	this->driveMode = AUTO_MODE;
+	this->myMotors = new Motors();
+	this->roverThread = new std::thread(&Rover::main_rover, this);
 	//intialise other dependent modules
 }
 
@@ -30,7 +31,10 @@ void Rover::main_rover(){
 	if (!myMotors) return;
 	resetYaw();
 
-	this->rover_turn_percise(90.0,false,0.5);
+
+	//bool status = this->rover_turn_percise(90.0,false,0.5);
+
+	//std::cout<< "turn status: " << status << "\n";
 
 	while (!shutdown){
 		this->updatePosition();
@@ -103,13 +107,9 @@ bool Rover::rover_turn(double degrees, bool turnleft, bool slow){
 
 	// Start turning
 	if(turnleft){
-
 		this->myMotors->moveLeft();
-		
 	} else {
-
 		this->myMotors->moveRight();
-		
 	}
 
 	// turn until degree
@@ -146,7 +146,7 @@ bool Rover::rover_turn(double degrees, bool turnleft, bool slow){
 		msleep(DIRECTION_POLLING_INTERVAL_MS);
 	}
 	this->myMotors->stopMoving();
-
+	msleep(1000);
 	controlsLatch.unlock();
 	roverTurning = false;
 	return success;
@@ -166,27 +166,27 @@ bool Rover::rover_turn_percise(double degrees, bool isTurnLeft, double withinThr
 	while(!successTurn){
 
 		std::cout << "Getting finalize position in 4 seconds.......\n";
-		msleep(100);
+		msleep(JIGGLE_INTERVAL_MS);
 
 		errorAngle = initialYaw - getYaw() + (isTurnLeft?-degrees:degrees);
 		std::cout << "errorAngle: " << errorAngle << "\n";
 		
 		if(errorAngle > withinThreshold){
+			
 			if(!this->move_right()){
 				break;
 			}
+
 			msleep(JIGGLE_DURATION_MS);
-			if(!this->stop_rover()){
-				break;
-			}
+			this->force_stop_rover();
 		} else if (errorAngle < -withinThreshold) {
-			if(this->move_left()){
+			
+			if(!this->move_left()){
 				break;
 			}
+
 			msleep(JIGGLE_DURATION_MS);
-			if(this->stop_rover()){
-				break;
-			}
+			this->force_stop_rover();	
 		} else {
 			successTurn = true;
 		}		
@@ -201,19 +201,19 @@ bool Rover::objectSensedSubroutine(){
 	this->myMotors->stopMoving();
 
 	// debug
-	driveMode = AUTO_MODE;
+	//driveMode = AUTO_MODE;
 
 	if(driveMode == MANUAL_MODE){
-  		this->rover_turn_percise(90.0,true,0.5);
-
+  		//this->rover_turn_percise(90.0,true,0.5);
+		this->force_stop_rover();
 	} 
 	else if(driveMode == AUTO_MODE){
 		// avoidance 
 		bool success = true;
-		this->rover_turn(90.0,true,false);
+		//this->rover_turn(90.0,true,false);
 
 		//success &= this->rover_turn_percise(90.0,false,0.5);
-		/*
+		
 		std::cout << "AUTO: (1)turning 1st left\n";
 		success &= this->rover_turn_percise(90.0,true,0.5);
 		std::cout << "AUTO: (2)moving 1st foward\n";
@@ -223,7 +223,9 @@ bool Rover::objectSensedSubroutine(){
 		std::cout << "AUTO: (3)turning 1st right\n";
 		success &= this->rover_turn_percise(90.0,false,0.5);
 		std::cout << "AUTO: (4)moving 2nd foward\n";
-		sleep(6);
+		success &= this->move_forward();
+		sleep(1);
+		success &= this->stop_rover();
 		std::cout << "AUTO: (5)turning 2nd right\n";
 		success &= this->rover_turn_percise(90.0,false,0.5);
 		std::cout << "AUTO: (6)moving 3rd foward\n";
@@ -231,7 +233,7 @@ bool Rover::objectSensedSubroutine(){
 		sleep(1);
 		success &= this->stop_rover();
 		std::cout << "AUTO: (7)turning 2st left\n";
-		success &= this->rover_turn_percise(90.0,true,0.5);*/
+		success &= this->rover_turn_percise(90.0,true,0.5);
 		
 	}
 	std::cout << "Finished object detected subroutine\n";
@@ -264,8 +266,8 @@ void Rover::updatePosition(){
 
 				// update values
 				mapLatch.lock();
-				position.x += deltaDistance * cos(steadyYaw);
-				position.y += deltaDistance * sin(steadyYaw);
+				position.x += deltaDistance * cos(-getYaw() * M_PI / 180.0);
+				position.y += deltaDistance * sin(-getYaw() * M_PI / 180.0);
 				mapLatch.unlock();
 			}
 		} else if(direction == 2 || direction == 3){
