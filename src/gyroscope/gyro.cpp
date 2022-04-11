@@ -134,7 +134,7 @@ static void avg_error(int file){
 
 // Routine for gyro module's Thread
 static void gyro_routine(){
-	while(1){
+	while(!shutdown){
 		readGyroData(gyroFileDiscriptor);
 		calculateAngle();
 		sleep(0.01);
@@ -157,6 +157,7 @@ void gyro_cleanup(){
 	shutdown = true;
 	gyro_readingThread->join();
 	close(gyroFileDiscriptor);
+	printf("Exiting Gyro\n");
 }
 
 static void readGyroData(int file){
