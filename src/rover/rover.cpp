@@ -2,6 +2,7 @@
 #include "gyroscope/gyro.h"
 #include <mutex>
 #include <math.h>
+#include <distance_sensor/sharpIR_ds.h>
 
 #define DIRECTION_POLLING_INTERVAL_MS 1
 #define DIRECTION_CORRECTION_RATE 0.78
@@ -31,10 +32,10 @@ void Rover::main_rover(){
 	if (!myMotors) return;
 	resetYaw();
 
-
-	//bool status = this->rover_turn_percise(90.0,false,0.5);
-
-	//std::cout<< "turn status: " << status << "\n";
+	//this->rover_turn_percise(90.0,false,0.5);
+	SHARPDistanceSensor * dis= new SHARPDistanceSensor();
+	dis->AlertPassedObject();
+	printf("Done with the alert\n");
 
 	while (!shutdown){
 		this->updatePosition();
@@ -199,6 +200,10 @@ bool Rover::rover_turn_percise(double degrees, bool isTurnLeft, double withinThr
 
 bool Rover::objectSensedSubroutine(){
 	this->myMotors->stopMoving();
+	if (driveMode == AUTO_MODE){
+  		this->rover_turn_percise(90.0,true,0.5);
+  		this->rover_turn_percise(90.0,true,0.5);
+	}
 
 	// debug
 	//driveMode = AUTO_MODE;
@@ -218,7 +223,7 @@ bool Rover::objectSensedSubroutine(){
 		success &= this->rover_turn_percise(90.0,true,0.5);
 		std::cout << "AUTO: (2)moving 1st foward\n";
 		success &= this->move_forward();
-		sleep(1);
+		//sleep(1);
 		success &= this->stop_rover();
 		std::cout << "AUTO: (3)turning 1st right\n";
 		success &= this->rover_turn_percise(90.0,false,0.5);
@@ -240,7 +245,15 @@ bool Rover::objectSensedSubroutine(){
 	return true;
 }
 
+void Rover::set_mode(int mode){
+	if (driveMode != mode){
+		toggle_mode();
+	}
+}
+
 void Rover::toggle_mode(){
+	printf("Changing mode\n");
+	this->myMotors->stopMoving();
 	driveMode = 1 - driveMode;
 }
 

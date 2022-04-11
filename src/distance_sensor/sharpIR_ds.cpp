@@ -2,10 +2,13 @@
 #include "sharpIR_ds.h"
 #include <unistd.h>
 #include <fcntl.h>
-#include <fstream>
-#include <cmath>
-#include <stdio.h>
-#include <unistd.h>
+#include <common/utils.h>
+//#include <fstream>
+//#include <math.h>
+//#include <stdio.h>
+//#include <unistd.h>
+//#include <condition_variable>
+//#include <mutex>
 
 using namespace std;
 
@@ -13,6 +16,10 @@ using namespace std;
 #define A2D_VOLTAGE_REF_V 1.8
 #define A2D_MAX_READING 4095
 #define TRAIN_DATA_LENGTH 14
+
+//std::mutex mtx;
+//std::condition_variable cv;
+bool keepMoving = true;
 
 //static SHARPDistanceSensor* instance=NULL;
 
@@ -25,8 +32,13 @@ using namespace std;
 
 SHARPDistanceSensor::SHARPDistanceSensor(){
     this->reading = 0;
+    //this->distance_readingThread = new std::thread(&SHARPDistanceSensor::AlertPassedObject,this);
 }
 
+SHARPDistanceSensor::~SHARPDistanceSensor()
+{
+    //this->distance_readingThread->join();
+}
 unsigned int SHARPDistanceSensor::getVoltageValues(){
     this->sensorFD=fopen(A2D_FILE_VOLTAGE1,"r");
     if(!this->sensorFD){
@@ -79,7 +91,7 @@ double SHARPDistanceSensor::getSensorValues(){
 
 
     //linear approximation: Distance=29.988*pow(voltage,-1.173);
-    ret=29.988*pow(correspondVoltage,-1);
+    ret=29.988*fastPow(correspondVoltage,-1.0);
     if((ret<=10)||(ret>=80)){
         ret=0;
     }
@@ -90,15 +102,32 @@ double SHARPDistanceSensor::getSensorValues(){
 
 }
 
+bool SHARPDistanceSensor::AlertPassedObject(){
+    
+   // std::unique_lock<std::mutex> lck(mtx);
+
+    //where should I put this?
+    
+    while(keepMoving) {
+        
+
+        this->prev_reading = this->reading;
+        this->reading = this->getSensorValues();
+        printf("distance sensor #2 values : %f\n", this->reading);
+        if(this->reading == 0 && this->prev_reading != 0){
+            //stop moving
+            keepMoving = false;
+            //cv.notify_all();
+        }
+        sleep(0.001);
+    }
+    
+    return true;
+}
+
 /*int main(int argc, char* argv[]){
 
     SHARPDistanceSensor * dis= new SHARPDistanceSensor();
-    while(1){
-        
-        double i=dis->getSensorValues();
-        cout<<i<<endl;
-        
-    }
-
+    dis->AlertPassedObject();
     return 0;
 }*/

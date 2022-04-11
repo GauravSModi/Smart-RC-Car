@@ -114,6 +114,14 @@ export namespace RemoteCarControl {
     // await updateBeatName()
   }
 
+  export function activateManualMode(){
+    _socket.emit("relayMessage", "setManualMode")
+  }
+
+  export function activateAutoMode(){
+    _socket.emit("relayMessage", "setAutoMode")
+  }
+
   export function remoteShutdown(){
     _socket.emit("remoteShutdown")
   }
