@@ -29,6 +29,7 @@ private:
 	// turning
 	bool turnConditionMet = false;
 	bool roverTurning = false;
+	bool successTurnPercise = false;
 
 	// stopping
 	bool roverStoppedForResolve = false;
