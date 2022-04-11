@@ -153,7 +153,7 @@ static void run(std::function<void()> shutdownFunction) {
 		} else if (strcmp(command,"setManualMode") == 0){
 			_myRover->set_mode(MANUAL_MODE);
 			printf("network: setManualMode\n");
-		} else if (strcmp(command,"moveFrontAuto" == 0 && !manualDriveMode) == 0){
+		} else if (strcmp(command,"moveFrontAuto") == 0  && !manualDriveMode){
 			_myRover->move_forward();
 			printf("network: moveFront in auto mode\n");
 		}
