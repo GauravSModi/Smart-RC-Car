@@ -220,14 +220,15 @@ bool Rover::objectSensedSubroutine(){
 		std::cout << "AUTO: (1)turning 1st left\n";
 		success &= this->rover_turn_percise(90.0,true,0.5);
 		std::cout << "AUTO: (2)moving 1st foward\n";
+		auto startTime = std::chrono::steady_clock::now();
 		success &= this->move_forward();
 		//sleep(1);		
-		auto startTime = std::chrono::system_clock::now();
 		sideDistanceSensor->AlertPassedObject();
-		std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - startTime;
-		double secondsPassed = (double)elapsed_seconds.count();
 
 		success &= this->stop_rover();
+		std::chrono::duration<double,std::milli> millisecMoved = std::chrono::steady_clock::now() - startTime;
+		double milisecondsPassed = (double)millisecMoved.count();
+
 		std::cout << "AUTO: (3)turning 1st right\n";
 		success &= this->rover_turn_percise(90.0,false,0.5);
 		std::cout << "AUTO: (4)moving 2nd foward\n";
@@ -240,7 +241,7 @@ bool Rover::objectSensedSubroutine(){
 		std::cout << "AUTO: (6)moving 3rd foward\n";
 		success &= this->move_forward();
 		
-		sleep(secondsPassed);
+		msleep(milisecondsPassed);
 		//sideDistanceSensor->AlertPassedObject();
 		success &= this->stop_rover();
 		std::cout << "AUTO: (7)turning 2st left\n";
