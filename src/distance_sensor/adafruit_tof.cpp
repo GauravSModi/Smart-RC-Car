@@ -138,12 +138,12 @@ void TOFDistanceSensor::distanceReading_routine(){
     if(!objectClose){
     
       //this->rover->force_stop_rover();
-      this->rover->move_forward();
+      //this->rover->move_forward();
       
     } else {
       
       //this->rover->force_stop_rover();
-      decideTurn(hysteresis_count);
+      //decideTurn(hysteresis_count);
 
       //this->rover->rover_turn(90.0,true,false);
       //this->rover->move_forward();
