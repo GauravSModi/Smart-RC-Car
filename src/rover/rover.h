@@ -10,16 +10,17 @@
 
 #include "../motors/motors.h"
 #include "../common/utils.h"
+#include <distance_sensor/sharpIR_ds.h>
 
 #define MANUAL_MODE 0
 #define AUTO_MODE 1
-#define UNITS_PER_SECOND 50.0 // how much the rover moves
 
 class Rover{
 private:
 	Motors* myMotors;
 	bool shutdown;
 	std::thread* roverThread;
+	SHARPDistanceSensor * sideDistanceSensor;
 
 	// 0 = controller/webpage (default)
 	// 1 = object-avoidance routine

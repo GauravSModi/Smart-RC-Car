@@ -17,6 +17,9 @@ using namespace std;
 #define A2D_MAX_READING 4095
 #define TRAIN_DATA_LENGTH 14
 
+#define OBJECT_DETECTION_DISTANCE 20
+#define DS2_HYSTERIA 5
+
 //std::mutex mtx;
 //std::condition_variable cv;
 bool keepMoving = true;
@@ -107,21 +110,41 @@ bool SHARPDistanceSensor::AlertPassedObject(){
    // std::unique_lock<std::mutex> lck(mtx);
 
     //where should I put this?
-    
+    int hystreria = 0;
+    bool objectInsight = false;
     while(keepMoving) {
         
 
         this->prev_reading = this->reading;
         this->reading = this->getSensorValues();
         printf("distance sensor #2 values : %f\n", this->reading);
-        if(this->reading == 0 && this->prev_reading != 0){
-            //stop moving
-            keepMoving = false;
-            //cv.notify_all();
+        if(!objectInsight){
+            if(this->reading < OBJECT_DETECTION_DISTANCE && this->reading > 0){
+                hystreria++;
+                if(hystreria > DS2_HYSTERIA){
+                    objectInsight = true;
+                    hystreria = 0;
+                }
+            } else {
+                hystreria = 0;
+            }
+        } else {
+            if(this->reading > OBJECT_DETECTION_DISTANCE || this->reading == 0){
+                hystreria++;
+                if(hystreria > DS2_HYSTERIA){
+                    keepMoving = false;
+                }
+            } else {
+                hystreria = 0;
+            }
+            // stop
         }
+
         sleep(0.001);
     }
     
+    keepMoving = true;
+
     return true;
 }
 

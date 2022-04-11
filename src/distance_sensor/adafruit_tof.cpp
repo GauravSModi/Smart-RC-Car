@@ -5,7 +5,7 @@
 #include <common/utils.h>
 #include <unistd.h>
 
-#define threshold 250
+#define threshold 350
 
 static int hysteresis_count = 0;
 
@@ -143,7 +143,7 @@ void TOFDistanceSensor::distanceReading_routine(){
     } else {
       
       //this->rover->force_stop_rover();
-      //decideTurn(hysteresis_count);
+      decideTurn(hysteresis_count);
 
       //this->rover->rover_turn(90.0,true,false);
       //this->rover->move_forward();

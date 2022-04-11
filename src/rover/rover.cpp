@@ -2,14 +2,16 @@
 #include "gyroscope/gyro.h"
 #include <mutex>
 #include <math.h>
-#include <distance_sensor/sharpIR_ds.h>
 
 #define DIRECTION_POLLING_INTERVAL_MS 1
 #define DIRECTION_CORRECTION_RATE 0.78
 #define JIGGLE_DURATION_MS 25
-#define JIGGLE_INTERVAL_MS 100
+#define JIGGLE_INTERVAL_MS 50
 
 #define POSITION_UPDATE_INTERVAL_MS 5
+#define UNITS_PER_SECOND 25.0 // how much the rover moves
+
+
 
 Rover* myRover;
 std::mutex controlsLatch;
@@ -25,6 +27,7 @@ Rover::Rover(){
 	this->driveMode = AUTO_MODE;
 	this->myMotors = new Motors();
 	this->roverThread = new std::thread(&Rover::main_rover, this);
+	this->sideDistanceSensor = new SHARPDistanceSensor();
 	//intialise other dependent modules
 }
 
@@ -33,9 +36,8 @@ void Rover::main_rover(){
 	resetYaw();
 
 	//this->rover_turn_percise(90.0,false,0.5);
-	SHARPDistanceSensor * dis= new SHARPDistanceSensor();
-	dis->AlertPassedObject();
-	printf("Done with the alert\n");
+
+//	printf("Done with the alert\n");
 
 	while (!shutdown){
 		this->updatePosition();
@@ -97,6 +99,7 @@ Rover::~Rover(){
 	shutdown = true;
 	roverThread->join();
 	delete myMotors;
+	delete this->sideDistanceSensor;
 }
 
 bool Rover::rover_turn(double degrees, bool turnleft, bool slow){
@@ -200,10 +203,6 @@ bool Rover::rover_turn_percise(double degrees, bool isTurnLeft, double withinThr
 
 bool Rover::objectSensedSubroutine(){
 	this->myMotors->stopMoving();
-	if (driveMode == AUTO_MODE){
-  		this->rover_turn_percise(90.0,true,0.5);
-  		this->rover_turn_percise(90.0,true,0.5);
-	}
 
 	// debug
 	//driveMode = AUTO_MODE;
@@ -216,29 +215,38 @@ bool Rover::objectSensedSubroutine(){
 		// avoidance 
 		bool success = true;
 		//this->rover_turn(90.0,true,false);
+		
 
 		//success &= this->rover_turn_percise(90.0,false,0.5);
-		
+
 		std::cout << "AUTO: (1)turning 1st left\n";
-		success &= this->rover_turn_percise(90.0,true,0.5);
+		success &= this->rover_turn_percise(90.0,false,0.5);
 		std::cout << "AUTO: (2)moving 1st foward\n";
 		success &= this->move_forward();
-		//sleep(1);
+		//sleep(1);		
+		auto startTime = std::chrono::system_clock::now();
+		sideDistanceSensor->AlertPassedObject();
+		std::chrono::duration<double> elapsed_seconds = startTime - std::chrono::system_clock::now();
+		double secondsPassed = (double)elapsed_seconds.count();
+
 		success &= this->stop_rover();
 		std::cout << "AUTO: (3)turning 1st right\n";
-		success &= this->rover_turn_percise(90.0,false,0.5);
+		success &= this->rover_turn_percise(90.0,true,0.5);
 		std::cout << "AUTO: (4)moving 2nd foward\n";
 		success &= this->move_forward();
-		sleep(1);
+		//sleep(2);
+		sideDistanceSensor->AlertPassedObject();
 		success &= this->stop_rover();
 		std::cout << "AUTO: (5)turning 2nd right\n";
-		success &= this->rover_turn_percise(90.0,false,0.5);
+		success &= this->rover_turn_percise(90.0,true,0.5);
 		std::cout << "AUTO: (6)moving 3rd foward\n";
 		success &= this->move_forward();
-		sleep(1);
+		
+		sleep(secondsPassed);
+		//sideDistanceSensor->AlertPassedObject();
 		success &= this->stop_rover();
 		std::cout << "AUTO: (7)turning 2st left\n";
-		success &= this->rover_turn_percise(90.0,true,0.5);
+		success &= this->rover_turn_percise(90.0,false,0.5);
 		
 	}
 	std::cout << "Finished object detected subroutine\n";
@@ -268,7 +276,7 @@ void Rover::updatePosition(){
 		if(direction == 0 || direction == 1){
 			if(this->wasTurning){
 				this->wasTurning = false;
-				updateSteadyYaw();
+				//updateSteadyYaw();
 			}
 			// if motors were on
 			if(prev_time != current_time){

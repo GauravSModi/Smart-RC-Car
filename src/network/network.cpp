@@ -151,7 +151,6 @@ static void run(std::function<void()> shutdownFunction) {
 		} else if (strcmp(command,"setManualMode") == 0){
 			_myRover->set_mode(MANUAL_MODE);
 		}
-		}
 
 		if(reportMessage){
 			std::string messageStr(messageRx);
