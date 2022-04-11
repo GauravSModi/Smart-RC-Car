@@ -18,11 +18,11 @@ public:
 
   void distanceReading_routine();
   bool objectedDetected(int distance);
-  //int askHysteresis(int reading); //change
+  
   void decideTurn(int count);
 
   bool checkDistanceSensorEnabled();
-  // void disableReading();
+
 
   ~TOFDistanceSensor();
   TOFDistanceSensor(Rover* rover);
@@ -33,7 +33,7 @@ private:
   Rover* rover;
   bool shutdown;
   
-  int current_reading; //change
+  int current_reading; 
   int prev_reading;
   
   void configSensor();

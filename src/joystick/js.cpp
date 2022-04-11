@@ -7,6 +7,7 @@
 #include <queue>
 #include <condition_variable>
 #include <linux/joystick.h>
+#include <chrono>
 
 #include "network_js.h"
 
@@ -17,7 +18,7 @@
 #define VERTICAL_AXIS 1
 #define HORIZONTAL_AXIS 0
 #define SELECT_BUTTON 8
-#define STOP_BUTTON 9
+#define START_BUTTON 9
 #define RED_BUTTON 1
 #define YELLOW_BUTTON 2
 
@@ -37,11 +38,10 @@ int main(int argc, char **argv){
 
 	NetworkControls network(ROVER_ADDRESS);
 
-	int js = -1;
+	int js_file = -1;
 	
-	while (js < 0){
+	while (js_file < 0){
 		js_file = open(JS_FILE_PATH, O_RDONLY | O_NONBLOCK);
-
 		if (js_file < 0){
 			printf("Error: Couldn't open joystick file\n");
 		}
@@ -81,6 +81,7 @@ static void listen_for_shutdown(bool* quit){
 
 static void queue_handler(bool* quit, NetworkControls* network){
 	std::unique_lock<std::mutex> stop_lock(mutex_stop);
+	printf("got mutex\n");
 	while (!*quit){
 		if (input_queue.size() > 0){
 			int input_direction = input_queue.front();
@@ -117,16 +118,20 @@ static void queue_handler(bool* quit, NetworkControls* network){
 			if (!ignore_input){
 				switch(input_direction){
 					case UP:
-						network->udp_reply("moveFront");
+						network->sendMessage("moveFront");
+						printf("JS up\n");
 						break;
 					case DOWN:
-						network->udp_reply("moveBack");
+						network->sendMessage("moveBack");
+						printf("JS down\n");
 						break;
 					case LEFT:
-						network->udp_reply("moveLeft");
+						network->sendMessage("moveLeft");
+						printf("JS left\n");
 						break;
 					case RIGHT:
-						network->udp_reply("moveRight");
+						network->sendMessage("moveRight");
+						printf("JS right\n");
 						break;
 				}
 			}
@@ -140,7 +145,7 @@ static void queue_handler(bool* quit, NetworkControls* network){
 					stop_queue.pop();
 					if (stop_type == input_axis){
 						rx_stop = true;
-						network->send("stopMotors");
+						network->sendMessage("stopMotors");
 					}else{
 						stop_queue.push(stop_type);
 					}
@@ -180,17 +185,17 @@ static void event_handler(struct js_event event, NetworkControls* network){
 	}else if (event.type == JS_EVENT_BUTTON && event.value == 1){	// Button event
 		switch(event.number){
 			case START_BUTTON:
-				network->udp_reply("moveFront");
+				// network->sendMessage("moveFront");
 				// start smart routine?
 				break;
 			case SELECT_BUTTON:
-				network->udp_reply("toggleMode");
+				network->sendMessage("toggleMode");
 				break;
 			case RED_BUTTON:
-				network->udp_reply("stop");
+				network->sendMessage("stop");
 				break;
 			case YELLOW_BUTTON:
-				network->udp_reply("stopMotors");
+				network->sendMessage("stopMotors");
 				break;
 		}
 	}
