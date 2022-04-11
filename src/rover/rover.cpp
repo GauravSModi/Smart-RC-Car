@@ -2,6 +2,7 @@
 #include "gyroscope/gyro.h"
 #include <mutex>
 #include <math.h>
+#include <led/led.h>
 
 #define DIRECTION_POLLING_INTERVAL_MS 1
 #define DIRECTION_CORRECTION_RATE 0.78
@@ -200,14 +201,26 @@ bool Rover::rover_turn_percise(double degrees, bool isTurnLeft, double withinThr
 }
 
 
-
-
 bool Rover::objectSensedSubroutine(){
 	this->myMotors->stopMoving();
 
+	// TODO:TEST
 	if(driveMode == MANUAL_MODE){
-  		//this->rover_turn_percise(90.0,true,0.5);
-		this->force_stop_rover();
+  	//this->rover_turn_percise(90.0,true,0.5);
+		if(!this->roverStoppedForResolve){
+			this->roverStoppedForResolve = true;
+			this->force_stop_rover();
+			controlsLatch.lock();
+			this->force_stop_rover();
+
+			// moves backwards
+			this->myMotors->moveBackward();
+			sleep(100);
+			this->myMotors->stopMoving();
+
+			controlsLatch.unlock();
+			this->roverStoppedForResolve = false;
+		}
 	} 
 	else if(driveMode == AUTO_MODE){
 		// avoidance 
@@ -216,35 +229,47 @@ bool Rover::objectSensedSubroutine(){
 		
 
 		//success &= this->rover_turn_percise(90.0,false,0.5);
+		std::cout << "AUTO: (0)back up\n";
+		controlsLatch.lock();
+		myMotors->moveBackward();
+		sleep(100);
+		myMotors->stopMoving();
 
 		std::cout << "AUTO: (1)turning 1st left\n";
+		std::cin.get();
 		success &= this->rover_turn_percise(90.0,false,0.5);
 		std::cout << "AUTO: (2)moving 1st foward\n";
+		std::cin.get();
 		auto startTime = std::chrono::steady_clock::now();
 		success &= this->move_forward();
 		//sleep(1);		
 		sideDistanceSensor->AlertPassedObject();
-
+		auto endTime = std::chrono::steady_clock::now();
 		success &= this->stop_rover();
-		std::chrono::duration<double,std::milli> millisecMoved = std::chrono::steady_clock::now() - startTime;
+		std::chrono::duration<double,std::milli> millisecMoved = endTime - startTime;
 		double milisecondsPassed = (double)millisecMoved.count();
-
+		std::cout << "Calculated time: " << milisecondsPassed << "\n";
 		std::cout << "AUTO: (3)turning 1st right\n";
+		std::cin.get();
 		success &= this->rover_turn_percise(90.0,true,0.5);
 		std::cout << "AUTO: (4)moving 2nd foward\n";
+		std::cin.get();
 		success &= this->move_forward();
 		//sleep(2);
 		sideDistanceSensor->AlertPassedObject();
 		success &= this->stop_rover();
 		std::cout << "AUTO: (5)turning 2nd right\n";
+		std::cin.get();
 		success &= this->rover_turn_percise(90.0,true,0.5);
 		std::cout << "AUTO: (6)moving 3rd foward\n";
+		std::cin.get();
 		success &= this->move_forward();
 		
 		msleep(milisecondsPassed);
 		//sideDistanceSensor->AlertPassedObject();
 		success &= this->stop_rover();
 		std::cout << "AUTO: (7)turning 2st left\n";
+		std::cin.get();
 		success &= this->rover_turn_percise(90.0,false,0.5);
 		
 	}
@@ -252,9 +277,23 @@ bool Rover::objectSensedSubroutine(){
 	return true;
 }
 
+bool Rover::objectNOTSensedSubroutine(){
+	// do nothing for now
+	if (driveMode == MANUAL_MODE) {
+		
+	}
+
+	return true;
+}
+
 void Rover::set_mode(int mode){
 	if (driveMode != mode){
 		toggle_mode();
+	}
+	if(driveMode == AUTO_MODE){
+		startFlashing();
+	} else {
+		stopFlashing();
 	}
 }
 
@@ -263,6 +302,11 @@ void Rover::toggle_mode(){
 	this->myMotors->stopMoving();
 	driveMode = 1 - driveMode;
 	printf("Mode now: %d", driveMode);
+	if(driveMode == AUTO_MODE){
+		startFlashing();
+	} else {
+		stopFlashing();
+	}
 }
 
 int Rover::get_mode(){

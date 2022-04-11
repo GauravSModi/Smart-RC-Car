@@ -7,6 +7,7 @@
 
 #define threshold 350
 
+#define D1_HYSTERESIS_THRESHOLD 40
 static int hysteresis_count = 0;
 
 
@@ -110,12 +111,10 @@ bool TOFDistanceSensor::objectedDetected(int distance){
 }
 
 void TOFDistanceSensor::decideTurn(int count){
-  if(count == 60){
+  if(count >= D1_HYSTERESIS_THRESHOLD){
     printf("Calling turn\n");
     this->rover->objectSensedSubroutine();
-   
-  }
-  else{
+  } else {
     //do nothing
   }
 }
@@ -139,7 +138,7 @@ void TOFDistanceSensor::distanceReading_routine(){
     
       //this->rover->force_stop_rover();
       //this->rover->move_forward();
-      
+      rover->objectNOTSensedSubroutine();
     } else {
       
       //this->rover->force_stop_rover();

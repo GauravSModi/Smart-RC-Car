@@ -30,6 +30,9 @@ private:
 	bool turnConditionMet = false;
 	bool roverTurning = false;
 
+	// stopping
+	bool roverStoppedForResolve = false;
+
 	// MAPPING
 	Vec2<double> position;
 	double steadyYaw = 30.0;
@@ -60,6 +63,7 @@ public:
 
 	// Exposed subroutines
 	bool objectSensedSubroutine();
+	bool objectNOTSensedSubroutine();
 
 	// MAPPING
 	Vec2<double> getPosition();
