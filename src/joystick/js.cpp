@@ -190,7 +190,7 @@ static void event_handler(struct js_event event, NetworkControls* network){
 				break;
 			case SELECT_BUTTON:
 				network->sendMessage("toggleMode");
-				printf("Toggling mode\n")
+				printf("Toggling mode\n");
 				break;
 			case RED_BUTTON:
 				network->sendMessage("stop");
