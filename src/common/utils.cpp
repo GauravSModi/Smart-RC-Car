@@ -28,11 +28,11 @@ bool truncateToFile(std::string filePath, std::string charsToWrite){
 void writeGPIOValue(std::string filePath, std::string value){
   int file = open(filePath.c_str(), O_WRONLY);
   if (file == -1){
-    printf("Unable to open %s\n", filePath);
+    printf("Unable to open %s\n", filePath.c_str());
     return;
   }
   if (write(file, value.c_str(), value.length()) != value.length()){
-    printf("Error writing to %s\n", filePath);
+    printf("Error writing to %s\n", filePath.c_str());
     return;
   }
   close(file);

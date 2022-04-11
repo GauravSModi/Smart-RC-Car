@@ -23,15 +23,16 @@
 //#include <fcntl.h>
 //#include <linux/i2c-dev.h>
 //#include <linux/i2c.h>
+#include <iomanip>
 
 
 // ************ ERROR CACLULATION PARAMS ***********
 #define RAPID_STABILIZE_EXPONENTIAL_FACTOR 0.9 // (0.0 - 1.0) how much previous values are trusted
-#define INITIAL_ERROR_X 0
-#define INITIAL_ERROR_Y 0
-#define INITIAL_ERROR_Z 0
+#define INITIAL_ERROR_X 100
+#define INITIAL_ERROR_Y 100
+#define INITIAL_ERROR_Z 100
 #define AVG_ERROR_CALC_LIMIT 1000
-#define STABILIZE_CONDITION 40
+#define STABILIZE_CONDITION 0.1
 
 // Declare Variables
 //static double elapsed_t = 0;
@@ -75,10 +76,14 @@ static double elapsed_time();
 
 // IMPLEMENTATIONS
 static void avg_error(int file){
-	std::cout << "Cacluating gryo Errors\n";
+	// restore IO manip config afterwards referenced
+	// https://stackoverflow.com/questions/2273330/restore-the-state-of-stdcout-after-manipulating-it
+	std::ios_base::fmtflags f( cout.flags() );
+	std::cout << std::fixed << std::setfill(' ') << std::setprecision(4) << "Cacluating gryo Errors\n";
+	const int DOUBLE_WIDTH = 8;
 
-	Vec3<int16_t> avg(INITIAL_ERROR_X,INITIAL_ERROR_Y,INITIAL_ERROR_Z);	
-	Vec3<int16_t> delta(0.0,0.0,0.0);
+	Vec3<double> avg(INITIAL_ERROR_X,INITIAL_ERROR_Y,INITIAL_ERROR_Z);	
+	Vec3<double> delta(0.0,0.0,0.0);
 
 	bool stablized = false;
 	int attempts = 0;
@@ -90,31 +95,41 @@ static void avg_error(int file){
 		// update average
     for(int axis = 0; axis < 3; axis++){
 			// update average based on expoential averaging
-      uint16_t newAverage = avg.asArray[axis] * expAveragingFactor + gyroRaw.asArray[axis] * (1 - expAveragingFactor);
+      double newAverage = avg.asArray[axis] * expAveragingFactor + gyroRaw.asArray[axis] * (1.0 - expAveragingFactor);
       delta.asArray[axis] = gyroRaw.asArray[axis] - newAverage;
       // remove extreme values
 			avg.asArray[axis] = newAverage;
     }
 
-		int sumDelta = delta.x + delta.y + delta.z;
-		if(abs(sumDelta) < STABILIZE_CONDITION){
+		bool xOkay = abs(delta.x) < STABILIZE_CONDITION;
+		bool yOkay = abs(delta.y) < STABILIZE_CONDITION;
+		bool zOkay = abs(delta.z) < STABILIZE_CONDITION;
+
+		if(xOkay && yOkay && zOkay){
 			std::cout << "[gyro] stablized on error["
-			<< avg.x <<","
-			<< avg.y << ","
-			<< avg.z << "]\n";
+			<< std::setw(DOUBLE_WIDTH) << avg.x <<","
+			<< std::setw(DOUBLE_WIDTH) << avg.y << ","
+			<< std::setw(DOUBLE_WIDTH) << avg.z << "]\n";
 			stablized = true;
 		} else {
 			if(attempts % 10 == 0){
-				std::cout << "[gyro] stablizing... (attepmt: "<< attempts <<")\n";
+				std::cout << "[gyro] stablizing... (current: ["
+				<< std::setw(DOUBLE_WIDTH) << avg.x <<","
+				<< std::setw(DOUBLE_WIDTH) << avg.y << ","
+				<< std::setw(DOUBLE_WIDTH) << avg.z << "] delta["
+				<< std::setw(DOUBLE_WIDTH) << delta.x <<","
+				<< std::setw(DOUBLE_WIDTH) << delta.y << ","
+				<< std::setw(DOUBLE_WIDTH) << delta.z << "] attepmt: "<< attempts <<")\n";
 			}
 		}
 	}
 
-	error.x = avg.x;
-	error.y = avg.y;
-	error.z = avg.z;
+	error.x = (int16_t)avg.x;
+	error.y = (int16_t)avg.y;
+	error.z = (int16_t)avg.z;
 
 	std::cout << "Finished cacluating gryo Errors\n";
+	cout.flags( f );
 }
 
 // Routine for gyro module's Thread

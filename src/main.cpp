@@ -23,7 +23,6 @@ int main(){
   
   // initialize modules
   gyro_init();
-  sleep(7);
   init_rover(); 
   init_networkModule(signalShutdown, get_rover());
   TOFDistanceSensor* sensor = new TOFDistanceSensor(get_rover());
