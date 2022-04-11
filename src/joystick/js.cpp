@@ -11,8 +11,8 @@
 
 #include "network_js.h"
 
-// #define ROVER_ADDRESS "192.168.43.100"
-#define ROVER_ADDRESS "192.168.7.2"
+#define ROVER_ADDRESS "192.168.43.100"
+// #define ROVER_ADDRESS "192.168.7.2"
 // #define ROVER_ADDRESS "127.0.0.1"
 #define JS_FILE_PATH "/dev/input/js0"
 #define VERTICAL_AXIS 1
