@@ -42,7 +42,9 @@ void Rover::main_rover(){
 //	printf("Done with the alert\n");
 
 	while (!shutdown){
-		this->updatePosition();
+		if(gyro_isActive()){
+			this->updatePosition();
+		}
 		msleep(POSITION_UPDATE_INTERVAL_MS);
 	}
 
@@ -222,7 +224,7 @@ bool Rover::objectSensedSubroutine(){
 			this->roverStoppedForResolve = false;
 		}
 	} 
-	else if(driveMode == AUTO_MODE){
+	else if(driveMode == AUTO_MODE && gyro_isActive()){
 		// avoidance 
 		bool success = true;
 		//this->rover_turn(90.0,true,false);
