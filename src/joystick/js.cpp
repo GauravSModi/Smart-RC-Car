@@ -185,17 +185,20 @@ static void event_handler(struct js_event event, NetworkControls* network){
 	}else if (event.type == JS_EVENT_BUTTON && event.value == 1){	// Button event
 		switch(event.number){
 			case START_BUTTON:
-				// network->sendMessage("moveFront");
-				// start smart routine?
+				network->sendMessage("moveFrontAuto");
+				printf("Moving forward in auto mode\n");
 				break;
 			case SELECT_BUTTON:
 				network->sendMessage("toggleMode");
+				printf("Toggling mode\n");
 				break;
 			case RED_BUTTON:
 				network->sendMessage("stop");
+				printf("Stopping program\n");
 				break;
 			case YELLOW_BUTTON:
 				network->sendMessage("stopMotors");
+				printf("Stopping motors\n");
 				break;
 		}
 	}
