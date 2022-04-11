@@ -13,6 +13,10 @@ const rightButton = document.getElementById("keyboard_key_right") as HTMLButtonE
 const upButton = document.getElementById("keyboard_key_up") as HTMLButtonElement
 const downButton = document.getElementById("keyboard_key_down") as HTMLButtonElement
 
+// mode buttons
+const manualModeButton = document.getElementById("manual_mode_btn") as HTMLButtonElement
+const autoModeButton = document.getElementById("auto_mode_btn") as HTMLButtonElement
+
 
 let mapUpdateList:MapUpdate[] = []
 
@@ -70,6 +74,16 @@ async function main(){
   downButton.onclick = () => {
     console.log("down")
     RemoteCarControl.moveBack()
+  }
+
+  manualModeButton.onclick = ()=> {
+    console.log("setting manual mode")
+    RemoteCarControl.activateManualMode()
+  }
+
+  autoModeButton.onclick = ()=> {
+    console.log("setting auto mode")
+    RemoteCarControl.activateAutoMode()
   }
 
 

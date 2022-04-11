@@ -6,7 +6,7 @@
 
 #define DIRECTION_POLLING_INTERVAL_MS 1
 #define DIRECTION_CORRECTION_RATE 0.78
-#define JIGGLE_DURATION_MS 5
+#define JIGGLE_DURATION_MS 50
 
 #define POSITION_UPDATE_INTERVAL_MS 5
 
@@ -21,10 +21,10 @@ Rover::Rover(){
 	this->position.x = 0.0;
 	this->position.y = 0.0;
 	shutdown = false;
-	driveMode = MANUAL_MODE;
+	// driveMode = MANUAL_MODE;
+	driveMode = AUTO_MODE;
 	myMotors = new Motors();
 	roverThread = new std::thread(&Rover::main_rover, this);
-	//intialise other dependent modules
 }
 
 void Rover::main_rover(){
@@ -203,6 +203,10 @@ bool Rover::rover_turn_percise(double degrees, bool isTurnLeft, double withinThr
 
 bool Rover::objectSensedSubroutine(){
 	this->myMotors->stopMoving();
+	if (driveMode == AUTO_MODE){
+  		this->rover_turn_percise(90.0,true,0.5);
+  		this->rover_turn_percise(90.0,true,0.5);
+	}
 
 	// debug
 	driveMode = AUTO_MODE;
@@ -242,7 +246,15 @@ bool Rover::objectSensedSubroutine(){
 	return true;
 }
 
+void Rover::set_mode(int mode){
+	if (driveMode != mode){
+		toggle_mode();
+	}
+}
+
 void Rover::toggle_mode(){
+	printf("Changing mode\n");
+	this->myMotors->stopMoving();
 	driveMode = 1 - driveMode;
 }
 

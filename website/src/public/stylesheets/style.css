@@ -63,6 +63,27 @@ h1, h2 {
 	justify-content: center;
 }
 
+#mode-box {
+	float: right;
+	width: 250px;
+	min-height: fit-content;
+	border: thin black solid;
+	background-color: #f3f3f3;
+	padding: 10pt;
+	clear: right;
+	margin-top: 10pt;
+	display: flex;
+	justify-content: center;
+}
+
+.mode_control {
+  border: solid 1px black;  
+  margin: 0;
+  padding: 0;
+	width: 60px;
+	height: 40px;
+}
+
 #controls {
   display: inline-grid;
   grid-column-gap: 0;
