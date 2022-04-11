@@ -49,8 +49,9 @@ public:
 	bool move_right();
 	bool stop_rover();
 	void force_stop_rover();
-	void toggle_mode();
 	int get_mode();
+	void set_mode(int mode);	// use AUTO_MODE or MANUAL_MODE
+	void toggle_mode();
 
 	// Exposed subroutines
 	bool objectSensedSubroutine();

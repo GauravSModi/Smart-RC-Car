@@ -146,7 +146,12 @@ static void run(std::function<void()> shutdownFunction) {
 			printf("network: stopMotors\n");
 		} else if (strcmp(command,"toggleMode") == 0) {
 			_myRover->toggle_mode();
-		} 
+		} else if (strcmp(command,"setAutoMode") == 0){
+			_myRover->set_mode(AUTO_MODE);
+		} else if (strcmp(command,"setManualMode") == 0){
+			_myRover->set_mode(MANUAL_MODE);
+		}
+		}
 
 		if(reportMessage){
 			std::string messageStr(messageRx);
