@@ -122,6 +122,10 @@ export namespace RemoteCarControl {
     _socket.emit("relayMessage", "setAutoMode")
   }
 
+  export function startAutoRoutine(){
+    _socket.emit("relayMessage", "moveFrontAuto")
+  }
+
   export function remoteShutdown(){
     _socket.emit("remoteShutdown")
   }

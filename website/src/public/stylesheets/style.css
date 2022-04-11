@@ -84,6 +84,10 @@ h1, h2 {
 	height: 40px;
 }
 
+#start_auto_routine_btn {
+	display: none;
+}
+
 #controls {
   display: inline-grid;
   grid-column-gap: 0;
