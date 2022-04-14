@@ -7,22 +7,13 @@
 #include "gyro.h"
 #include <iostream>
 #include <fcntl.h>
-//#include <sys/ioctl.h>
-//#include <linux/i2c-dev.h>
-//#include <fstream>
 #include <unistd.h>
 //#include <string.h>
 #include <thread>
 //#include <ctime>
 
-//#include <cerrno>
-//#include <cstring>
-//#include <system_error>
-//#include <string>
-//#include <unistd.h>
-//#include <fcntl.h>
-//#include <linux/i2c-dev.h>
-//#include <linux/i2c.h>
+
+
 #include <iomanip>
 
 
@@ -67,9 +58,6 @@ void resetYaw() { yaw = 0; }
 static std::chrono::_V2::system_clock::time_point prev_time;
 static std::chrono::_V2::system_clock::time_point current_time;
 static double elapsed_time();
-
-
-
 
 
 
@@ -193,39 +181,11 @@ static void readGyroData(int file){
 
 bool is90(float goalDegree){
 
-	//cap the yaw
-    //assume for now that once its more than 90, set yaw back to 0.
-    //originally set yaw back to 0, once the rover is not moving
-
-/* !!!MOVED TO ROVER!!!
-
-	float condition  = yaw - offset;
-	//if(getYaw() > 90){
-	if(condition > 90){	
-	  printf("Yaw is over 90 right now \n"); 
-	  offset = getYaw();
-
-	  //yaw = 0;
-
-	 return true;
-  }
-  //else if(getYaw() < -90){
-	else if( condition < -90){  
-
-	  printf("Yaw is under -90 right now \n");
-	  offset = getYaw();
-	  //yaw = 0;
-	  
-	  return true;
-  }
-	return false;
-	*/
+	
 	return true;
 }
 
-/*float getAbsYaw(){
-	return absolute_yaw;
-}*/
+
 
 static double elapsed_time(){
 
@@ -243,84 +203,16 @@ static double elapsed_time(){
 
 void calculateAngle() {  
 
- 	// prev_yaw = getYaw();	
   double elapsed_t = elapsed_time();	
-	//Only need the yaw readings for left and right movement.
+
 
   float delta =(gyroRaw.z-error.z)*elapsed_t;
   
   float actual =  (delta > 0.0016 || delta < -0.0016)? delta :0.0;
 
-  //yaw= yaw + (zGyro-error_z)*elapsed_t;
+ 
   yaw= yaw + actual;
-  //float temp = yaw;
-  //absolute_yaw = temp;
-  //printf("delat value = %f, actual = %f, yaw = %f \n", delta,actual,yaw);
-  //printf("running sum = %f\n", yaw); 
+  
 }
 
 
-/*
-// MOVED TO common/utils
-
-static int initI2cBus(void)
-{
-	// Create I2C bus
-	int file;
-	
-
-	data[0] = 0x43;
-	data[1] = 0x44;
-	data[2] = 0x45;
-	data[3] = 0x46;
-	data[4] = 0x47;
-	data[5] = 0x48;
-
-	avg_error(file);
-	sleep(2);
-    while(!shutdown){
-
-        readGyroData(file);
-	
-	    calculateAngle();
-	    sleep(0.01);
-    }
-
-}
-
-void gyro_init(){
-	shutdown = false;
-	gyro_readingThread = new std::thread(gyro_routine);
-}
-
-void gyro_cleanup(){
-	shutdown = true;
-	gyro_readingThread->join();
-	printf("Destroyed gyroscope module\n");
-
-	if((file = open("/dev/i2c-2", O_RDWR)) < 0) 
-	{
-		printf("Failed to open the bus. \n");
-		exit(1);
-	}
-	// Get I2C device, MMA8452Q I2C address is 0x68
-	ioctl(file, I2C_SLAVE, GYRO_DEVICE_ADDR);
-	
-	return file;
-}*/
-/*
-static void writeI2cReg(int i2cFileDesc, unsigned char regAddr, unsigned char value)
-{
-	unsigned char buff[2];
-	buff[0] = regAddr;
-	buff[1] = value;
-	int res = write(i2cFileDesc, buff, 2);
-	if (res != 2) {
-		perror("I2C: Unable to write i2c register.");
-		//exit(1);
-	}
-
-}
-
-*/
-//

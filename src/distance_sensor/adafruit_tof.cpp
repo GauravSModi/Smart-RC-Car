@@ -23,12 +23,6 @@ static int hysteresis_count = 0;
 
 static TOFDistanceSensor* sensor = NULL;
 
-/*TOFDistanceSensor* TOFDistanceSensor::getInstance(){
-  if(instance == NULL){
-    instance = new TOFDistanceSensor();
-  }
-  return instance;
-}*/
 
 void init_frontDS(Rover* _myRover){
   sensor = new TOFDistanceSensor(_myRover);
@@ -156,18 +150,13 @@ void TOFDistanceSensor::distanceReading_routine(){
     bool objectClose = this->objectedDetected(this->current_reading);
     if(!objectClose){
     
-      //this->rover->force_stop_rover();
-      //this->rover->move_forward();
+      
       rover->objectNOTSensedSubroutine();
     } else {
       
-      //this->rover->force_stop_rover();
+      
       decideTurn(hysteresis_count);
 
-      //this->rover->rover_turn(90.0,true,false);
-      //this->rover->move_forward();
-      //this->rover->force_stop_rover();
-     
     }    
 
   }

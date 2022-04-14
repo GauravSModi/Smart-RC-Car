@@ -3,12 +3,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <common/utils.h>
-//#include <fstream>
-//#include <math.h>
-//#include <stdio.h>
-//#include <unistd.h>
-//#include <condition_variable>
-//#include <mutex>
+
 
 using namespace std;
 
@@ -20,27 +15,18 @@ using namespace std;
 #define OBJECT_DETECTION_DISTANCE 20
 #define DS2_HYSTERIA 5
 
-//std::mutex mtx;
-//std::condition_variable cv;
+
 bool keepMoving = true;
 
-//static SHARPDistanceSensor* instance=NULL;
-
-/*SHARPDistanceSensor* SHARPDistanceSensor::getInstance(){
-    if(instance==NULL){
-        instance=new SHARPDistanceSensor();
-    }
-    return instance;
-}*/
 
 SHARPDistanceSensor::SHARPDistanceSensor(){
     this->reading = 0;
-    //this->distance_readingThread = new std::thread(&SHARPDistanceSensor::AlertPassedObject,this);
+
 }
 
 SHARPDistanceSensor::~SHARPDistanceSensor()
 {
-    //this->distance_readingThread->join();
+    
 }
 unsigned int SHARPDistanceSensor::getVoltageValues(){
     this->sensorFD=fopen(A2D_FILE_VOLTAGE1,"r");
@@ -70,10 +56,6 @@ double SHARPDistanceSensor::pwlAlgorithm(double s,double a,double b,double m,dou
     return ret;
 }
 
-// static double power(double x, double y){
-//     double val=1.0;
-
-// }
 
 
 double SHARPDistanceSensor::getSensorValues(){
@@ -100,16 +82,14 @@ double SHARPDistanceSensor::getSensorValues(){
     }
 
     return ret;
-    //return correspondVoltage;
+  
 
 
 }
 
 bool SHARPDistanceSensor::AlertPassedObject(){
     
-   // std::unique_lock<std::mutex> lck(mtx);
-
-    //where should I put this?
+  
     int hystreria = 0;
     bool objectInsight = false;
     while(keepMoving) {
@@ -148,9 +128,3 @@ bool SHARPDistanceSensor::AlertPassedObject(){
     return true;
 }
 
-/*int main(int argc, char* argv[]){
-
-    SHARPDistanceSensor * dis= new SHARPDistanceSensor();
-    dis->AlertPassedObject();
-    return 0;
-}*/

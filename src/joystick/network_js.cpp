@@ -33,10 +33,6 @@ NetworkControls::NetworkControls(std::string remoteAddress){
   inet_pton(AF_INET, remoteAddress.c_str(), &(this->sinRemote.sin_addr));
   this->sinRemote.sin_port = htons(ROVER_PORT);
   
-  // // send to network module and recieve a message to handshake
-  // std::string response = this->sendMessage("alive");
-
-  // printf("Constructor Recieved: %s\n",response.c_str());
   
 }
 

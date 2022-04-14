@@ -188,14 +188,7 @@ JoystickDirection Joystick::getEpollInput(){
     }
   }  
 
-  /*
-  for(int i = 0; i < 4; i++){
-    
-    if(currEvents[i].events & EPOLLIN){
-      //result = JoystickDirection(i);
-      printf("event[%d]\n",i);
-    }
-  }*/
+ 
 
   // close epoll instance
   if(close(epollInstanceFd)){

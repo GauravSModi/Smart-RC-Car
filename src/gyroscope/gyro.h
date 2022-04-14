@@ -18,8 +18,7 @@ float get_zGyro_raw();
 
 // ======= YAW =========
 float getYaw();
-//float getAbsYaw();
-//static float prev_yaw = 0;
+
 void calculateAngle();
 //bool is90();
 
