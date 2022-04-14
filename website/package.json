@@ -5,11 +5,11 @@
   "license": "MIT",
   "dependencies": {
     "express": "^4.17.3",
-    "p5": "^1.4.1",
     "socket.io": "^4.4.1",
     "socket.io-client": "^4.4.1"
   },
   "devDependencies": {
+    "p5": "^1.4.1",
     "@types/animejs": "^3.1.4",
     "@types/express": "^4.17.13",
     "@types/jquery": "^3.5.14",

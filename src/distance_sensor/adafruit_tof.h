@@ -1,7 +1,7 @@
 #pragma once
 // referenced VL53L0X guide by
 // Irene Abrea, Heidi Tong and Joanna Niemczyk
-#include "distance_sensor.h"
+
 #include "rover/rover.h"
 #include <thread>
 
@@ -10,12 +10,11 @@ void clean_frontDS();
 bool frontDS_isActive();
 
 
-class TOFDistanceSensor : public DistanceSensor {
+class TOFDistanceSensor {
   int sensorFD;
   bool filterExtreme;
 
 public:
-  //static TOFDistanceSensor* getInstance();
   unsigned int getSensorValues();
   
   void setFilterExtremeValues(bool enable);
@@ -30,6 +29,7 @@ public:
 
 
   ~TOFDistanceSensor();
+  TOFDistanceSensor();
   TOFDistanceSensor(Rover* rover);
 
 private:

@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.10)
 # modules main requies to work
 set(MODULES ${MODULES} rover common network led gyro accelerometer distance_sensors)
 # enable testing [YES/NO]
-if (EXISTS "./.enableTest")
+if (EXISTS "./.enableTests")
   set(ENABLE_TEST YES)
 else()
   set(ENABLE_TEST NO)

@@ -40,6 +40,16 @@ bool frontDS_isActive(){
   return !sensor->shutdown;
 }
 
+TOFDistanceSensor::TOFDistanceSensor(){
+
+  this->configSensor();
+  this->sensorFD = initI2cBus(I2C_TOF_SENSOR_BUS,I2C_TOF_SENSOR_DEVICE);
+
+  this->setContinousSensing(true);
+  this->setFilterExtremeValues(true);
+}
+
+
 TOFDistanceSensor::TOFDistanceSensor(Rover* rover){
   this->shutdown = false;
 

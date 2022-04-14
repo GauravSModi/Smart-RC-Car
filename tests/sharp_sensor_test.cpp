@@ -7,15 +7,12 @@ using namespace std;
 
 int main(int argc, char* argv[]){
 
-    SHARPDistanceSensor * dis=SHARPDistanceSensor::getInstance();
+    SHARPDistanceSensor* dis= new SHARPDistanceSensor();
     while(1){
         //int i=dis->getVoltageValues();
         double i=dis->getSensorValues();
         cout<<i<<endl;
-        
     }
-
-
 
     return 0;
 }

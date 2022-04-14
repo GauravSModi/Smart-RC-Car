@@ -1,4 +1,3 @@
-#include <distance_sensor/distance_sensor.h>
 #include <distance_sensor/adafruit_tof.h>
 #include <iostream>
 #include <common/utils.h>
@@ -6,7 +5,7 @@
 #define PRINT_NOTHING_DETECTED_ONCE true
 
 void testConstructor(){
-  DistanceSensor* sensor = TOFDistanceSensor::getInstance();
+  TOFDistanceSensor* sensor = new TOFDistanceSensor();
   bool wasNothing = false;
   int counter = 0;
   while(true){
