@@ -3,16 +3,9 @@ Group project for CMPT 433 - A rover controlled remotely using multiple possible
 
 # Build
 ## using .sh scripts
-Two CMake build scripts provided in project root:
+CMake build scripts provided in project root for each part of the project:
 
-compile.sh
-```
-# make directory and compile at nfs-shared folder
-mkdir -p ~/cmpt433/public/project
-cmake -S . -B ~/cmpt433/public/project
-```
-
-compileAndMake.sh
+compileAndMake.sh: for the main c program
 ```
 # executes cmake and make
 # make directory and compile at nfs-shared folder
@@ -21,6 +14,21 @@ cmake -S . -B ~/cmpt433/public/project
 cd ~/cmpt433/public/project
 make
 ```
+
+compileNode.sh: for Node http server/client
+```
+cd ./website
+npm install
+npm run build
+rsync -av --exclude='README.md' ./ ~/cmpt433/public/project-web/
+```
+
+compileJoystick.sh: for seperate Joystick control module
+```
+cd ./src/joystick
+make
+```
+
 
 ## Using Cmake manually
 Build using command:
@@ -37,9 +45,13 @@ cd  ~/cmpt433/public/
 make
 ```
 
-## Using makefile
-
-run `make` in root directory
-
 # Build Dependecies
-toolchain-arm-linux-gnueabihf
+cross compilers for arm processors:
+```
+apt install gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+```
+
+wireless tools development headers:
+```
+apt install libiw-dev
+```
